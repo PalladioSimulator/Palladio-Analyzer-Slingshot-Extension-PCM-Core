@@ -11,7 +11,7 @@
 	<packaging>pom</packaging>
 	
 	<modules>
-		<!-- insert test folders here -->
+		<module>org.palladiosimulator.slingshot.tests</module>
 	</modules>
 	
 </project>

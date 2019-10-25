@@ -11,7 +11,7 @@
 	<packaging>pom</packaging>
 	
 	<modules>
-		<!-- insert bundle folders here -->
+		<module>org.palladiosimulator.slingshot</module>
 	</modules>
 	
 </project>
