@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests
+Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.tests
+Bundle-Version: 1.0.0.qualifier
+Fragment-Host: org.palladiosimulator.analyzer.slingshot;bundle-version="1.0.0"
+Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.tests
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.junit;bundle-version="4.12.0"
