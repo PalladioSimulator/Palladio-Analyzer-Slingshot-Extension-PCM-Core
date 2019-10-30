@@ -11,7 +11,7 @@
 	<packaging>pom</packaging>
 	
 	<modules>
-		<module>org.palladiosimulator.slingshot</module>
+		<module>org.palladiosimulator.analyzer.slingshot</module>
 	</modules>
 	
 </project>
