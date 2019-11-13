@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.palladiosimulator.analyzer.slingshot.repositories.UsageModelRepository;
+import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.ClosedWorkload;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
@@ -44,6 +45,11 @@ public class UsageModelRepositoryImpl implements UsageModelRepository {
 	@Override
 	public int findClosedWorkloadPopulation(ClosedWorkload workload) {
 		return workload.getPopulation();
+	}
+
+	@Override
+	public AbstractUserAction findFirstActionOf(UsageScenario scenario) {
+		return scenario.getScenarioBehaviour_UsageScenario().getActions_ScenarioBehaviour().get(0);
 	}
 
 	

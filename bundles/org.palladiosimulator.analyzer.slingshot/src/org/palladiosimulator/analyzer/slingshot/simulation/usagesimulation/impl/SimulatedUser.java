@@ -8,9 +8,9 @@ public class SimulatedUser {
 	private UsageScenario scenario;
 	private AbstractUserAction currentPosition;
 	
-	public SimulatedUser(final UsageScenario scenario) {
+	public SimulatedUser(final UsageScenario scenario, final AbstractUserAction currentPosition) {
 		this.scenario = scenario;
-		this.currentPosition = scenario.getScenarioBehaviour_UsageScenario().getActions_ScenarioBehaviour().get(0);
+		this.currentPosition = currentPosition;
 	}
 	
 

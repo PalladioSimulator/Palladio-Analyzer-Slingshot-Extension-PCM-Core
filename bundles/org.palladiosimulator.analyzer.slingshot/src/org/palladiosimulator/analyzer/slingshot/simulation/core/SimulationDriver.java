@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.repositories.UsageModelRepository;
 import org.palladiosimulator.analyzer.slingshot.repositories.impl.UsageModelRepositoryImpl;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.SimulatedUser;
+import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.ClosedWorkload;
 import org.palladiosimulator.pcm.usagemodel.OpenWorkload;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
@@ -61,7 +62,8 @@ public class SimulationDriver {
 	private List<SimulatedUser> createUsersForClosedWorkload(final UsageScenario scenario, final int population) {
 		List<SimulatedUser> simulatedUsers = new ArrayList<SimulatedUser>();
 		for (int i = 0; i < population; i++) {
-			SimulatedUser user = new SimulatedUser(scenario);
+			AbstractUserAction currentPosition = usageModelRepository.findFirstActionOf(scenario);
+			SimulatedUser user = new SimulatedUser(scenario, currentPosition);
 			simulatedUsers.add(user);
 		}
 		return simulatedUsers;
