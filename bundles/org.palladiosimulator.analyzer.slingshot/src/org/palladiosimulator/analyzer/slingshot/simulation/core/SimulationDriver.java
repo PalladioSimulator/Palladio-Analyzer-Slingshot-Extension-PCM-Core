@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.repositories.UsageModelRepository;
 import org.palladiosimulator.analyzer.slingshot.repositories.impl.UsageModelRepositoryImpl;
+import org.palladiosimulator.analyzer.slingshot.simulation.api.Simulation;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.SimulatedUser;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.ClosedWorkload;
@@ -14,7 +15,7 @@ import org.palladiosimulator.pcm.usagemodel.UsageModel;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 import org.palladiosimulator.pcm.usagemodel.Workload;
 
-public class SimulationDriver {
+public class SimulationDriver implements Simulation {
 	
 	private final Logger LOGGER = Logger.getLogger(SimulationDriver.class);
 	
@@ -44,6 +45,8 @@ public class SimulationDriver {
 				
 				simulatedUsers.addAll(createUsersForClosedWorkload(usageScenario, population));
 				LOGGER.info(String.format("Created '%s' users for closed workload simulation", simulatedUsers.size()));
+				
+				// schedule start event for users -> SimulationEngine.schedule(); -> hier schauen wie man AbstractSimEngine anstöpselt bzw. erstmal dummy classe
 				
 			} else if (workload instanceof OpenWorkload) {
 				LOGGER.info("Found open workload");

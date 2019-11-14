@@ -12,6 +12,8 @@
 	
 	<modules>
 		<module>org.palladiosimulator.analyzer.slingshot.feature</module>
+		<module>org.palladiosimulator.analyzer.slingshot.workflow.feature</module>
+		<module>org.palladiosimulator.analyzer.slingshot.ui.feature</module>
 	</modules>
 	
 </project>

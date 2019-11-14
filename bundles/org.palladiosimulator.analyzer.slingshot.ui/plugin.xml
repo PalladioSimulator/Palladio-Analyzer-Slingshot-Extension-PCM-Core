@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            delegate="org.palladiosimulator.analyzer.slingshot.workflow.launcher.SimulationLauncher"
+            id="org.palladiosimulator.analyzer.slingshot.ui.launchConfigurationType1"
+            modes="run, debug"
+            name="Slingshot Simulation"
+            public="true">
+      </launchConfigurationType>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            configTypeID="org.palladiosimulator.analyzer.slingshot.ui.launchConfigurationTypeImage1"
+            icon="icon/solver.ico"
+            id="org.palladiosimulator.analyzer.slingshot.ui.launchConfigurationTypeImage1">
+      </launchConfigurationTypeImage>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            class="org.palladiosimulator.analyzer.slingshot.ui.workflow.launcher.LaunchSimulationTabGroup"
+            id="org.palladiosimulator.analyzer.slingshot.ui.launchConfigurationTabGroup1"
+            type="org.palladiosimulator.analyzer.slingshot.ui.launchConfigurationType1">
+      </launchConfigurationTabGroup>
+   </extension>
+
+</plugin>
