@@ -1,4 +1,4 @@
-package org.palladiosimulator.analyzer.slingshot;
+package org.palladiosimulator.analyzer.slingshot.simulation.core;
 
 import static org.junit.Assert.assertEquals;
 
