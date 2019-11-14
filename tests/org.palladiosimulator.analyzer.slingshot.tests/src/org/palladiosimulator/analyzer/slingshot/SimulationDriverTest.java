@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.junit.Test;
+import org.palladiosimulator.analyzer.slingshot.helper.TestHelperConstants;
 import org.palladiosimulator.analyzer.slingshot.helper.UsageModelTestHelper;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationDriver;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationMonitoring;
@@ -18,8 +19,8 @@ public class SimulationDriverTest {
 	
 	@Test
 	public void testInitializeClosedWorkloadSimulationforSingleUser() {
-		Path path = Paths.get("C:\\dev\\repos\\git\\Mosaic\\palladio-analyzer-slingshot\\tests\\org.palladiosimulator.analyzer.slingshot.tests\\model\\closedWorkloadWithDelay.usagemodel");
-		UsageModel usageModel = UsageModelTestHelper.createUsageModelFromFile(path);
+		Path testModelPath = Paths.get(TestHelperConstants.TEST_MODEL_BASE_PATH + "closedWorkloadWithDelay.usagemodel");
+		UsageModel usageModel = UsageModelTestHelper.createUsageModelFromFile(testModelPath);
 
 		SimulationDriver driver = new SimulationDriver(usageModel);
 		

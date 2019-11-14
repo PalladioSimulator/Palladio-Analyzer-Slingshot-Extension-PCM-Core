@@ -1,16 +1,8 @@
 package org.palladiosimulator.analyzer.slingshot.helper;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Map;
 
-import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationModel;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulizarSimulationModel;
+import org.palladiosimulator.analyzer.slingshot.common.serialization.load.UsageModelFileLoader;
 import org.palladiosimulator.pcm.core.PCMRandomVariable;
 import org.palladiosimulator.pcm.usagemodel.ClosedWorkload;
 import org.palladiosimulator.pcm.usagemodel.Delay;
@@ -24,13 +16,9 @@ public class UsageModelTestHelper extends AbstractModelTestHelper {
 	
 	
 	public static UsageModel createUsageModelFromFile(final Path filePath) {
-		
-		EMFResourceSetInitializerTestHelper.initEMF();
-		
-		ResourceSet resourceSet = new ResourceSetImpl();
-		URI fileURI = URI.createFileURI(filePath.toString());
-		Resource usageModelResource = resourceSet.getResource(fileURI, true);
-		return (UsageModel)usageModelResource.getContents().get(0);
+		UsageModelFileLoader loader = new UsageModelFileLoader();
+		UsageModel usageModel = loader.load(filePath);
+		return usageModel;
 	}
 
 	public static UsageModel createClosedWorkloadUsagModelWithDelay(final int population, final double thinkTimeSpecification) {
