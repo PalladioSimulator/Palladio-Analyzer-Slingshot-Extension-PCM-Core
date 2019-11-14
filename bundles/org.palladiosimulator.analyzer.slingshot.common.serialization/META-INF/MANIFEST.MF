@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Serialization
+Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.common.serialization
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.common.serialization
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.palladiosimulator.pcm,
+ org.palladiosimulator.analyzer.slingshot.common.constants
+Export-Package: org.palladiosimulator.analyzer.slingshot.common.serialization.load
