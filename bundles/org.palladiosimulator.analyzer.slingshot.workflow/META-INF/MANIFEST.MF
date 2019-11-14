@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Workflow
+Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.workflow
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.workflow
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: de.uka.ipd.sdq.workflow,
+ org.palladiosimulator.analyzer.workflow,
+ de.uka.ipd.sdq.codegen.simucontroller
+Export-Package: org.palladiosimulator.analyzer.slingshot.workflow.api,
+ org.palladiosimulator.analyzer.slingshot.workflow.launcher
