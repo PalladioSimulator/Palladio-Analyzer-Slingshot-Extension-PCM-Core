@@ -4,5 +4,7 @@ public interface Simulation {
 
 	void init();
 	
+	void startSimulation();
+	
 	
 }

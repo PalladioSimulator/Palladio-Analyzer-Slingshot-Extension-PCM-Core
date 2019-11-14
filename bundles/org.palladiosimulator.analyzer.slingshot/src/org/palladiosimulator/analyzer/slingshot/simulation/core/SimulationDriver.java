@@ -7,6 +7,8 @@ import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.repositories.UsageModelRepository;
 import org.palladiosimulator.analyzer.slingshot.repositories.impl.UsageModelRepositoryImpl;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.Simulation;
+import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngine;
+import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.SimulatedUser;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.ClosedWorkload;
@@ -21,12 +23,13 @@ public class SimulationDriver implements Simulation {
 	
 	private List<SimulatedUser> simulatedUsers;
 	private UsageModelRepository usageModelRepository;
+	private SimulationEngine simEngine;
 	
 	
-	public SimulationDriver(final UsageModel usageModel) {
+	public SimulationDriver(SimulationEngine simEngine, final UsageModel usageModel) {
 		this.simulatedUsers = new ArrayList<SimulatedUser>();
+		this.simEngine = simEngine;
 		this.usageModelRepository = new UsageModelRepositoryImpl(usageModel);
-		this.simulatedUsers = new ArrayList<SimulatedUser>();
 	}
 
 	public void init() {
@@ -46,7 +49,7 @@ public class SimulationDriver implements Simulation {
 				simulatedUsers.addAll(createUsersForClosedWorkload(usageScenario, population));
 				LOGGER.info(String.format("Created '%s' users for closed workload simulation", simulatedUsers.size()));
 				
-				// schedule start event for users -> SimulationEngine.schedule(); -> hier schauen wie man AbstractSimEngine anstöpselt bzw. erstmal dummy classe
+				scheduleUserStartEvents();
 				
 			} else if (workload instanceof OpenWorkload) {
 				LOGGER.info("Found open workload");
@@ -62,11 +65,26 @@ public class SimulationDriver implements Simulation {
 	}
 	
 	
+	public void startSimulation() {
+		simEngine.start();
+		LOGGER.info("Ssimulation driver is running ......");
+	}
+	
+	
+	private void scheduleUserStartEvents() {
+		for (SimulatedUser simulatedUser : simulatedUsers) {
+			DESEvent startUserEvent = new StartUserEvent(simulatedUser);
+			// schedule start event for users -> SimulationEngine.schedule(); -> hier schauen wie man AbstractSimEngine anstöpselt bzw. erstmal dummy classe
+			simEngine.scheduleEvent(startUserEvent );
+		}
+		
+	}
+
 	private List<SimulatedUser> createUsersForClosedWorkload(final UsageScenario scenario, final int population) {
 		List<SimulatedUser> simulatedUsers = new ArrayList<SimulatedUser>();
 		for (int i = 0; i < population; i++) {
 			AbstractUserAction currentPosition = usageModelRepository.findFirstActionOf(scenario);
-			SimulatedUser user = new SimulatedUser(scenario, currentPosition);
+			SimulatedUser user = new SimulatedUser(currentPosition.getEntityName(), scenario, currentPosition, usageModelRepository);
 			simulatedUsers.add(user);
 		}
 		return simulatedUsers;

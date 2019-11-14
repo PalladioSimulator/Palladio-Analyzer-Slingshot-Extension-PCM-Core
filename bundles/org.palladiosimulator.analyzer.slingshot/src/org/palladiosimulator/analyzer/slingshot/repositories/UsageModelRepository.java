@@ -19,5 +19,7 @@ public interface UsageModelRepository {
 	int findClosedWorkloadPopulation(final ClosedWorkload workload);
 	
 	AbstractUserAction findFirstActionOf(final UsageScenario usageScenario);
+
+	AbstractUserAction findNextAction(UsageScenario scenario, AbstractUserAction currentPosition);
 	
 }

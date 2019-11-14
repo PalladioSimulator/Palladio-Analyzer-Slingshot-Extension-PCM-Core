@@ -52,5 +52,30 @@ public class UsageModelRepositoryImpl implements UsageModelRepository {
 		return scenario.getScenarioBehaviour_UsageScenario().getActions_ScenarioBehaviour().get(0);
 	}
 
+	@Override
+	public AbstractUserAction findNextAction(UsageScenario scenario, AbstractUserAction currentPosition) {
+		UsageScenario usageScenario = findUsageScenarioBy(scenario.getId());
+		
+		EList<AbstractUserAction> actions = usageScenario.getScenarioBehaviour_UsageScenario().getActions_ScenarioBehaviour();
+		for (AbstractUserAction action : actions) {
+			if (action.getId().equals(currentPosition.getId())) {
+				return action.getSuccessor();
+			}
+		}
+		// no more actions available
+		return null;
+	}
+
+	
+	public UsageScenario findUsageScenarioBy(final String scenarioId) {
+		EList<UsageScenario> usageScenarios = usageModel.getUsageScenario_UsageModel();
+		for (UsageScenario usageScenario : usageScenarios) {
+			if (usageScenario.getId().equals(scenarioId)) {
+				return usageScenario;
+			}
+		}
+		// FIXME: throw Exception if scenario not found
+		return null;
+	}
 	
 }

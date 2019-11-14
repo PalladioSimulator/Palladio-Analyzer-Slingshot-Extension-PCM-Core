@@ -37,6 +37,7 @@ public class SimulationJob implements IBlackboardInteractingJob<MDSDBlackboard> 
 		Simulation simulation = SimulationFactory.createSimulation(usageModel);
 		
 		simulation.init();
+		simulation.startSimulation();
 		
 		LOGGER.info("**** SimulationJob.execute  - Done ****");
 	}

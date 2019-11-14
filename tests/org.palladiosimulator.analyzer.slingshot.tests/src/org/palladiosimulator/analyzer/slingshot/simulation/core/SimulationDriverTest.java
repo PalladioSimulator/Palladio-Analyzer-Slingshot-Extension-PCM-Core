@@ -22,7 +22,7 @@ public class SimulationDriverTest {
 		Path testModelPath = Paths.get(TestHelperConstants.TEST_MODEL_BASE_PATH + "closedWorkloadWithDelay.usagemodel");
 		UsageModel usageModel = UsageModelTestHelper.createUsageModelFromFile(testModelPath);
 
-		SimulationDriver driver = new SimulationDriver(usageModel);
+		SimulationDriver driver = new SimulationDriver(null, usageModel);
 		
 		driver.init();
 		
