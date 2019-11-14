@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.palladiosimulator.analyzer.slingshot.workflow.api.SimulationWorkflowConfigurationConstants;
+import org.palladiosimulator.analyzer.slingshot.common.constants.model.ModelFileTypeConstants;
 import org.palladiosimulator.analyzer.slingshot.workflow.configuration.ArchitecturalModelsConfiguration;
 import org.palladiosimulator.analyzer.slingshot.workflow.configuration.SimulationWorkflowConfiguration;
 import org.palladiosimulator.analyzer.slingshot.workflow.launcher.jobs.SimulationRootJob;
@@ -54,9 +54,9 @@ public class SimulationLauncher extends AbstractPCMLaunchConfigurationDelegate<S
 			}
 			
 			ArchitecturalModelsConfiguration architecturalModels = new ArchitecturalModelsConfiguration(
-					(String) launchConfigurationParams.get(SimulationWorkflowConfigurationConstants.USAGE_FILE)
-					, Arrays.asList((String) launchConfigurationParams.get(SimulationWorkflowConfigurationConstants.ALLOCATION_FILE))
-					, (String) launchConfigurationParams.get(SimulationWorkflowConfigurationConstants.MONITOR_REPOSITORY_FILE));
+					(String) launchConfigurationParams.get(ModelFileTypeConstants.USAGE_FILE)
+					, Arrays.asList((String) launchConfigurationParams.get(ModelFileTypeConstants.ALLOCATION_FILE))
+					, (String) launchConfigurationParams.get(ModelFileTypeConstants.MONITOR_REPOSITORY_FILE));
 			
 			workflowConfiguration = new SimulationWorkflowConfiguration(architecturalModels);
 			

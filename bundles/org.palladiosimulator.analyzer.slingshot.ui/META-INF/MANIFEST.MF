@@ -8,4 +8,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.eclipse.debug.ui,
  org.eclipse.swt,
  de.uka.ipd.sdq.workflow.launchconfig,
- org.palladiosimulator.analyzer.slingshot.workflow
+ org.palladiosimulator.analyzer.slingshot.common.constants;bundle-version="1.0.0",
+ org.palladiosimulator.analyzer.slingshot.workflow;bundle-version="1.0.0"

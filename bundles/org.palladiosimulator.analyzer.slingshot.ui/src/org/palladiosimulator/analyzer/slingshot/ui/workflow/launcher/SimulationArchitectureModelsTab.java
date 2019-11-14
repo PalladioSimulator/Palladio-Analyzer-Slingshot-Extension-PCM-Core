@@ -11,7 +11,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
-import org.palladiosimulator.analyzer.slingshot.workflow.api.SimulationWorkflowConfigurationConstants;
+import org.palladiosimulator.analyzer.slingshot.common.constants.model.ModelFileTypeConstants;
 import de.uka.ipd.sdq.workflow.launchconfig.ImageRegistryHelper;
 import de.uka.ipd.sdq.workflow.launchconfig.LaunchConfigPlugin;
 import de.uka.ipd.sdq.workflow.launchconfig.tabs.TabHelper;
@@ -48,13 +48,13 @@ public class SimulationArchitectureModelsTab extends AbstractLaunchConfiguration
 		
 		textAllocation = new Text(container, SWT.SINGLE | SWT.BORDER);
 		TabHelper.createFileInputSection(container, modifyListener, "Allocation File"
-				, SimulationWorkflowConfigurationConstants.ALLOCATION_EXTENSION, textAllocation, "Select Allocation File", getShell(), SimulationWorkflowConfigurationConstants.EMPTY_STRING);
+				, ModelFileTypeConstants.ALLOCATION_FILE_EXTENSION, textAllocation, "Select Allocation File", getShell(), ModelFileTypeConstants.EMPTY_STRING);
 		textUsage = new Text(container, SWT.SINGLE | SWT.BORDER);
 		TabHelper.createFileInputSection(container, modifyListener, "Usage File"
-				, SimulationWorkflowConfigurationConstants.USAGEMODEL_EXTENSION, textUsage, "Select Usage File", getShell(), SimulationWorkflowConfigurationConstants.EMPTY_STRING);
+				, ModelFileTypeConstants.USAGEMODEL_FILE_EXTENSION, textUsage, "Select Usage File", getShell(), ModelFileTypeConstants.EMPTY_STRING);
 //		textMonitorRepository = new Text(container, SWT.SINGLE | SWT.BORDER);
 //		TabHelper.createFileInputSection(container, modifyListener, "MonitorRepository File"
-//				, SimulationWorkflowConfigurationConstants.MONITOR_REPOSITORY_EXTENSION, textMonitorRepository, "Select MonitorRepository File", getShell(), SimulationWorkflowConfigurationConstants.EMPTY_STRING);
+//				, ModelFileTypeConstants.MONITOR_REPOSITORY_EXTENSION, textMonitorRepository, "Select MonitorRepository File", getShell(), ModelFileTypeConstants.EMPTY_STRING);
 		
 	}
 
@@ -67,17 +67,17 @@ public class SimulationArchitectureModelsTab extends AbstractLaunchConfiguration
 	@Override
 	public void initializeFrom(ILaunchConfiguration configuration) {
 		try {
-			textAllocation.setText(configuration.getAttribute(SimulationWorkflowConfigurationConstants.ALLOCATION_FILE, SimulationWorkflowConfigurationConstants.EMPTY_STRING));
+			textAllocation.setText(configuration.getAttribute(ModelFileTypeConstants.ALLOCATION_FILE, ModelFileTypeConstants.EMPTY_STRING));
 		} catch (CoreException e) {
 			LaunchConfigPlugin.errorLogger(getName(),"Allocation File", e.getMessage());
 		}
 		try {
-			textUsage.setText(configuration.getAttribute(SimulationWorkflowConfigurationConstants.USAGE_FILE, SimulationWorkflowConfigurationConstants.EMPTY_STRING));
+			textUsage.setText(configuration.getAttribute(ModelFileTypeConstants.USAGE_FILE, ModelFileTypeConstants.EMPTY_STRING));
 		} catch (CoreException e) {
 			LaunchConfigPlugin.errorLogger(getName(),"Usage File", e.getMessage());
 		}
 //		try {
-//			textMonitorRepository.setText(configuration.getAttribute(SimulationWorkflowConfigurationConstants.MONITOR_REPOSITORY_FILE, SimulationWorkflowConfigurationConstants.EMPTY_STRING));
+//			textMonitorRepository.setText(configuration.getAttribute(ModelFileTypeConstants.MONITOR_REPOSITORY_FILE, ModelFileTypeConstants.EMPTY_STRING));
 //		} catch (CoreException e) {
 //			LaunchConfigPlugin.errorLogger(getName(),"MonitorRepository File", e.getMessage());
 //		}
@@ -86,9 +86,9 @@ public class SimulationArchitectureModelsTab extends AbstractLaunchConfiguration
 
 	@Override
 	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-		configuration.setAttribute(SimulationWorkflowConfigurationConstants.ALLOCATION_FILE, textAllocation.getText());
-		configuration.setAttribute(SimulationWorkflowConfigurationConstants.USAGE_FILE, textUsage.getText());
-//		configuration.setAttribute(SimulationWorkflowConfigurationConstants.MONITOR_REPOSITORY_FILE, textMonitorRepository.getText());
+		configuration.setAttribute(ModelFileTypeConstants.ALLOCATION_FILE, textAllocation.getText());
+		configuration.setAttribute(ModelFileTypeConstants.USAGE_FILE, textUsage.getText());
+//		configuration.setAttribute(ModelFileTypeConstants.MONITOR_REPOSITORY_FILE, textMonitorRepository.getText());
 	}
 	
 	
@@ -96,15 +96,15 @@ public class SimulationArchitectureModelsTab extends AbstractLaunchConfiguration
 	public boolean isValid(ILaunchConfiguration launchConfig){
 		setErrorMessage(null);
 
-		if (!TabHelper.validateFilenameExtension(textAllocation.getText(), SimulationWorkflowConfigurationConstants.ALLOCATION_EXTENSION)) {
+		if (!TabHelper.validateFilenameExtension(textAllocation.getText(), ModelFileTypeConstants.ALLOCATION_FILE_EXTENSION)) {
 			setErrorMessage("Allocation is missing.");
 			return false;
 		}
-		if (!TabHelper.validateFilenameExtension(textUsage.getText(), SimulationWorkflowConfigurationConstants.USAGEMODEL_EXTENSION)) {
+		if (!TabHelper.validateFilenameExtension(textUsage.getText(), ModelFileTypeConstants.USAGEMODEL_FILE_EXTENSION)) {
 			setErrorMessage("Usage is missing.");
 			return false;
 		}
-//		if (!TabHelper.validateFilenameExtension(textMonitorRepository.getText(), SimulationWorkflowConfigurationConstants.MONITOR_REPOSITORY_EXTENSION)) {
+//		if (!TabHelper.validateFilenameExtension(textMonitorRepository.getText(), ModelFileTypeConstants.MONITOR_REPOSITORY_EXTENSION)) {
 //			setErrorMessage("Monitor Repository is missing.");
 //			return false;
 //		}
