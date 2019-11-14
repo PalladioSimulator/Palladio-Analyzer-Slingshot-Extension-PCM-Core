@@ -11,6 +11,8 @@
 	<packaging>pom</packaging>
 	
 	<modules>
+		<module>org.palladiosimulator.analyzer.slingshot.common.constants</module>
+		<module>org.palladiosimulator.analyzer.slingshot.common.serialization</module>
 		<module>org.palladiosimulator.analyzer.slingshot</module>
 		<module>org.palladiosimulator.analyzer.slingshot.workflow</module>
 		<module>org.palladiosimulator.analyzer.slingshot.ui</module>
