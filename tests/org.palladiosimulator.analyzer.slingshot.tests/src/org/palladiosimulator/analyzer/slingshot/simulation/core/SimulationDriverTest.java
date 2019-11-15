@@ -1,6 +1,7 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.core;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,6 +17,8 @@ import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationMonito
 import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngine;
 import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngineMock;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.SimulatedUserProvider;
+import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.UsageSimulation;
+import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.UsageSimulationImpl;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
@@ -24,25 +27,30 @@ public class SimulationDriverTest {
 	
 	private static final Path testModelPath = Paths.get(TestHelperConstants.TEST_MODEL_BASE_PATH + "closedWorkloadWithDelay.usagemodel");
 	
+	private SimulationDriver driver;
+	
 	private SimulationEngine simEngine;
 	private SimulatedUserProvider simulatedUsersProvider;
 	private UsageModelRepository usageModelRepository;
 	private UsageModel usageModel;
+
+	private UsageSimulation usageSimulation;
 	
 	@Before
 	public void setUp() {
-		usageModel = UsageModelTestHelper.createUsageModelFromFile(testModelPath);
 		usageModelRepository = new UsageModelRepositoryImpl(usageModel);
-		simulatedUsersProvider = new SimulatedUserProvider(usageModelRepository);
+		simulatedUsersProvider = new SimulatedUserProvider();
+		usageSimulation = new UsageSimulationImpl(usageModelRepository, simulatedUsersProvider);
 		simEngine = new SimulationEngineMock();
+		driver = new SimulationDriver(usageSimulation, simEngine);
 	}
 
 	
 	@Test
 	public void testInitializeClosedWorkloadSimulationforSingleUser() {
-		SimulationDriver driver = new SimulationDriver(simulatedUsersProvider, simEngine);
-		
-		driver.init();
+		usageModel = UsageModelTestHelper.createUsageModelFromFile(testModelPath);
+
+		driver.init(usageModel);
 		
 		SimulationMonitoring simulationStatus = driver.monitorSimulation();
 		assertEquals("Failed to initialize closed workload simulation for single user", simulationStatus.getSimulatedUsers().size(), 1);
@@ -51,8 +59,7 @@ public class SimulationDriverTest {
 		assertEquals("Failed to initialize simulated scenario for single user", simulationStatus.getSimulatedUsers().get(0).currentScenario(), expectedScenario);
 		assertEquals("Failed to initialize start position within scenario for single user", simulationStatus.getSimulatedUsers().get(0).currentPosition()
 				, expectedScenario.getScenarioBehaviour_UsageScenario().getActions_ScenarioBehaviour().get(0));
-
-		// start event is scheduled
+		assertTrue("Failed to schedule initial startEvent for single user", simEngine.hasScheduledEvents());
 	}
 
 }

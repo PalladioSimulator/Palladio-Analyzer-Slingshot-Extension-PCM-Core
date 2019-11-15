@@ -35,11 +35,19 @@ public class SimulationEngineMock implements SimulationEngine {
 		
 		while(!futureEventList.isEmpty()) {
 			DESEvent nextEvent = futureEventList.remove(0);
-			LOGGER.info(String.format("*** Handle event '%s'", nextEvent.getId().toString()));
+			LOGGER.info(String.format("*** Handle event ['%s']", nextEvent.getId()));
 			nextEvent.handle();
 		}
 		
 		LOGGER.info("********** SimulationEngineMock.start ---  finished due to empty FEL *********");
+	}
+
+	@Override
+	public boolean hasScheduledEvents() {
+		if (!futureEventList.isEmpty()) {
+			return true;
+		}
+		return false;
 	}
 
 

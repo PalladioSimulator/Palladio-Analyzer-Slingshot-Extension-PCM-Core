@@ -19,12 +19,16 @@ public class SimulatedUserProvider {
 	private UsageModelRepository usageModelRepository;
 	
 	
-	public SimulatedUserProvider(final UsageModelRepository usageModelRepository) {
+	public void initializeRepository(UsageModelRepository usageModelRepository) {
 		this.usageModelRepository = usageModelRepository;
 	}
 	
-	
-	public List<SimulatedUser> createClosedWorkloadSimulatedUsers() {
+	public List<SimulatedUser> createSimulatedUsers() {
+		if (usageModelRepository == null) {
+			LOGGER.error("UsageModelRepository was not initialized. No usage model available to create simulated users");
+			return new ArrayList<SimulatedUser>();
+		}
+		
 		// parse usage model
 		List<UsageScenario> usageScenarios = usageModelRepository.findAllUsageScenarios();
 		
@@ -60,5 +64,6 @@ public class SimulatedUserProvider {
 		}
 		return simulatedUsers;
 	}
+
 
 }

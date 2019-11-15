@@ -12,4 +12,6 @@ public interface SimulationEngine {
 	// returns the simulated time
 	void getTime();
 
+	boolean hasScheduledEvents();
+
 }

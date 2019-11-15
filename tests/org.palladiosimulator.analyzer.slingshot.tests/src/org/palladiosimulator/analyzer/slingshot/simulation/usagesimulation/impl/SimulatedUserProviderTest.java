@@ -27,22 +27,25 @@ public class SimulatedUserProviderTest {
 		usageModel = UsageModelTestHelper.createUsageModelFromFile(testModelPath);
 		
 		usageModelRepository = new UsageModelRepositoryImpl(usageModel);
-		provider = new SimulatedUserProvider(usageModelRepository);
+		usageModelRepository.load(usageModel);
+		provider = new SimulatedUserProvider();
 	}
 
 	@Test
 	public void testCreateSingleClosedWorkloadSimulatedUserForScenario() {
-		List<SimulatedUser> simulatedUsers = provider.createClosedWorkloadSimulatedUsers();
+		provider.initializeRepository(usageModelRepository);
+		List<SimulatedUser> simulatedUsers = provider.createSimulatedUsers();
 		assertEquals("Failed to create simulated user for scenario", simulatedUsers.size(), 1);
 	}
 
 	@Test
 	public void createMultipleClosedWorkloadSimulatedUsersForScenario() {
+		provider.initializeRepository(usageModelRepository);
 		// set population to 2
 		int population = 2;
 		ClosedWorkload workload = (ClosedWorkload) usageModel.getUsageScenario_UsageModel().get(0).getWorkload_UsageScenario();
 		workload.setPopulation(population);
-		List<SimulatedUser> simulatedUsers = provider.createClosedWorkloadSimulatedUsers();
+		List<SimulatedUser> simulatedUsers = provider.createSimulatedUsers();
 		
 		assertEquals("Failed to create simulated user for scenario", simulatedUsers.size(), 2);
 	}
