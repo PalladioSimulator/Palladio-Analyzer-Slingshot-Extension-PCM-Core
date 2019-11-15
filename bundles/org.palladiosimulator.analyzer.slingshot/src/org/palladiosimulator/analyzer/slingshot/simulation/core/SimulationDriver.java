@@ -67,7 +67,7 @@ public class SimulationDriver implements Simulation {
 	
 	public void startSimulation() {
 		simEngine.start();
-		LOGGER.info("Ssimulation driver is running ......");
+		LOGGER.info("Simulation driver is running ......");
 	}
 	
 	
