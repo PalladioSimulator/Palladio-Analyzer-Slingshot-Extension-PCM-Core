@@ -21,8 +21,9 @@ public class StartUserEvent implements DESEvent {
 
 	@Override
 	public void handle() {
-		// TODO Auto-generated method stub
 		// notify listener of simualted user to identify and schedule the next event
+		// or should overall simulation orchestrator be notified ?
+		// FIXME: currently the next event are not scheduled
 		simulatedUser.nextEvent();
 	}
 

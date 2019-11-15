@@ -60,6 +60,8 @@ public class SimulatedUser {
 			
 		}
 		
+		// notify simulation driver to schedule next event
+		
 	}
 
 }

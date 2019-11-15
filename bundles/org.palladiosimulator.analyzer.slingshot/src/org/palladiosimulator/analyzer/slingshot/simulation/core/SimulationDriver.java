@@ -16,6 +16,14 @@ public class SimulationDriver implements Simulation {
 	private final Logger LOGGER = Logger.getLogger(SimulationDriver.class);
 	
 	//FIXME: part of UsageSimulation or part of simulationDriver ?
+	
+	/**
+	 * List of simulated users that are 'moved' through the system during 
+	 * simulation
+	 * 
+	 * A SimulationUser always knows which scenario, which position within the scenario and which position within the system (callstack)
+	 * 
+	 * */
 	private List<SimulatedUser> simulatedUsers;
 	
 	private UsageSimulation usageSimulation;
