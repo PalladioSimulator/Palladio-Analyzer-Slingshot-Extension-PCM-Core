@@ -9,31 +9,38 @@ import org.junit.Before;
 import org.junit.Test;
 import org.palladiosimulator.analyzer.slingshot.helper.TestHelperConstants;
 import org.palladiosimulator.analyzer.slingshot.helper.UsageModelTestHelper;
+import org.palladiosimulator.analyzer.slingshot.repositories.UsageModelRepository;
+import org.palladiosimulator.analyzer.slingshot.repositories.impl.UsageModelRepositoryImpl;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationDriver;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationMonitoring;
 import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngine;
 import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngineMock;
+import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.SimulatedUserProvider;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
 
 public class SimulationDriverTest {
 	
+	private static final Path testModelPath = Paths.get(TestHelperConstants.TEST_MODEL_BASE_PATH + "closedWorkloadWithDelay.usagemodel");
 	
 	private SimulationEngine simEngine;
+	private SimulatedUserProvider simulatedUsersProvider;
+	private UsageModelRepository usageModelRepository;
+	private UsageModel usageModel;
 	
 	@Before
 	public void setUp() {
+		usageModel = UsageModelTestHelper.createUsageModelFromFile(testModelPath);
+		usageModelRepository = new UsageModelRepositoryImpl(usageModel);
+		simulatedUsersProvider = new SimulatedUserProvider(usageModelRepository);
 		simEngine = new SimulationEngineMock();
 	}
 
 	
 	@Test
 	public void testInitializeClosedWorkloadSimulationforSingleUser() {
-		Path testModelPath = Paths.get(TestHelperConstants.TEST_MODEL_BASE_PATH + "closedWorkloadWithDelay.usagemodel");
-		UsageModel usageModel = UsageModelTestHelper.createUsageModelFromFile(testModelPath);
-
-		SimulationDriver driver = new SimulationDriver(simEngine, usageModel);
+		SimulationDriver driver = new SimulationDriver(simulatedUsersProvider, simEngine);
 		
 		driver.init();
 		

@@ -1,8 +1,7 @@
-package org.palladiosimulator.analyzer.slingshot.simulation.core;
+package org.palladiosimulator.analyzer.slingshot.simulation.events;
 
 import java.util.UUID;
 
-import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.SimulatedUser;
 
 public class StartUserEvent implements DESEvent {

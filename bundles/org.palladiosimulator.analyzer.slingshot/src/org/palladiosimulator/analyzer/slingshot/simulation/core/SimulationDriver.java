@@ -4,62 +4,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.palladiosimulator.analyzer.slingshot.repositories.UsageModelRepository;
-import org.palladiosimulator.analyzer.slingshot.repositories.impl.UsageModelRepositoryImpl;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.Simulation;
 import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngine;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.events.StartUserEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.SimulatedUser;
-import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
-import org.palladiosimulator.pcm.usagemodel.ClosedWorkload;
-import org.palladiosimulator.pcm.usagemodel.OpenWorkload;
-import org.palladiosimulator.pcm.usagemodel.UsageModel;
-import org.palladiosimulator.pcm.usagemodel.UsageScenario;
-import org.palladiosimulator.pcm.usagemodel.Workload;
+import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.SimulatedUserProvider;
 
 public class SimulationDriver implements Simulation {
 	
 	private final Logger LOGGER = Logger.getLogger(SimulationDriver.class);
 	
 	private List<SimulatedUser> simulatedUsers;
-	private UsageModelRepository usageModelRepository;
+	
 	private SimulationEngine simEngine;
+	private SimulatedUserProvider simulatedUsersProvider;
 	
 	
-	public SimulationDriver(SimulationEngine simEngine, final UsageModel usageModel) {
+	public SimulationDriver(final SimulatedUserProvider simulatedUsersProvider, final SimulationEngine simEngine) {
 		this.simulatedUsers = new ArrayList<SimulatedUser>();
 		this.simEngine = simEngine;
-		this.usageModelRepository = new UsageModelRepositoryImpl(usageModel);
+		this.simulatedUsersProvider = simulatedUsersProvider;
 	}
 
 	public void init() {
 		LOGGER.info("Start simulation driver initialization.");
 		
-		// parse usage model
-		List<UsageScenario> usageScenarios = usageModelRepository.findAllUsageScenarios();
+		simulatedUsers.addAll(simulatedUsersProvider.createClosedWorkloadSimulatedUsers());
+		LOGGER.info(String.format("Created '%s' users for closed workload simulation", simulatedUsers.size()));
 		
-		for (UsageScenario usageScenario : usageScenarios) {
-			Workload workload = usageModelRepository.findWorkloadForUsageScenario(usageScenario);
-			
-			if (workload instanceof ClosedWorkload ) {
-				LOGGER.info("Found closed workload");
-				ClosedWorkload closedWorkload = (ClosedWorkload) workload;
-				int population = closedWorkload.getPopulation();
-				
-				simulatedUsers.addAll(createUsersForClosedWorkload(usageScenario, population));
-				LOGGER.info(String.format("Created '%s' users for closed workload simulation", simulatedUsers.size()));
-				
-				scheduleUserStartEvents();
-				
-			} else if (workload instanceof OpenWorkload) {
-				LOGGER.info("Found open workload");
-				LOGGER.info("FIXME: Open workload simulation currently not implemented.");
-				
-			} else {
-				LOGGER.info("Found undefined workload");
-			}
-			
-		}
+		scheduleUserStartEvents();
 		
 		LOGGER.info("Finished simulation driver initialization.");
 	}
@@ -78,16 +52,6 @@ public class SimulationDriver implements Simulation {
 			simEngine.scheduleEvent(startUserEvent );
 		}
 		
-	}
-
-	private List<SimulatedUser> createUsersForClosedWorkload(final UsageScenario scenario, final int population) {
-		List<SimulatedUser> simulatedUsers = new ArrayList<SimulatedUser>();
-		for (int i = 0; i < population; i++) {
-			AbstractUserAction currentPosition = usageModelRepository.findFirstActionOf(scenario);
-			SimulatedUser user = new SimulatedUser(currentPosition.getEntityName(), scenario, currentPosition, usageModelRepository);
-			simulatedUsers.add(user);
-		}
-		return simulatedUsers;
 	}
 
 	public SimulationMonitoring monitorSimulation() {
