@@ -5,16 +5,27 @@ import static org.junit.Assert.assertEquals;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.palladiosimulator.analyzer.slingshot.helper.TestHelperConstants;
 import org.palladiosimulator.analyzer.slingshot.helper.UsageModelTestHelper;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationDriver;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationMonitoring;
+import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngine;
+import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngineMock;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
 
 public class SimulationDriverTest {
+	
+	
+	private SimulationEngine simEngine;
+	
+	@Before
+	public void setUp() {
+		simEngine = new SimulationEngineMock();
+	}
 
 	
 	@Test
@@ -22,7 +33,7 @@ public class SimulationDriverTest {
 		Path testModelPath = Paths.get(TestHelperConstants.TEST_MODEL_BASE_PATH + "closedWorkloadWithDelay.usagemodel");
 		UsageModel usageModel = UsageModelTestHelper.createUsageModelFromFile(testModelPath);
 
-		SimulationDriver driver = new SimulationDriver(null, usageModel);
+		SimulationDriver driver = new SimulationDriver(simEngine, usageModel);
 		
 		driver.init();
 		
