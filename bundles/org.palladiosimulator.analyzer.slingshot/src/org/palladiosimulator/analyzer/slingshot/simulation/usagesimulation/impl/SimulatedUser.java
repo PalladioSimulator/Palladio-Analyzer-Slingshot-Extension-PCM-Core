@@ -4,6 +4,8 @@ import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.repositories.UsageModelRepository;
+import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.events.EventObserver;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.Delay;
 import org.palladiosimulator.pcm.usagemodel.Stop;

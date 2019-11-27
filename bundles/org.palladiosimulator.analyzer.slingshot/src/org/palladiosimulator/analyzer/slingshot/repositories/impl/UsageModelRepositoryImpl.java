@@ -9,6 +9,7 @@ import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.ClosedWorkload;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
+import org.palladiosimulator.pcm.usagemodel.UsagemodelFactory;
 import org.palladiosimulator.pcm.usagemodel.Workload;
 
 public class UsageModelRepositoryImpl implements UsageModelRepository {
@@ -17,8 +18,8 @@ public class UsageModelRepositoryImpl implements UsageModelRepository {
 	
 	private UsageModel usageModel;
 
-	public UsageModelRepositoryImpl(final UsageModel usageModel) {
-		this.usageModel = usageModel;
+	public UsageModelRepositoryImpl() {
+		this.usageModel = UsagemodelFactory.eINSTANCE.createUsageModel();
 	}
 
 	public List<UsageScenario> findAllUsageScenarios() {

@@ -26,7 +26,7 @@ public class SimulatedUserProviderTest {
 		Path testModelPath = Paths.get(TestHelperConstants.TEST_MODEL_BASE_PATH + "closedWorkloadWithDelay.usagemodel");
 		usageModel = UsageModelTestHelper.createUsageModelFromFile(testModelPath);
 		
-		usageModelRepository = new UsageModelRepositoryImpl(usageModel);
+		usageModelRepository = new UsageModelRepositoryImpl();
 		usageModelRepository.load(usageModel);
 		provider = new SimulatedUserProvider();
 	}

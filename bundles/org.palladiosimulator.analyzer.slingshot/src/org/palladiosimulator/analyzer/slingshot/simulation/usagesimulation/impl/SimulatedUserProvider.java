@@ -11,6 +11,7 @@ import org.palladiosimulator.pcm.usagemodel.OpenWorkload;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 import org.palladiosimulator.pcm.usagemodel.Workload;
 
+
 public class SimulatedUserProvider {
 	
 	
@@ -65,5 +66,5 @@ public class SimulatedUserProvider {
 		return simulatedUsers;
 	}
 
-
+	
 }

@@ -8,5 +8,4 @@ public interface Simulation {
 	
 	void startSimulation();
 	
-	
 }

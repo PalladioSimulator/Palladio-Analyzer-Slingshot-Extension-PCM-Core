@@ -2,6 +2,7 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.engine;
 
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.events.EventObserver;
 
 public interface SimulationEngine {
 	
@@ -13,5 +14,4 @@ public interface SimulationEngine {
 	void getTime();
 
 	boolean hasScheduledEvents();
-
 }
