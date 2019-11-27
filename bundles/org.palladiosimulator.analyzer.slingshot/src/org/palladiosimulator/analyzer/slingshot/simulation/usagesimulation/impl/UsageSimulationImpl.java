@@ -19,13 +19,12 @@ public class UsageSimulationImpl implements SimulationBehaviourExtension, EventO
 	
 	private final Logger LOGGER = Logger.getLogger(UsageSimulationImpl.class);
 
+	// internal property for the behavior
+	private List<SimulatedUser> simulatedUsers;
+
+	// dependency on the core
 	private UsageModelRepository usageModelRepository;
 	private SimulatedUserProvider simulatedUserProvider;
-	
-	//FIXME:: moved simulatedUsers as part of the UsageSimulationImpl
-	private List<SimulatedUser> simulatedUsers;
-	
-	
 	private SimulationScheduling simulationScheduling;
 	
 

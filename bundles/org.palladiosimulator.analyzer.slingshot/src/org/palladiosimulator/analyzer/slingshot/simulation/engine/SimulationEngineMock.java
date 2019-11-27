@@ -18,6 +18,7 @@ public class SimulationEngineMock implements SimulationEngine {
 	
 	private final Dispatcher eventDispatcher;
 	
+	@Override
 	public Dispatcher getEventDispatcher() {
 		return eventDispatcher;
 	}

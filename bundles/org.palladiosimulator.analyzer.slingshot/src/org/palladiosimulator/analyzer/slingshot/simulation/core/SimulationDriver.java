@@ -41,10 +41,10 @@ public class SimulationDriver implements Simulation, EventObserver, SimulationSc
 		//code that glues the extensions with the core
 		for (SimulationBehaviourExtension simulationBehaviourExtension : behaviourExtensions) {
 			simulationBehaviourExtension.init(usageModel,this);
-			SimulationEngineMock.class.cast(this.simEngine).getEventDispatcher().addObserver(simulationBehaviourExtension.getSimulationEventObserver());
+			this.simEngine.getEventDispatcher().addObserver(simulationBehaviourExtension.getSimulationEventObserver());
 		}
 		
-		SimulationEngineMock.class.cast(this.simEngine).getEventDispatcher().addObserver(this);
+		this.simEngine.getEventDispatcher().addObserver(this);
 		
 		LOGGER.info("Finished simulation driver initialization.");
 	}
