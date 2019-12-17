@@ -1,10 +1,12 @@
-package org.palladiosimulator.analyzer.slingshot.simulation.events;
+package org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events;
 
+import java.util.List;
 import java.util.UUID;
 
+import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.SimulatedUser;
 
-public class StartUserEvent implements DESEvent {
+public class UserStarted implements DESEvent {
 	
 	private String eventId;
 	private SimulatedUser simulatedUser;
@@ -13,7 +15,7 @@ public class StartUserEvent implements DESEvent {
 		return simulatedUser;
 	}
 	
-	public StartUserEvent(final SimulatedUser simulatedUser) {
+	public UserStarted(final SimulatedUser simulatedUser) {
 		this.eventId = UUID.randomUUID().toString();
 		this.simulatedUser = simulatedUser;
 	}
@@ -24,7 +26,7 @@ public class StartUserEvent implements DESEvent {
 	}
 
 	@Override
-	public void handle() {
+	public List<DESEvent> handle() {
 		// notify listener of simualted user to identify and schedule the next event
 		// or should overall simulation orchestrator be notified ?
 		// FIXME: currently the next event are not scheduled
@@ -33,6 +35,13 @@ public class StartUserEvent implements DESEvent {
 		// FIXME: However, there will not be a call to the interpreters so that it entangles effects for which this StartUserEvent is not responsible
 		// FIXME: The semantic when the dispatcher propagates this event is that a StartUserEvent has been executed and the corresponding events that will
 		// cause a chain of events have been scheduled. 
+		return List.of();
+	}
+
+	@Override
+	public double getDelay() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

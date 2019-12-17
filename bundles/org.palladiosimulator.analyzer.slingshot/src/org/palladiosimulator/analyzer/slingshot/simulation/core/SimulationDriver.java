@@ -5,16 +5,18 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.Simulation;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
 import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngine;
 import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngineMock;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.EventObserver;
-import org.palladiosimulator.analyzer.slingshot.simulation.events.FinishUserEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.events.SimulationStart;
-import org.palladiosimulator.analyzer.slingshot.simulation.events.StartUserEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserFinished;
+import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserStarted;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
 
-public class SimulationDriver implements Simulation, EventObserver, SimulationScheduling {
+import com.google.common.eventbus.Subscribe;
+
+public class SimulationDriver implements Simulation, SimulationScheduling {
 	
 	private final Logger LOGGER = Logger.getLogger(SimulationDriver.class);
 	
@@ -41,36 +43,42 @@ public class SimulationDriver implements Simulation, EventObserver, SimulationSc
 		//code that glues the extensions with the core
 		for (SimulationBehaviourExtension simulationBehaviourExtension : behaviourExtensions) {
 			simulationBehaviourExtension.init(usageModel,this);
-			this.simEngine.getEventDispatcher().addObserver(simulationBehaviourExtension.getSimulationEventObserver());
+			this.simEngine.getEventDispatcher().register(simulationBehaviourExtension);
 		}
 		
-		this.simEngine.getEventDispatcher().addObserver(this);
+		this.simEngine.getEventDispatcher().register(this);
 		
 		LOGGER.info("Finished simulation driver initialization.");
 	}
 	
 	public void startSimulation() {
-		DESEvent simulationStart = new SimulationStart();
+		DESEvent simulationStart = new SimulationStarted();
 		simEngine.scheduleEvent(simulationStart);
 		simEngine.start();
 	}
 	
 	
 
+	/**
+	 * @return
+	 */
 	public SimulationMonitoring monitorSimulation() {
 		//FIXME what would be now the Status.
 		return new SimulationStatus(null);
 	}
 
-	@Override
-	public void update(DESEvent evt) {		
+	
+
+	
+
+	@Subscribe public void update(DESEvent evt) {		
 		//FIXME:: Check from which of the interested types the event is then delegate to usageSimulation to find the nextEvent and schedule that event.
 		//FIXME:: The FinishedUserEvent is scheduled somewhere from the component in the last action which will be interpreted somewhere
 
-		if(evt instanceof StartUserEvent) {
-			StartUserEvent startUserEvent = StartUserEvent.class.cast(evt);
+		if(evt instanceof UserStarted) {
+			UserStarted startUserEvent = UserStarted.class.cast(evt);
 			LOGGER.info(String.format("Previously scheduled event '%s' has finished executing its event routine now we could schedule a FinishUserEvent", startUserEvent.getId()));
-			FinishUserEvent userFinished = new FinishUserEvent(startUserEvent.getSimulatedUser());
+			UserFinished userFinished = new UserFinished(startUserEvent.getSimulatedUser());
 			simEngine.scheduleEvent(userFinished);
 			
 		}

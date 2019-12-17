@@ -8,5 +8,4 @@ public interface SimulationBehaviourExtension {
 	// later here we pass an abstract data interface
 	void init(UsageModel usageModel, SimulationScheduling simulationScheduling);
 	
-	EventObserver getSimulationEventObserver();
 }

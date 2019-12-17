@@ -1,5 +1,6 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.engine;
 
+import com.google.common.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,17 +17,17 @@ public class SimulationEngineMock implements SimulationEngine {
 	
 	private List<DESEvent> futureEventList;
 	
-	private final Dispatcher eventDispatcher;
+	private final EventBus eventBus;
 	
 	@Override
-	public Dispatcher getEventDispatcher() {
-		return eventDispatcher;
+	public EventBus getEventDispatcher() {
+		return eventBus;
 	}
 
 
 	public SimulationEngineMock(Dispatcher eventDispatcher) {
 		this.futureEventList = new ArrayList<DESEvent>();
-		this.eventDispatcher = eventDispatcher;
+		this.eventBus = new EventBus();
 	}
 
 	@Override
@@ -57,7 +58,12 @@ public class SimulationEngineMock implements SimulationEngine {
 			DESEvent nextEvent = futureEventList.remove(0);
 			LOGGER.info(String.format("*** Handle event ['%s']", nextEvent.getId()));
 			nextEvent.handle();
-			eventDispatcher.addFinishedEvent(nextEvent);
+			//TODO:: Schedule the side-effects of that event.
+			// nextEvent is an object with operations 
+			// we want to post only the data so that components dont see the eventRoutine 
+			// because they dont need it and cant do anything with it. it is idempotent and cant effect the fel
+
+			eventBus.post(nextEvent);
 		}
 		
 		

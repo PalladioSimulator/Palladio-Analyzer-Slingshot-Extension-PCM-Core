@@ -9,3 +9,4 @@ Require-Bundle: org.palladiosimulator.pcm;bundle-version="4.1.0",
  de.uka.ipd.sdq.identifier,
  org.apache.log4j
 Export-Package: org.palladiosimulator.analyzer.slingshot.simulation.api
+Import-Package: com.google.common.eventbus

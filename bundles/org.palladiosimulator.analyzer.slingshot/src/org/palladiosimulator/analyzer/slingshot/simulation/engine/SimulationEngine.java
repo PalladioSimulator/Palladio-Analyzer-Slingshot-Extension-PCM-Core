@@ -4,6 +4,8 @@ package org.palladiosimulator.analyzer.slingshot.simulation.engine;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.Dispatcher;
 
+import com.google.common.eventbus.EventBus;
+
 public interface SimulationEngine {
 	
 	void start();
@@ -17,5 +19,5 @@ public interface SimulationEngine {
 	
 	//FIXME:: Assumption the SimulationEngine is capable of providing its EventDispatcher
 	//This needs later to be evaluated.
-	Dispatcher getEventDispatcher();
+	EventBus getEventDispatcher();
 }

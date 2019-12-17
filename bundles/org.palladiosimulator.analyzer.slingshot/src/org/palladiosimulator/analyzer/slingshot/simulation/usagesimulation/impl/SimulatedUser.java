@@ -4,11 +4,7 @@ import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.repositories.UsageModelRepository;
-import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.events.EventObserver;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
-import org.palladiosimulator.pcm.usagemodel.Delay;
-import org.palladiosimulator.pcm.usagemodel.Stop;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
 public class SimulatedUser {
@@ -39,31 +35,21 @@ public class SimulatedUser {
 		return scenario;
 	}
 
-
-	public void nextEvent() {
-		// TODO Auto-generated method stub
-		// depending on the current position go back to the usage scenario and find the next event
+	public AbstractUserAction nextAction() {
 		// how to determine the timeslot ?
 		AbstractUserAction nextAction = usageModelRepository.findNextAction(scenario, currentPosition);
-		
-		if (null == nextAction) {
-			LOGGER.info(String.format("SimulatedUser['%s'|'%s']: no nextEvent found.", userName, userId));
-		} else {
-			LOGGER.info(String.format("SimulatedUser['%s'|'%s']: nextEvent '%s' found", userName, userId, nextAction.getEntityName()));
-			currentPosition = nextAction;
-			
-			// switch case: 
-			// Delay Action
-			if (nextAction instanceof Delay) {
-				LOGGER.info(String.format("SimulatedUser['%s'|'%s']: scheduled DelayEvent", userName, userId));
-			} else if (nextAction instanceof Stop) {
-				LOGGER.info(String.format("SimulatedUser['%s'|'%s']: scheduled StopEvent", userName, userId));
-			}
-			
-		}
-		
-		// notify simulation driver to schedule next event
-		
+		currentPosition = nextAction;	
+		return nextAction;		
+	}
+
+
+	public String getUserName() {
+		return userName;
+	}
+
+
+	public String getUserId() {
+		return userId;
 	}
 
 }
