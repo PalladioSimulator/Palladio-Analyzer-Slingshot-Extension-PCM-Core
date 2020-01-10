@@ -1,15 +1,18 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.repositories.UsageModelRepository;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationBehaviourExtension;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationScheduling;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.annotations.EventCardinality;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.annotations.OnEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.ManyEvents;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.SingleEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.events.EventObserver;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserStarted;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserWokeUp;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserFinished;
@@ -21,7 +24,9 @@ import org.palladiosimulator.pcm.usagemodel.UsageModel;
 
 import com.google.common.eventbus.Subscribe;
 
-
+@OnEvent(eventType = SimulationStarted.class, outputEventType = UserStarted.class, cardinality = EventCardinality.SINGLE)
+@OnEvent(eventType = UserFinished.class, outputEventType = DESEvent.class, cardinality = EventCardinality.SINGLE)
+@OnEvent(eventType = UserWokeUp.class, outputEventType = DESEvent.class, cardinality = EventCardinality.SINGLE)
 public class UsageSimulationImpl implements SimulationBehaviourExtension {
 	
 	private final Logger LOGGER = Logger.getLogger(UsageSimulationImpl.class);
@@ -32,8 +37,10 @@ public class UsageSimulationImpl implements SimulationBehaviourExtension {
 	// dependency on the core
 	private UsageModelRepository usageModelRepository;
 	private SimulatedUserProvider simulatedUserProvider;
-	private SimulationScheduling simulationScheduling;
 	
+	public UsageSimulationImpl() {
+		
+	}
 
 	public UsageSimulationImpl(final UsageModelRepository usageModelRepository, final SimulatedUserProvider simulatedUserProvider) {
 		this.usageModelRepository = usageModelRepository;
@@ -41,37 +48,32 @@ public class UsageSimulationImpl implements SimulationBehaviourExtension {
 	}
 
 	@Override
-	public void init(final UsageModel usageModel, final SimulationScheduling simulationScheduling) {
+	public void init(final UsageModel usageModel) {
 		loadModel(usageModel);
-		this.simulationScheduling = simulationScheduling;
 		simulatedUsers = createSimulatedUsers();
 		LOGGER.info(String.format("Created '%s' users for closed workload simulation", simulatedUsers.size()));
 	}
 
 
-	@Subscribe public List<DESEvent> onSimulationStart(SimulationStarted evt) {
-		LOGGER.info("Oh, I received a SimulationStart event let schedule my initial event. ");
-		List<DESEvent> initialEvents = new ArrayList<DESEvent>();
+	@Subscribe public ManyEvents<UserStarted> onSimulationStart(SimulationStarted evt) {
+		Set<UserStarted> initialEvents = new HashSet<UserStarted>();
 		for (SimulatedUser simulatedUser : simulatedUsers) {
-			DESEvent startUserEvent = findStartEvent(simulatedUser);
+			UserStarted startUserEvent = findStartEvent(simulatedUser);
 			initialEvents.add(startUserEvent);
-		}
-		LOGGER.info(String.format("Simulation Driver Please schedule the following list of events: '%s'",initialEvents));
-		simulationScheduling.scheduleForSimulation(initialEvents);
-		return initialEvents;
+		}		
+		ManyEvents<UserStarted> manyEvents = new ManyEvents<UserStarted>(initialEvents);
+		return manyEvents;
 	}
 	
-	@Subscribe public DESEvent onFinishUserEvent(UserFinished evt) {
+	@Subscribe public SingleEvent<DESEvent> onFinishUserEvent(UserFinished evt) {
 		LOGGER.info(String.format("Previously scheduled userFinished '%s' has finished executing its event routine, Time To schedule a new StartUserEvent", evt.getId()));
 		DESEvent nextEvt = createNextEvent(evt.getSimulatedUser());
-		simulationScheduling.scheduleForSimulation(nextEvt);
-		return nextEvt;
+		return new SingleEvent<DESEvent>(nextEvt);
 	}
 	
-	@Subscribe public DESEvent onWakeUpUserEvent(UserWokeUp evt) {
+	@Subscribe public SingleEvent<DESEvent> onWakeUpUserEvent(UserWokeUp evt) {
 		DESEvent nextEvt = createNextEvent(evt.getSimulatedUser());
-		simulationScheduling.scheduleForSimulation(nextEvt);
-		return evt;
+		return new SingleEvent<DESEvent>(nextEvt);
 	}
 	
 
@@ -88,7 +90,7 @@ public class UsageSimulationImpl implements SimulationBehaviourExtension {
 	}
 
 	// TODO:: Fix interpretation
-	private DESEvent findStartEvent(SimulatedUser user) {
+	private UserStarted findStartEvent(SimulatedUser user) {
 		return new UserStarted(user);
 	}
 

@@ -7,14 +7,13 @@ import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.Simulation;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
 import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngine;
-import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngineMock;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.events.EventObserver;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserStarted;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
 
 import com.google.common.eventbus.Subscribe;
+
 
 public class SimulationDriver implements Simulation, SimulationScheduling {
 	
@@ -42,7 +41,17 @@ public class SimulationDriver implements Simulation, SimulationScheduling {
 		
 		//code that glues the extensions with the core
 		for (SimulationBehaviourExtension simulationBehaviourExtension : behaviourExtensions) {
-			simulationBehaviourExtension.init(usageModel,this);
+			simulationBehaviourExtension.init(usageModel);
+			// TODO:: first decorate it and then register the outermost decorator 
+			// the outermost is an adapter would have void 
+			// some need the result some dont, 
+			// piece of design which need to be decided. 
+			// maybe it is better to have an interceptor.
+
+			// initializa proxy factory
+			
+			
+			
 			this.simEngine.getEventDispatcher().register(simulationBehaviourExtension);
 		}
 		

@@ -6,6 +6,6 @@ import org.palladiosimulator.pcm.usagemodel.UsageModel;
 public interface SimulationBehaviourExtension {
 	
 	// later here we pass an abstract data interface
-	void init(UsageModel usageModel, SimulationScheduling simulationScheduling);
+	void init(UsageModel usageModel);
 	
 }

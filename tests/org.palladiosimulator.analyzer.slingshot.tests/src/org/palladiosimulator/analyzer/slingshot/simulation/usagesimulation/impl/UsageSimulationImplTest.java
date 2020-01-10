@@ -69,6 +69,7 @@ public class UsageSimulationImplTest {
 	@Test
 	public void testOnSimulationStarted() {
 		// initial state: evt, mocked engine
+		// JUNIT 4 -> JUNIT 5 (uses lambda stuff)  
 		SimulationStarted mySimStartEvt = new SimulationStarted();
 		usageSimulationImpl.init(usageModel, mockedSimulationDriver);		
 				
