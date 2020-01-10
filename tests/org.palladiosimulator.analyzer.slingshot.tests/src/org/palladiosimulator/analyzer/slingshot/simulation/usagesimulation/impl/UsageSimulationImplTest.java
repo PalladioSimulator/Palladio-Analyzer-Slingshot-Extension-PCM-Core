@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -16,7 +15,8 @@ import org.palladiosimulator.analyzer.slingshot.repositories.UsageModelRepositor
 import org.palladiosimulator.analyzer.slingshot.repositories.impl.UsageModelRepositoryImpl;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationDriver;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
-import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.ManyEvents;
+import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserStarted;
 import org.palladiosimulator.pcm.usagemodel.ClosedWorkload;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
 
@@ -71,13 +71,13 @@ public class UsageSimulationImplTest {
 		// initial state: evt, mocked engine
 		// JUNIT 4 -> JUNIT 5 (uses lambda stuff)  
 		SimulationStarted mySimStartEvt = new SimulationStarted();
-		usageSimulationImpl.init(usageModel, mockedSimulationDriver);		
-				
+		usageSimulationImpl.init(usageModel);
+		
 		// call the onSimulation Start		
-		List<DESEvent> initialUserRequests = usageSimulationImpl.onSimulationStart(mySimStartEvt);
+		ManyEvents<UserStarted> initialUserRequests = usageSimulationImpl.onSimulationStart(mySimStartEvt);
 				
 		// the number of events scheduled should be the same as the workload population		
-		assertEquals(initialUserRequests.size(), WORKLOAD_POPULATION);
+		assertEquals(initialUserRequests.getManyEvents().size(), WORKLOAD_POPULATION);
 	}
 
 	@Ignore

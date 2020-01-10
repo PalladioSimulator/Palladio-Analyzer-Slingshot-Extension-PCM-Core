@@ -1,7 +1,6 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl;
 
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
-import org.palladiosimulator.pcm.usagemodel.UsageModel;
 
 public interface UsageSimulation {
 	

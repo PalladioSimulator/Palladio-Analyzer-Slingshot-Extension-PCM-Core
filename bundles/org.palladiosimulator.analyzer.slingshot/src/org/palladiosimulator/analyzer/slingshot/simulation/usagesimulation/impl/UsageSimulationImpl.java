@@ -54,7 +54,6 @@ public class UsageSimulationImpl implements SimulationBehaviourExtension {
 		LOGGER.info(String.format("Created '%s' users for closed workload simulation", simulatedUsers.size()));
 	}
 
-
 	@Subscribe public ManyEvents<UserStarted> onSimulationStart(SimulationStarted evt) {
 		Set<UserStarted> initialEvents = new HashSet<UserStarted>();
 		for (SimulatedUser simulatedUser : simulatedUsers) {
