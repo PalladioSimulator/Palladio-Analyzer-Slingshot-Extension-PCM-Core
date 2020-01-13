@@ -21,8 +21,6 @@ public @interface OnEvent {
 	EventCardinality cardinality() default EventCardinality.SINGLE;
 
 	Class<? extends DESEvent> eventType();
-
-	boolean optional() default false;
 	
 	@Retention(RetentionPolicy.RUNTIME)
 	@Documented

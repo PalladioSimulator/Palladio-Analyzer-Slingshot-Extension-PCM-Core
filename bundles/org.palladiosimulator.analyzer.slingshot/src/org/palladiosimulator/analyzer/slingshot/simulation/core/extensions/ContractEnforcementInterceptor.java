@@ -1,6 +1,8 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.core.extensions;
 
 import java.lang.reflect.Method;
+
+
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.annotations.EventCardinality;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.annotations.OnEvent;
@@ -30,8 +32,9 @@ public class ContractEnforcementInterceptor implements Interceptor {
 			return;
 		}
 		
-		if(args.length>1) {
-			new RuntimeException("Extension Method is not allowed to have more than one argument");
+		if(args.length!=1) {
+			//TODO:: Do we need to have our own custom Exceptions for extensions
+			new IllegalArgumentException("Extension Method is allowed to react only on one and exactly one event");
 		}
 		
 		if (self.getClass().getSuperclass().isAnnotationPresent(OnEvent.OnEvents.class)) {
@@ -45,11 +48,14 @@ public class ContractEnforcementInterceptor implements Interceptor {
 			for (OnEvent onEvent : onEvents ) {
 				if(onEvent.eventType().equals(eventClass)) {
 					annotationExists = true;
-					LOGGER.info("Annotation for the event type: "+onEvent.eventType().getName() +"exists");
+					LOGGER.info("Annotation for the event type: " +onEvent.eventType().getName() +" exists");
 					Class<? extends DESEvent> outputType = onEvent.outputEventType();
 
-					if(result instanceof ManyEvents) {
+					if(!result.getClass().equals(outputType)) {
 						
+					}
+					
+					if(result instanceof ManyEvents) {
 						if(!onEvent.cardinality().equals(EventCardinality.MANY)) {
 							throw new RuntimeException("Extension Method Is Not Returning the Cardinality According to Contract, Returned: Many Events, Contract: "+ onEvent.cardinality().toString());
 						}
@@ -63,20 +69,18 @@ public class ContractEnforcementInterceptor implements Interceptor {
 						if(!onEvent.cardinality().equals(EventCardinality.SINGLE)) {
 							throw new RuntimeException("Extension Method Is Not Returning the Cardinality According to Contract, Returned: OptionalEvent with Cardinality Single, Contract: "+ onEvent.cardinality().toString());
 						}
-						if(!onEvent.optional()) {
-							throw new RuntimeException("Extension Method is not allowed to return optional result");
-						}
 					}
-				
 					return;
 					
 				}
 			}
 			
+			if(!annotationExists) {
+				throw new RuntimeException("Extension Method does not provide a contract definition");
+			}
+			
 		}
 
 	}
-
-	
 
 }

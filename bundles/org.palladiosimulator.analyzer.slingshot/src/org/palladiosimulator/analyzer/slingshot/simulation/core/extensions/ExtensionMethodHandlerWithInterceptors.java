@@ -16,8 +16,10 @@ import javassist.util.proxy.MethodHandler;
  *
  */
 public class ExtensionMethodHandlerWithInterceptors implements MethodHandler {
-	
-	
+	/**
+	 * an ordered list of interceptors where for each preIntercept will be invoked before the intercepted method
+	 * and postIntercept after the execution of the intercepted method.
+	 */
 	private List<Interceptor> myInterceptors;
 	
 	public ExtensionMethodHandlerWithInterceptors(List<Interceptor> interceptors) {
@@ -25,19 +27,19 @@ public class ExtensionMethodHandlerWithInterceptors implements MethodHandler {
 	}
 
 	@Override
-    public Object invoke(Object self, Method m, Method proceed, Object[] args) throws Throwable {
+    public Object invoke(Object self, Method method, Method proceed, Object[] args) throws Throwable {
 	
 		for (Interceptor interceptor : myInterceptors) {
-			interceptor.preIntercept(self, m, args);
+			interceptor.preIntercept(self, method, args);
 		}
 	
-		Object res = proceed.invoke(self, args);  // execute the original method.
+		Object result = proceed.invoke(self, args);  // execute the original method.
 		
 		for (Interceptor interceptor : myInterceptors) {
-			interceptor.postIntercept(res, self, m, args);
+			interceptor.postIntercept(result, self, method, args);
 		}
 		
-		return res;
+		return result;
     }
 
 }
