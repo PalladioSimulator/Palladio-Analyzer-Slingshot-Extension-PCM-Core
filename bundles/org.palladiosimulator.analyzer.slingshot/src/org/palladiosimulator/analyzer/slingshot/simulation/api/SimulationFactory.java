@@ -13,6 +13,7 @@ import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.Contr
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.ExtensionLoggingInterceptor;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.Interceptor;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.SchedulingInterceptor;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.decorators.DecoratedUsageSimulationProvider;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationBehaviourExtension;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationDriver;
 import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngine;
@@ -37,36 +38,23 @@ public class SimulationFactory {
 		SimulatedUserProvider simulatedUserProvider = new SimulatedUserProvider();
 //		SimulationBehaviourExtension usageSimulation = new UsageSimulationImpl(usageModelRepository, simulatedUserProvider);	
 		
-			
-		ProxyFactory f = new ProxyFactory();    
-	    f.setSuperclass(UsageSimulationImpl.class);
-	  
-	    Class c = f.createClass();
-	      
-		SimulationBehaviourExtension myDecoratedBehavior = null;
-		myDecoratedBehavior = (SimulationBehaviourExtension) c.getConstructor(
-					new Class[] {UsageModelRepository.class,SimulatedUserProvider.class}).newInstance(new Object[] {usageModelRepository,simulatedUserProvider});
-		
 		
 		// The Core
 		Dispatcher eventDispatcher = new Dispatcher();
 		SimulationEngine simEngine = new SimulationEngineMock(eventDispatcher);
 		
-		// Add additional constructor which has a list of extension.
-		var simulationBehaviorExtensions = new ArrayList<SimulationBehaviourExtension>();
-		simulationBehaviorExtensions.add(myDecoratedBehavior);
-		
-		
-		SimulationDriver simulationDriver =  new SimulationDriver(simEngine,simulationBehaviorExtensions);
-	
-		ExtensionLoggingInterceptor myLoggingInterceptor = new ExtensionLoggingInterceptor();
-		SchedulingInterceptor schedulingInterceptor = new SchedulingInterceptor(simulationDriver);
-		ContractEnforcementInterceptor contract = new ContractEnforcementInterceptor();
-		
-		List<Interceptor> interceptors = List.of(contract, myLoggingInterceptor, schedulingInterceptor);
-				
-		((Proxy)myDecoratedBehavior).setHandler(new ExtensionMethodHandlerWithInterceptors(interceptors));
+		// Extensions
+		DecoratedUsageSimulationProvider decoratedUsageSimulationProvider = new DecoratedUsageSimulationProvider(usageModelRepository, simulatedUserProvider);
 
+
+		var simulationBehaviorExtensions = new ArrayList<SimulationBehaviourExtension>();
+		
+		// Simulation Driver
+		SimulationDriver simulationDriver =  new SimulationDriver(simEngine, simulationBehaviorExtensions, decoratedUsageSimulationProvider);
+		
+		
+		
+	
 				
 		return simulationDriver;
 	}
