@@ -26,22 +26,20 @@ public class SimulationDriver implements Simulation, SimulationScheduling {
 	// FIXME: Remove the dependency to usageSimulation.
 	private SimulationEngine simEngine;
 
-	private List<SimulationBehaviourExtension> behaviourExtensions;
+	private List<SimulationBehaviourExtension> behaviorExtensions;
 
-	private DecoratedSimulationBehaviorProvider decoratedSimulationBehaviorProvider;
+	private List<DecoratedSimulationBehaviorProvider> decoratedSimulationBehaviorProviders;
 
 	public SimulationDriver(final SimulationEngine simEngine) {
 		this.simEngine = simEngine;
-		this.behaviourExtensions = new ArrayList<SimulationBehaviourExtension>();
+		this.behaviorExtensions = new ArrayList<SimulationBehaviourExtension>();
 	}
 
-	public SimulationDriver(final SimulationEngine simEngine,
-			List<SimulationBehaviourExtension> simulationBehaviorExtensions,
-			final DecoratedSimulationBehaviorProvider decoratedSimProvider) {
+	public SimulationDriver(final SimulationEngine simEngine, final List<DecoratedSimulationBehaviorProvider> decoratedSimProviders) {
 		this.simEngine = simEngine;
-		this.behaviourExtensions = new ArrayList<SimulationBehaviourExtension>();
-		this.behaviourExtensions.addAll(simulationBehaviorExtensions);
-		this.decoratedSimulationBehaviorProvider = decoratedSimProvider;
+		this.behaviorExtensions = new ArrayList<SimulationBehaviourExtension>();
+		this.decoratedSimulationBehaviorProviders = new ArrayList<DecoratedSimulationBehaviorProvider>();
+		this.decoratedSimulationBehaviorProviders.addAll(decoratedSimProviders);
 	}
 
 	public void init(final UsageModel usageModel) throws Exception {
@@ -49,7 +47,7 @@ public class SimulationDriver implements Simulation, SimulationScheduling {
 
 		registerSimulationBehaviorExtensionInterceptors();
 
-		for (SimulationBehaviourExtension simulationBehaviourExtension : behaviourExtensions) {
+		for (SimulationBehaviourExtension simulationBehaviourExtension : behaviorExtensions) {
 			simulationBehaviourExtension.init(usageModel);
 			this.simEngine.getEventDispatcher().register(simulationBehaviourExtension);
 		}
@@ -60,14 +58,16 @@ public class SimulationDriver implements Simulation, SimulationScheduling {
 	}
 
 	private void registerSimulationBehaviorExtensionInterceptors() throws Exception {
-		// Interceptors
-		ExtensionLoggingInterceptor myLoggingInterceptor = new ExtensionLoggingInterceptor();
-		SchedulingInterceptor schedulingInterceptor = new SchedulingInterceptor(this);
-		ContractEnforcementInterceptor contract = new ContractEnforcementInterceptor();
-		List<Interceptor> interceptors = List.of(contract, myLoggingInterceptor, schedulingInterceptor);
+		
+		for (DecoratedSimulationBehaviorProvider decoratedSimulationBehaviorProvider : decoratedSimulationBehaviorProviders) {
+		
+			ExtensionLoggingInterceptor myLoggingInterceptor = new ExtensionLoggingInterceptor();
+			SchedulingInterceptor schedulingInterceptor = new SchedulingInterceptor(this);
+			ContractEnforcementInterceptor contract = new ContractEnforcementInterceptor();
+			List<Interceptor> interceptors = List.of(contract, myLoggingInterceptor, schedulingInterceptor);
 
-		var usageSimulationBehaviorExt = decoratedSimulationBehaviorProvider.decorateSimulationBehaviorWithInterceptors(interceptors);
-		behaviourExtensions.add(usageSimulationBehaviorExt);
+			behaviorExtensions.add(decoratedSimulationBehaviorProvider.decorateSimulationBehaviorWithInterceptors(interceptors));
+		}
 	}
 
 	public void startSimulation() {
