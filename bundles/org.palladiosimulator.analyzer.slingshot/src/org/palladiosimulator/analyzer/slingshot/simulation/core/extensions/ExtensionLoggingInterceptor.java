@@ -12,21 +12,21 @@ public class ExtensionLoggingInterceptor extends AbstractInterceptor {
 	public ExtensionLoggingInterceptor() {
 		// TODO Auto-generated constructor stub
 	}
-	
-	
-	@Override
-	public void postIntercept(final Object extension, final Method m, final Object[] args,final Object result) {
-		LOGGER.info("Post-execution of the subscribe method");
-	}
-
 
 	@Override
 	public void preIntercept(final Object extension, final Method m, final Object[] args) {
 		
-		LOGGER.info("Pre-execution of the subscribe method");
+		LOGGER.info("Pre-intercept of the method: "+m.getName());
 
 		
 	}
+	
+	@Override
+	public void postIntercept(final Object extension, final Method m, final Object[] args,final Object result) {
+		LOGGER.info("Post-intercept of the method: " + m.getName());
+	}
+
+
 	
 
 }

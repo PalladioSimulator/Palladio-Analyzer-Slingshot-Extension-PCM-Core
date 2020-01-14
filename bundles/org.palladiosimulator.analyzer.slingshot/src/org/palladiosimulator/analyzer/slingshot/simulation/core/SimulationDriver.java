@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.Simulation;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.ContractEnforcementInterceptor;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.SimulationExtensionOnEventContractEnforcementInterceptor;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.ExtensionLoggingInterceptor;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.Interceptor;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.SchedulingInterceptor;
@@ -63,7 +63,7 @@ public class SimulationDriver implements Simulation, SimulationScheduling {
 		
 			ExtensionLoggingInterceptor myLoggingInterceptor = new ExtensionLoggingInterceptor();
 			SchedulingInterceptor schedulingInterceptor = new SchedulingInterceptor(this);
-			ContractEnforcementInterceptor contract = new ContractEnforcementInterceptor();
+			SimulationExtensionOnEventContractEnforcementInterceptor contract = new SimulationExtensionOnEventContractEnforcementInterceptor();
 			List<Interceptor> interceptors = List.of(contract, myLoggingInterceptor, schedulingInterceptor);
 
 			behaviorExtensions.add(decoratedSimulationBehaviorProvider.decorateSimulationBehaviorWithInterceptors(interceptors));
