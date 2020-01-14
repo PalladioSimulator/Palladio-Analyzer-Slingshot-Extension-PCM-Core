@@ -11,7 +11,7 @@ import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.resul
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.SingleEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 
-public class ContractEnforcementInterceptor implements Interceptor {
+public class ContractEnforcementInterceptor extends AbstractInterceptor {
 
 	private final Logger LOGGER = Logger.getLogger(ContractEnforcementInterceptor.class);
 	
@@ -20,12 +20,7 @@ public class ContractEnforcementInterceptor implements Interceptor {
 	}
 	
 	@Override
-	public void preIntercept(final Object extension, final Method m, final Object[] args) {
-	
-	}
-	
-	@Override
-	public void postIntercept(final Object result, final Object self, final Method m, final Object[] args) {
+	public void postIntercept(final Object extension, final Method m, final Object[] args, final Object result) {
 
 		if(m.getName().equals("init"))
 		{
@@ -37,9 +32,9 @@ public class ContractEnforcementInterceptor implements Interceptor {
 			new IllegalArgumentException("Extension Method is allowed to react only on one and exactly one event");
 		}
 		
-		if (self.getClass().getSuperclass().isAnnotationPresent(OnEvent.OnEvents.class)) {
+		if (extension.getClass().getSuperclass().isAnnotationPresent(OnEvent.OnEvents.class)) {
 			
-			OnEvent.OnEvents anno = self.getClass().getSuperclass().getAnnotation(OnEvent.OnEvents.class);
+			OnEvent.OnEvents anno = extension.getClass().getSuperclass().getAnnotation(OnEvent.OnEvents.class);
 			OnEvent[] onEvents = anno.value();
 			
 			Class eventClass = args[0].getClass();

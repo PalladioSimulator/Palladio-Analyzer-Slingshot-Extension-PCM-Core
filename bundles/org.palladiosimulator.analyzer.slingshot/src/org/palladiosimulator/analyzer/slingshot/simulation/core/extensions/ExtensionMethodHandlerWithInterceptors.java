@@ -28,16 +28,16 @@ public class ExtensionMethodHandlerWithInterceptors implements MethodHandler {
 	}
 
 	@Override
-    public Object invoke(Object self, Method method, Method proceed, Object[] args) throws Throwable {
+    public Object invoke(Object extension, Method method, Method proceed, Object[] args) throws Throwable {
 	
 		for (Interceptor interceptor : myInterceptors) {
-			interceptor.preIntercept(self, method, args);
+			interceptor.preIntercept(extension, method, args);
 		}
 	
-		Object result = proceed.invoke(self, args);  // execute the original method.
+		Object result = proceed.invoke(extension, args);  // execute the original method.
 		
 		for (Interceptor interceptor : myInterceptors) {
-			interceptor.postIntercept(result, self, method, args);
+			interceptor.postIntercept(extension, method, args, result);
 		}
 		
 		return result;

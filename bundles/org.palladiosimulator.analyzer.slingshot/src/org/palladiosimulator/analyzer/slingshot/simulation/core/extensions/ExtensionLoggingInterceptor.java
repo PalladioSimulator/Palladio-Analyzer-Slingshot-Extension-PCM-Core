@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationBehaviourExtension;
 
-public class ExtensionLoggingInterceptor implements Interceptor {
+public class ExtensionLoggingInterceptor extends AbstractInterceptor {
 
 	
 	private final Logger LOGGER = Logger.getLogger(ExtensionLoggingInterceptor.class);
@@ -15,7 +15,7 @@ public class ExtensionLoggingInterceptor implements Interceptor {
 	
 	
 	@Override
-	public void postIntercept(final Object result, final Object self, final Method m, final Object[] args) {
+	public void postIntercept(final Object extension, final Method m, final Object[] args,final Object result) {
 		LOGGER.info("Post-execution of the subscribe method");
 	}
 

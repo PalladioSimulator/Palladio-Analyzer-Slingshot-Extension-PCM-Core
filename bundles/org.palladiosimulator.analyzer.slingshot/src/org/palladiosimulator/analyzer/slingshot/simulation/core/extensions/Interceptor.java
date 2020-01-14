@@ -6,6 +6,6 @@ public interface Interceptor {
 	
 	void preIntercept(final Object extension, final Method m, final Object[] args);
 	
-	void postIntercept(final Object result, final Object self, final Method m, final Object[] args);
+	void postIntercept(final Object extension, final Method m, final Object[] args, final Object result);
 
 }

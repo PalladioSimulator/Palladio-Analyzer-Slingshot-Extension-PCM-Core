@@ -11,7 +11,7 @@ import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.resul
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.SingleEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 
-public class SchedulingInterceptor implements Interceptor {
+public class SchedulingInterceptor extends AbstractInterceptor {
 
 	
 	private final SimulationScheduling scheduling;
@@ -23,10 +23,8 @@ public class SchedulingInterceptor implements Interceptor {
 		this.scheduling = scheduling;
 	}
 	
-
-
 	@Override
-	public void postIntercept(final Object result, final Object self, final Method m, final Object[] args){
+	public void postIntercept(final Object extension, final Method m, final Object[] args, final Object result){
 		// TODO Auto-generated method stub
 		// TODO Visitor-based implementation 
 		// TODO Visiting classes that were not meant to be visited
@@ -51,13 +49,4 @@ public class SchedulingInterceptor implements Interceptor {
 		}
 
 	}
-
-
-
-	@Override
-	public void preIntercept(final Object extension, final Method m, final Object[] args) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }
