@@ -28,43 +28,24 @@ import javassist.util.proxy.ProxyFactory;
 
 public class SimulationFactory {
 	
-	public static Simulation createSimulation() {
+	private final static Logger LOGGER = Logger.getLogger(SimulationFactory.class);
+
+	
+	public static Simulation createSimulation() throws Exception {
 		// The first SimulationBehaviourExtension
 		UsageModelRepositoryImpl usageModelRepository = new UsageModelRepositoryImpl();
 		SimulatedUserProvider simulatedUserProvider = new SimulatedUserProvider();
 //		SimulationBehaviourExtension usageSimulation = new UsageSimulationImpl(usageModelRepository, simulatedUserProvider);	
 		
-		
+			
 		ProxyFactory f = new ProxyFactory();    
 	    f.setSuperclass(UsageSimulationImpl.class);
-	    
+	  
 	    Class c = f.createClass();
-	    
-	    
+	      
 		SimulationBehaviourExtension myDecoratedBehavior = null;
-		try {
-			myDecoratedBehavior = (SimulationBehaviourExtension) c.getConstructor(
+		myDecoratedBehavior = (SimulationBehaviourExtension) c.getConstructor(
 					new Class[] {UsageModelRepository.class,SimulatedUserProvider.class}).newInstance(new Object[] {usageModelRepository,simulatedUserProvider});
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			
-			throw (RuntimeException) e.getCause();
-			
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
 		
 		// The Core

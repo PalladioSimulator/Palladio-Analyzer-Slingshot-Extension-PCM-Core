@@ -34,7 +34,13 @@ public class SimulationJob implements IBlackboardInteractingJob<MDSDBlackboard> 
 		LOGGER.info("**** SimulationJob.execute ****");
 		
 		UsageModel usageModel = usageModelLoader.load(usageModelPath);
-		Simulation simulation = SimulationFactory.createSimulation();
+		Simulation simulation;
+		
+		try {
+			simulation = SimulationFactory.createSimulation();
+		} catch (Exception e) {
+			throw new JobFailedException("Simulation Could Not Be Created", e);
+		}
 		
 		simulation.init(usageModel);
 		simulation.startSimulation();
