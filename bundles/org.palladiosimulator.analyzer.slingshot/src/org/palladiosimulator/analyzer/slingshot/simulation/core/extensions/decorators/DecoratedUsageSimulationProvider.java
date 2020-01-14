@@ -4,12 +4,12 @@ import org.palladiosimulator.analyzer.slingshot.repositories.UsageModelRepositor
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.SimulatedUserProvider;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.UsageSimulationImpl;
 
-public class UsageSimulationProvider extends AbstractDecoratedSimulationBehaviorProvider {
+public class DecoratedUsageSimulationProvider extends AbstractDecoratedSimulationBehaviorProvider {
 
 	private SimulatedUserProvider simulatedUserProvider;
 	private UsageModelRepository usageModelRepository;
 
-	public UsageSimulationProvider(UsageModelRepository usageModelRepo, SimulatedUserProvider simulatedUserProv) {
+	public DecoratedUsageSimulationProvider(UsageModelRepository usageModelRepo, SimulatedUserProvider simulatedUserProv) {
 		simulatedUserProvider = simulatedUserProv;
 		usageModelRepository = usageModelRepo;
 	}
