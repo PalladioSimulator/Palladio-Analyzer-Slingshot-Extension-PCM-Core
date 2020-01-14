@@ -19,6 +19,7 @@ public class ExtensionMethodHandlerWithInterceptors implements MethodHandler {
 	/**
 	 * an ordered list of interceptors where for each preIntercept will be invoked before the intercepted method
 	 * and postIntercept after the execution of the intercepted method.
+	 * TODO:: A list of preInterceptors and postInterceptors would make more sense
 	 */
 	private List<Interceptor> myInterceptors;
 	

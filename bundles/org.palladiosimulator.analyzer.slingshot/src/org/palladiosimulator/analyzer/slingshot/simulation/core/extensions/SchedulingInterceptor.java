@@ -28,6 +28,8 @@ public class SchedulingInterceptor implements Interceptor {
 	@Override
 	public void postIntercept(final Object result, final Object self, final Method m, final Object[] args){
 		// TODO Auto-generated method stub
+		// TODO Visitor-based implementation 
+		// TODO Visiting classes that were not meant to be visited
 		if(result instanceof SingleEvent) {
 			
 			scheduling.scheduleForSimulation(SingleEvent.class.cast(result).getEvent());
