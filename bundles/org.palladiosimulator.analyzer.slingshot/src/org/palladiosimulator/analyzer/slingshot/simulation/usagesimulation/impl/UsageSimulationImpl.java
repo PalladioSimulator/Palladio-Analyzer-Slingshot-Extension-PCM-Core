@@ -24,7 +24,7 @@ import org.palladiosimulator.pcm.usagemodel.UsageModel;
 
 import com.google.common.eventbus.Subscribe;
 
-@OnEvent(eventType = SimulationStarted.class, outputEventType = UserStarted.class, cardinality = EventCardinality.SINGLE)
+@OnEvent(eventType = SimulationStarted.class, outputEventType = UserStarted.class, cardinality = EventCardinality.MANY)
 @OnEvent(eventType = UserFinished.class, outputEventType = DESEvent.class, cardinality = EventCardinality.SINGLE)
 @OnEvent(eventType = UserWokeUp.class, outputEventType = DESEvent.class, cardinality = EventCardinality.SINGLE)
 public class UsageSimulationImpl implements SimulationBehaviourExtension {

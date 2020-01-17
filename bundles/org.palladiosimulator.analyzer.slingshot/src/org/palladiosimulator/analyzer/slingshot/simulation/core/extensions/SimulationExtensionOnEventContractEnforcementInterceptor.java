@@ -72,11 +72,12 @@ public class SimulationExtensionOnEventContractEnforcementInterceptor extends Ab
 
 			}
 
-			if (!annotationExists) {
-				throw new RuntimeException("Extension Method does not provide a contract definition");
-			}
-
 		}
+		
+		if (!annotationExists) {
+			throw new RuntimeException("Extension Method does not provide a contract definition");
+		}
+
 
 	}
 
