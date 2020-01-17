@@ -6,7 +6,6 @@ import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationDriver
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.decorators.DecoratedUsageSimulationProvider;
 import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngine;
 import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngineMock;
-import org.palladiosimulator.analyzer.slingshot.simulation.events.Dispatcher;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.SimulatedUserProvider;
 
 public class SimulationFactory {
