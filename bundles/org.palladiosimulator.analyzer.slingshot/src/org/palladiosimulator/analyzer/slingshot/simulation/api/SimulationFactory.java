@@ -17,8 +17,7 @@ public class SimulationFactory {
 		SimulatedUserProvider simulatedUserProvider = new SimulatedUserProvider();
 		
 		// The Core
-		Dispatcher eventDispatcher = new Dispatcher();
-		SimulationEngine simEngine = new SimulationEngineMock(eventDispatcher);
+		SimulationEngine simEngine = new SimulationEngineMock();
 		
 		// Extensions
 		DecoratedUsageSimulationProvider decoratedUsageSimulationProvider = new DecoratedUsageSimulationProvider(usageModelRepository, simulatedUserProvider);

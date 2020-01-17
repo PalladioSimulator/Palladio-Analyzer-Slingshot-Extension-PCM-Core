@@ -2,7 +2,6 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.engine;
 
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.events.Dispatcher;
 
 import com.google.common.eventbus.EventBus;
 

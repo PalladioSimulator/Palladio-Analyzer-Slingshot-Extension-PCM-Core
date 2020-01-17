@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.events.Dispatcher;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.EventObserver;
 
 public class SimulationEngineMock implements SimulationEngine {
@@ -25,7 +24,7 @@ public class SimulationEngineMock implements SimulationEngine {
 	}
 
 
-	public SimulationEngineMock(Dispatcher eventDispatcher) {
+	public SimulationEngineMock() {
 		this.futureEventList = new ArrayList<DESEvent>();
 		this.eventBus = new EventBus();
 	}
