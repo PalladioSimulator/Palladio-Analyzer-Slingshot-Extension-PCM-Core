@@ -60,8 +60,6 @@ public class SimulationArchitectureModelsTab extends AbstractLaunchConfiguration
 
 	@Override
 	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

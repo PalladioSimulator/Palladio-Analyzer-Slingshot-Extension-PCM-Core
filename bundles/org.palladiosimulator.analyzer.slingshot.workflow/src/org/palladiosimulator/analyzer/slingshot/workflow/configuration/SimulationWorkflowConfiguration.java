@@ -28,7 +28,6 @@ public class SimulationWorkflowConfiguration extends AbstractPCMWorkflowRunConfi
 
 	@Override
 	public void setDefaults() {
-		// TODO Auto-generated method stub
 		
 	}
 

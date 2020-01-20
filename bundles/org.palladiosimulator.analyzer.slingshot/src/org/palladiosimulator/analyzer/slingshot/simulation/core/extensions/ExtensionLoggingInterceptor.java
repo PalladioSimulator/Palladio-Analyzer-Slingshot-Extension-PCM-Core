@@ -10,7 +10,7 @@ public class ExtensionLoggingInterceptor extends AbstractInterceptor {
 	private final Logger LOGGER = Logger.getLogger(ExtensionLoggingInterceptor.class);
 
 	public ExtensionLoggingInterceptor() {
-		// TODO Auto-generated constructor stub
+		
 	}
 
 	@Override

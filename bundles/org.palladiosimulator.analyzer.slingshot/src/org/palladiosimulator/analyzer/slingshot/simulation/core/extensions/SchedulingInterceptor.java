@@ -25,7 +25,6 @@ public class SchedulingInterceptor extends AbstractInterceptor {
 	
 	@Override
 	public void postIntercept(final Object extension, final Method m, final Object[] args, final Object result){
-		// TODO Auto-generated method stub
 		// TODO Visitor-based implementation 
 		// TODO Visiting classes that were not meant to be visited
 		if(result instanceof SingleEvent) {

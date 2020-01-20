@@ -39,7 +39,6 @@ public class SimulationExtensionOnEventContractEnforcementInterceptor extends Ab
 		Class eventClass = args[0].getClass(); // e.g., SimulationStarted -> ManyEvent<UserStarted>
 		boolean annotationExists = false;
 
-		//TODO:: what is the proper mecchanism to get rid of instanceof 
 		for (OnEvent onEvent : onEvents) {
 			if (onEvent.eventType().equals(eventClass)) {
 				

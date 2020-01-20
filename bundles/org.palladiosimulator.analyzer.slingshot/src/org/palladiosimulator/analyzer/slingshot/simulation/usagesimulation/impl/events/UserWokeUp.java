@@ -21,20 +21,17 @@ public class UserWokeUp implements DESEvent {
 
 	@Override
 	public String getId() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<DESEvent> handle() {
-		// TODO Auto-generated method stub
 		return List.of();
 	}
 
 
 	@Override
 	public double getDelay() {
-		// TODO Auto-generated method stub
 		return timeToSleep;
 	}
 	

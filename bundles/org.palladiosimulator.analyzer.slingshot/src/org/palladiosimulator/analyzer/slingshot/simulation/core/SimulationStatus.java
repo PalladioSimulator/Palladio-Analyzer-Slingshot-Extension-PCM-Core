@@ -18,7 +18,6 @@ public class SimulationStatus implements SimulationMonitoring {
 
 	@Override
 	public void addSimulatedUser() {
-		// TODO Auto-generated method stub
 		
 	}
 

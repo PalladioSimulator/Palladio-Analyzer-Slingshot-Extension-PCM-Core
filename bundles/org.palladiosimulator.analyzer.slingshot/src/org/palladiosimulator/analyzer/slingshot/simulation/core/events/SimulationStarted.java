@@ -27,7 +27,6 @@ public class SimulationStarted implements DESEvent {
 
 	@Override
 	public double getDelay() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 

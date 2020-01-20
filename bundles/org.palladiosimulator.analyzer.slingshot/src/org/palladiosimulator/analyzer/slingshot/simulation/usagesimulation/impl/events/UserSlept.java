@@ -21,7 +21,6 @@ public class UserSlept implements DESEvent {
 
 	@Override
 	public String getId() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -37,7 +36,6 @@ public class UserSlept implements DESEvent {
 
 	@Override
 	public double getDelay() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 

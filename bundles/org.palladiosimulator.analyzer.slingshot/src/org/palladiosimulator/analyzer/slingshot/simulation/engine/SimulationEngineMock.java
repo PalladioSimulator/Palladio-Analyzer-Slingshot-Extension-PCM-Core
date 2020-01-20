@@ -37,7 +37,6 @@ public class SimulationEngineMock implements SimulationEngine {
 
 	@Override
 	public void getTime() {
-		// TODO Auto-generated method stub
 		
 	}
 

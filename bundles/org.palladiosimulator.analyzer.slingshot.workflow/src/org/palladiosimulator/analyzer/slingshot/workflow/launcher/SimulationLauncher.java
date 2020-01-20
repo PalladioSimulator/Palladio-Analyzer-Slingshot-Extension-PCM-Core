@@ -30,7 +30,6 @@ public class SimulationLauncher extends AbstractPCMLaunchConfigurationDelegate<S
 		
 		LOGGER.info("SimulationLauncher.deriveConfiguration");
 		
-		// TODO Auto-generated method stub
 		return buildWorkflowConfiguration(configuration, mode);
 	}
 
