@@ -47,19 +47,31 @@ public class EventContractChecker {
 		
 		
 		Class<? extends DESEvent> outputType = onEventContract.outputEventType();
-	
+		
+		// outputType -> SimulationStarted.class
 		// outputEvent instanceof ManyEvents -> true
 		// outputEvent instanceof UserStarted -> false
 		
 		//TODO:: ManyEvents is a container object that has instances of DESEvents, 
 		// we need to check that those instances are of type outputType as declared in the contract.
 		
+		// SimulationStop -> DESEvent
+		// UserStarted -> DESEvent
+		
 		
 		if (outputEvent instanceof ManyEvents) {
 	
-//			ManyEvents<DESEvent> outputEventCasted = (ManyEvents) outputEvent; 
-//			outputType.cast(obj)
+			ManyEvents<DESEvent> outputEventCasted = (ManyEvents) outputEvent; 
+			
+//			if(outputEventCasted.getEventsForScheduling().toArray()[0] instanceof outputType) {
+//				// 
+//			}
 //			
+//			outputType.cast(obj)
+			// signle element of this cotainer check instanceof outputType? 
+//	
+			
+			
 			
 		} else if (outputEvent instanceof SingleEvent) {
 	

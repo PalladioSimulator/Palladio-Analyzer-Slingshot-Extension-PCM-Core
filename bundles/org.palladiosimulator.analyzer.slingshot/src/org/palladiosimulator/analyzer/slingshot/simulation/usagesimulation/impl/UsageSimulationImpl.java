@@ -54,31 +54,21 @@ public class UsageSimulationImpl implements SimulationBehaviourExtension {
 		LOGGER.info(String.format("Created '%s' users for closed workload simulation", simulatedUsers.size()));
 	}
 
-//	@Subscribe public ManyEvents<UserStarted> onSimulationStart(SimulationStarted evt) {
-//		Set<UserStarted> initialEvents = new HashSet<UserStarted>();
-//		for (SimulatedUser simulatedUser : simulatedUsers) {
-//			UserStarted startUserEvent = findStartEvent(simulatedUser);
-//			initialEvents.add(startUserEvent);
-//		}		
-//		ManyEvents<UserStarted> manyEvents = new ManyEvents<UserStarted>(initialEvents);
-//		return manyEvents;
-//	}
 	// @OnEvent(output=UserStarted -> checker its fine ... -> check them all) 
 	// @OnEvnet(output=DESEvent -> reject immediatly -> fine
 	// FIXME: can these checks be done all at compile-time, so why we need runtime checks
 	// FIXME: how can it occur that an extension sends an event which is not specified
 	// FIXME: when and how could it happen that an extension sends an event which has no specification for it.
 	// FIXME: explore runtime checks and in combination with rule checks.
-	@Subscribe public ManyEvents<DESEvent> onSimulationStart(SimulationStarted evt) {
-		Set<DESEvent> initialEvents = new HashSet<DESEvent>();
+	@Subscribe public ManyEvents<UserStarted> onSimulationStart(SimulationStarted evt) {
+		Set<UserStarted> initialEvents = new HashSet<UserStarted>();
 		for (SimulatedUser simulatedUser : simulatedUsers) {
 			UserStarted startUserEvent = findStartEvent(simulatedUser);
 			initialEvents.add(startUserEvent);
 		}		
-		ManyEvents<DESEvent> manyEvents = new ManyEvents<DESEvent>(initialEvents);
+		ManyEvents<UserStarted> manyEvents = new ManyEvents<UserStarted>(initialEvents);
 		return manyEvents;
 	}
-	
 	
 	@Subscribe public SingleEvent<DESEvent> onFinishUserEvent(UserFinished evt) {
 		LOGGER.info(String.format("Previously scheduled userFinished '%s' has finished executing its event routine, Time To schedule a new StartUserEvent", evt.getId()));
