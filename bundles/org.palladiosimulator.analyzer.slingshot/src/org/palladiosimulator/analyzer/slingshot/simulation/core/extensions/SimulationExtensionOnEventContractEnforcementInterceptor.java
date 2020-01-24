@@ -45,11 +45,13 @@ public class SimulationExtensionOnEventContractEnforcementInterceptor extends Ab
 				annotationExists = true;
 				LOGGER.info("Annotation for the event type: " + onEvent.eventType().getName() + " exists");
 				
-				ContractResult contractResultForType = eventContractChecker.checkEventType(result, onEvent);
-				
-				if(contractResultForType.isFailed()) {
-					throw new RuntimeException(contractResultForType.getMessage());
-				}
+				//TODO:: ManyEvents<UserStarted> is really having UserStarted as the outputEventType specifies is problematic
+//				// 
+//				ContractResult contractResultForType = eventContractChecker.checkEventType(result, onEvent);
+//				
+//				if(contractResultForType.isFailed()) {
+//					throw new RuntimeException(contractResultForType.getMessage());
+//				}
 				
 				ContractResult contractResultForCardinality = eventContractChecker.checkCardinality(result, onEvent);
 				

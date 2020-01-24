@@ -38,12 +38,37 @@ public class EventContractChecker {
 
 	ContractResult checkEventType(Object outputEvent, OnEvent onEventContract) {
 		
+		// outputEvent -> ManyEvents<UserStarted>
+		// outputType -> UserStarted
+		
+		
 		boolean failed = false;
 		String msg = "Contract Check Successful";
 		
 		
 		Class<? extends DESEvent> outputType = onEventContract.outputEventType();
 	
+		// outputEvent instanceof ManyEvents -> true
+		// outputEvent instanceof UserStarted -> false
+		
+		//TODO:: ManyEvents is a container object that has instances of DESEvents, 
+		// we need to check that those instances are of type outputType as declared in the contract.
+		
+		
+		if (outputEvent instanceof ManyEvents) {
+	
+//			ManyEvents<DESEvent> outputEventCasted = (ManyEvents) outputEvent; 
+//			outputType.cast(obj)
+//			
+			
+		} else if (outputEvent instanceof SingleEvent) {
+	
+		} else if (outputEvent instanceof OptionalEvent) {
+			
+		}
+		
+		
+		
 		if (!outputEvent.getClass().equals(outputType)) {
 			failed = true;
 			msg = "Extension has returned a type of event which is not declared in the contract";

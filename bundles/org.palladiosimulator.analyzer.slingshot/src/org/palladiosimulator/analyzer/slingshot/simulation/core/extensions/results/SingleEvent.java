@@ -1,4 +1,5 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results;
+import java.util.Set;
 
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 
@@ -19,4 +20,8 @@ public class SingleEvent<T extends DESEvent> extends Result {
 		return evt;
 	}
 	
+	@Override
+	public Set<DESEvent> getEventsForScheduling(){
+		return Set.of(evt);
+	}
 }

@@ -6,10 +6,9 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationScheduling;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.ManyEvents;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.OptionalEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.SingleEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.Result;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
+
 
 public class SchedulingInterceptor extends AbstractInterceptor {
 
@@ -25,27 +24,13 @@ public class SchedulingInterceptor extends AbstractInterceptor {
 	
 	@Override
 	public void postIntercept(final Object extension, final Method m, final Object[] args, final Object result){
-		// TODO Visitor-based implementation 
-		// TODO Visiting classes that were not meant to be visited
-		if(result instanceof SingleEvent) {
-			
-			scheduling.scheduleForSimulation(SingleEvent.class.cast(result).getEvent());
-			
-		} else if(result instanceof OptionalEvent) {
-			
-			Optional<DESEvent> optionalEvent = OptionalEvent.class.cast(result).getOptionalEvent();
-			if (optionalEvent.isPresent()) {
-				scheduling.scheduleForSimulation(optionalEvent.get());
-			}
-			
-		} else if(result instanceof ManyEvents) {
-			
-			Set<DESEvent> events = ManyEvents.class.cast(result).getManyEvents();
-			for (DESEvent desEvent : events) {
-				LOGGER.info("SCHEDULING INTERCEPTOR: schedule the evt");
-				scheduling.scheduleForSimulation(desEvent);
-			}
+		Result eventResult = (Result) result;
+	
+		for (DESEvent desEvent : eventResult.getEventsForScheduling()) {
+			LOGGER.info(String.format("[SCHEDULING INTERCEPTOR]: Event scheduled: %s",desEvent.getClass().getName()));
+			scheduling.scheduleForSimulation(desEvent);
 		}
-
+		
+	
 	}
 }

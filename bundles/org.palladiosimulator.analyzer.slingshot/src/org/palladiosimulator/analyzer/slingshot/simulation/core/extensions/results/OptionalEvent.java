@@ -1,6 +1,7 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results;
 
 import java.util.Optional;
+import java.util.Set;
 
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 
@@ -19,5 +20,13 @@ public class OptionalEvent<T extends DESEvent> extends Result {
 
 	public Optional<T> getOptionalEvent() {
 		return optionalEvent;
+	}
+	
+	@Override
+	public Set<DESEvent> getEventsForScheduling(){
+		if (optionalEvent.isPresent()) {
+			return Set.of(optionalEvent.get());
+		}
+		return Set.of();
 	}
 }

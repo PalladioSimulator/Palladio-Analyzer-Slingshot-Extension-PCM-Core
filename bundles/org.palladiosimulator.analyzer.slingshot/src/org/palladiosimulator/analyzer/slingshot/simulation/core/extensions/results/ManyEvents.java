@@ -8,6 +8,8 @@ import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
  * @author Floriment Klinaku
  *
  * @param <T> the type of events contained in the ManyEvents
+ * 
+ * ManyEvents<UserStarted> onSimulationStarted(SimulationStarted evt)
  */
 public class ManyEvents<T extends DESEvent> extends Result {
 	
@@ -19,6 +21,11 @@ public class ManyEvents<T extends DESEvent> extends Result {
 	
 	public Set<T> getManyEvents(){
 		return events;
+	}
+
+	@Override
+	public Set<DESEvent> getEventsForScheduling(){
+		return (Set<DESEvent>) events;
 	}
 
 
