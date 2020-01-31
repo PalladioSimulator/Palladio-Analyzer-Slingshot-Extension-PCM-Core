@@ -1,13 +1,12 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.core.extensions;
 
 import java.lang.reflect.Method;
-import java.util.Optional;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationScheduling;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.ResultEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.events.EventPrettyLogPrinter;
 
 
 public class SchedulingInterceptor extends AbstractInterceptor {
@@ -27,7 +26,7 @@ public class SchedulingInterceptor extends AbstractInterceptor {
 		ResultEvent<DESEvent> eventResult = (ResultEvent<DESEvent>) result;
 	
 		for (DESEvent desEvent : eventResult.getEventsForScheduling()) {
-			LOGGER.info(String.format("[SCHEDULING INTERCEPTOR]: Event scheduled: %s",desEvent.getClass().getName()));
+			LOGGER.info(EventPrettyLogPrinter.prettyPrint(desEvent, "Forwarding Event", "Scheduling Interceptor"));
 			scheduling.scheduleForSimulation(desEvent);
 		}
 		

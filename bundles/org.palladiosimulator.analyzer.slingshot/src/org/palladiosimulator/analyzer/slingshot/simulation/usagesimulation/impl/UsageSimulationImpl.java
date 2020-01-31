@@ -24,7 +24,8 @@ import org.palladiosimulator.pcm.usagemodel.UsageModel;
 import com.google.common.eventbus.Subscribe;
 
 @OnEvent(eventType = SimulationStarted.class, outputEventType = UserStarted.class, cardinality = EventCardinality.MANY)
-@OnEvent(eventType = UserFinished.class, outputEventType = DESEvent.class, cardinality = EventCardinality.SINGLE)
+@OnEvent(eventType = UserStarted.class, outputEventType = UserFinished.class, cardinality = EventCardinality.SINGLE)
+//@OnEvent(eventType = UserFinished.class, outputEventType = DESEvent.class, cardinality = EventCardinality.SINGLE)
 @OnEvent(eventType = UserWokeUp.class, outputEventType = DESEvent.class, cardinality = EventCardinality.SINGLE)
 public class UsageSimulationImpl implements SimulationBehaviourExtension {
 	
@@ -61,27 +62,33 @@ public class UsageSimulationImpl implements SimulationBehaviourExtension {
 	// FIXME: explore runtime checks and in combination with rule checks.
 	// TODO: Also when enforcing the contract rather then observing the result object directly we could easily check whether 
 	// the method that was invoked has the generic type of UserStarted.
-//	@Subscribe public ResultEvent<UserStarted> onSimulationStart(SimulationStarted evt) {
-//		Set<UserStarted> initialEvents = new HashSet<UserStarted>();
-//		for (SimulatedUser simulatedUser : simulatedUsers) {
-//			UserStarted startUserEvent = findStartEvent(simulatedUser);
-//			initialEvents.add(startUserEvent);
-//		}		
-//		ResultEvent<UserStarted> initialUserStartedEvents = new ResultEvent<UserStarted>(initialEvents);
-//		return initialUserStartedEvents;
-//	}
-	
-	@Subscribe public ResultEvent<UserFinished> onSimulationStart(SimulationStarted evt) {
-		Set<UserFinished> initialEvents = new HashSet<UserFinished>();
-		initialEvents.add(new UserFinished(null));
-		ResultEvent<UserFinished> initialUserStartedEvents = new ResultEvent<UserFinished>(initialEvents);
+	@Subscribe public ResultEvent<UserStarted> onSimulationStart(SimulationStarted evt) {
+		Set<UserStarted> initialEvents = new HashSet<UserStarted>();
+		for (SimulatedUser simulatedUser : simulatedUsers) {
+			UserStarted startUserEvent = findStartEvent(simulatedUser);
+			initialEvents.add(startUserEvent);
+		}		
+		ResultEvent<UserStarted> initialUserStartedEvents = new ResultEvent<UserStarted>(initialEvents);
 		return initialUserStartedEvents;
 	}
+	
+	
+//  Example method violating the contract for types
+//	@Subscribe public ResultEvent<UserFinished> onSimulationStart(SimulationStarted evt) {
+//		Set<UserFinished> initialEvents = new HashSet<UserFinished>();
+//		initialEvents.add(new UserFinished(null));
+//		ResultEvent<UserFinished> initialUserStartedEvents = new ResultEvent<UserFinished>(initialEvents);
+//		return initialUserStartedEvents;
+//	}
 
-	@Subscribe public ResultEvent<DESEvent> onFinishUserEvent(UserFinished evt) {
-		LOGGER.info(String.format("Previously scheduled userFinished '%s' has finished executing its event routine, Time To schedule a new StartUserEvent", evt.getId()));
-		DESEvent nextEvt = createNextEvent(evt.getSimulatedUser());
-		return new ResultEvent<DESEvent>(Set.of(nextEvt));
+//	@Subscribe public ResultEvent<DESEvent> onFinishUserEvent(UserFinished evt) {
+//		LOGGER.info(String.format("Previously scheduled userFinished '%s' has finished executing its event routine, Time To schedule a new StartUserEvent", evt.getId()));
+//		DESEvent nextEvt = createNextEvent(evt.getSimulatedUser());
+//		return new ResultEvent<DESEvent>(Set.of(nextEvt));
+//	}
+	
+	@Subscribe public ResultEvent<UserFinished> onUserStarted(UserStarted evt) {
+		return new ResultEvent<UserFinished>(Set.of(new UserFinished(evt.getSimulatedUser())));
 	}
 	
 	@Subscribe public ResultEvent<DESEvent> onWakeUpUserEvent(UserWokeUp evt) {

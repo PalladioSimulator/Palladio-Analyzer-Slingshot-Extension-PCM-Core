@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.events.EventPrettyLogPrinter;
 
 public class SimulationEngineMock implements SimulationEngine {
 	
@@ -32,7 +33,7 @@ public class SimulationEngineMock implements SimulationEngine {
 	public void scheduleEvent(DESEvent event) {
 		//this code should go in the right place
 		futureEventList.add(event);
-		LOGGER.info(String.format("*** Scheduled new event '%s' *** ", event.getId()));
+		LOGGER.info(EventPrettyLogPrinter.prettyPrint(event, "Received Event and added to FEL", "Simulation Engine"));
 	}
 
 	@Override
@@ -53,13 +54,13 @@ public class SimulationEngineMock implements SimulationEngine {
 			//the semantic here is incorrect because it needs to remove the next event that will happen first.
 			//and it may be the case that for example I user is scheduled in the next second so its not FCFS on the event list
 			DESEvent nextEvent = futureEventList.remove(0);
-			LOGGER.info(String.format("*** Handle event ['%s']", nextEvent.getId()));
 			nextEvent.handle();
+			LOGGER.info(EventPrettyLogPrinter.prettyPrint(nextEvent, "Processed evt from FEL and published to event bus", "Simulation Engine"));
+			
 			//TODO:: Schedule the side-effects of that event.
 			// nextEvent is an object with operations 
 			// we want to post only the data so that components dont see the eventRoutine 
 			// because they dont need it and cant do anything with it. it is idempotent and cant effect the fel
-
 			eventBus.post(nextEvent);
 		}
 		

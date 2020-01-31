@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.annotations.OnEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.ResultEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.events.EventPrettyLogPrinter;
 
 public class SimulationExtensionOnEventContractEnforcementInterceptor extends AbstractInterceptor {
 
@@ -40,29 +41,34 @@ public class SimulationExtensionOnEventContractEnforcementInterceptor extends Ab
 			if (onEvent.eventType().equals(eventClass)) {
 				
 				annotationExists = true;
-				LOGGER.info("Annotation for the event type: " + onEvent.eventType().getName() + " exists");
+				
 
 				ContractResult contractResultForType = eventContractChecker.checkEventType(resultEvent, onEvent);
 				
 				if(contractResultForType.isFailed()) {
+					LOGGER.info(EventPrettyLogPrinter.prettyPrint((DESEvent) args[0], "Failure of enforcing contract on extension reacting to the event", "Simulation Extension OnEvent Contract Enforcement Interceptor"));
 					throw new RuntimeException(contractResultForType.getMessage());
 				}
 								
 				ContractResult contractResultForCardinality = eventContractChecker.checkCardinality(resultEvent, onEvent);
 				
 				if(contractResultForCardinality.isFailed()) {
+					LOGGER.info(EventPrettyLogPrinter.prettyPrint((DESEvent) args[0], "Enforcing contract on extension reacting to the event", "Simulation Extension OnEvent Contract Enforcement Interceptor"));
 					throw new RuntimeException(contractResultForCardinality.getMessage());
 				}
 				
-				return;
+				break;
 
 			}
 
 		}
 		
 		if (!annotationExists) {
+			LOGGER.info(EventPrettyLogPrinter.prettyPrint((DESEvent) args[0], "Enforcing contract on extension reacting to the event", "Simulation Extension OnEvent Contract Enforcement Interceptor"));
 			throw new RuntimeException("Extension Method does not provide a contract definition");
 		}
+		
+		LOGGER.info(EventPrettyLogPrinter.prettyPrint((DESEvent) args[0], "Enforcing contract on extension reacting to the event", "Simulation Extension OnEvent Contract Enforcement Interceptor"));
 
 
 	}
