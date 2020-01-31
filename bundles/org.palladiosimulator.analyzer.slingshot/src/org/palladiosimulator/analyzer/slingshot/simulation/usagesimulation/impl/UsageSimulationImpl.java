@@ -10,8 +10,7 @@ import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationBehavi
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.annotations.EventCardinality;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.annotations.OnEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.ManyEvents;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.SingleEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.ResultEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserStarted;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserWokeUp;
@@ -60,25 +59,34 @@ public class UsageSimulationImpl implements SimulationBehaviourExtension {
 	// FIXME: how can it occur that an extension sends an event which is not specified
 	// FIXME: when and how could it happen that an extension sends an event which has no specification for it.
 	// FIXME: explore runtime checks and in combination with rule checks.
-	@Subscribe public ManyEvents<UserStarted> onSimulationStart(SimulationStarted evt) {
-		Set<UserStarted> initialEvents = new HashSet<UserStarted>();
-		for (SimulatedUser simulatedUser : simulatedUsers) {
-			UserStarted startUserEvent = findStartEvent(simulatedUser);
-			initialEvents.add(startUserEvent);
-		}		
-		ManyEvents<UserStarted> manyEvents = new ManyEvents<UserStarted>(initialEvents);
-		return manyEvents;
-	}
+	// TODO: Also when enforcing the contract rather then observing the result object directly we could easily check whether 
+	// the method that was invoked has the generic type of UserStarted.
+//	@Subscribe public ResultEvent<UserStarted> onSimulationStart(SimulationStarted evt) {
+//		Set<UserStarted> initialEvents = new HashSet<UserStarted>();
+//		for (SimulatedUser simulatedUser : simulatedUsers) {
+//			UserStarted startUserEvent = findStartEvent(simulatedUser);
+//			initialEvents.add(startUserEvent);
+//		}		
+//		ResultEvent<UserStarted> initialUserStartedEvents = new ResultEvent<UserStarted>(initialEvents);
+//		return initialUserStartedEvents;
+//	}
 	
-	@Subscribe public SingleEvent<DESEvent> onFinishUserEvent(UserFinished evt) {
+	@Subscribe public ResultEvent<UserFinished> onSimulationStart(SimulationStarted evt) {
+		Set<UserFinished> initialEvents = new HashSet<UserFinished>();
+		initialEvents.add(new UserFinished(null));
+		ResultEvent<UserFinished> initialUserStartedEvents = new ResultEvent<UserFinished>(initialEvents);
+		return initialUserStartedEvents;
+	}
+
+	@Subscribe public ResultEvent<DESEvent> onFinishUserEvent(UserFinished evt) {
 		LOGGER.info(String.format("Previously scheduled userFinished '%s' has finished executing its event routine, Time To schedule a new StartUserEvent", evt.getId()));
 		DESEvent nextEvt = createNextEvent(evt.getSimulatedUser());
-		return new SingleEvent<DESEvent>(nextEvt);
+		return new ResultEvent<DESEvent>(Set.of(nextEvt));
 	}
 	
-	@Subscribe public SingleEvent<DESEvent> onWakeUpUserEvent(UserWokeUp evt) {
+	@Subscribe public ResultEvent<DESEvent> onWakeUpUserEvent(UserWokeUp evt) {
 		DESEvent nextEvt = createNextEvent(evt.getSimulatedUser());
-		return new SingleEvent<DESEvent>(nextEvt);
+		return new ResultEvent<DESEvent>(Set.of(nextEvt));
 	}
 	
 

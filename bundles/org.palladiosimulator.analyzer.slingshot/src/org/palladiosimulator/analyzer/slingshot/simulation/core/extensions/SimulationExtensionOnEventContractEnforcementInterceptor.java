@@ -3,14 +3,9 @@ package org.palladiosimulator.analyzer.slingshot.simulation.core.extensions;
 import java.lang.reflect.Method;
 
 import org.apache.log4j.Logger;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.annotations.EventCardinality;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.annotations.OnEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.ManyEvents;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.OptionalEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.SingleEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.ResultEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserStarted;
 
 public class SimulationExtensionOnEventContractEnforcementInterceptor extends AbstractInterceptor {
 
@@ -39,21 +34,21 @@ public class SimulationExtensionOnEventContractEnforcementInterceptor extends Ab
 		Class eventClass = args[0].getClass(); // e.g., SimulationStarted -> ManyEvent<UserStarted>
 		boolean annotationExists = false;
 
+		ResultEvent<DESEvent> resultEvent = (ResultEvent<DESEvent>) result;
+		
 		for (OnEvent onEvent : onEvents) {
 			if (onEvent.eventType().equals(eventClass)) {
 				
 				annotationExists = true;
 				LOGGER.info("Annotation for the event type: " + onEvent.eventType().getName() + " exists");
+
+				ContractResult contractResultForType = eventContractChecker.checkEventType(resultEvent, onEvent);
 				
-				//TODO:: ManyEvents<UserStarted> is really having UserStarted as the outputEventType specifies is problematic
-//				// 
-//				ContractResult contractResultForType = eventContractChecker.checkEventType(result, onEvent);
-//				
-//				if(contractResultForType.isFailed()) {
-//					throw new RuntimeException(contractResultForType.getMessage());
-//				}
-				
-				ContractResult contractResultForCardinality = eventContractChecker.checkCardinality(result, onEvent);
+				if(contractResultForType.isFailed()) {
+					throw new RuntimeException(contractResultForType.getMessage());
+				}
+								
+				ContractResult contractResultForCardinality = eventContractChecker.checkCardinality(resultEvent, onEvent);
 				
 				if(contractResultForCardinality.isFailed()) {
 					throw new RuntimeException(contractResultForCardinality.getMessage());

@@ -6,7 +6,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationScheduling;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.Result;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.ResultEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 
 
@@ -24,7 +24,7 @@ public class SchedulingInterceptor extends AbstractInterceptor {
 	
 	@Override
 	public void postIntercept(final Object extension, final Method m, final Object[] args, final Object result){
-		Result eventResult = (Result) result;
+		ResultEvent<DESEvent> eventResult = (ResultEvent<DESEvent>) result;
 	
 		for (DESEvent desEvent : eventResult.getEventsForScheduling()) {
 			LOGGER.info(String.format("[SCHEDULING INTERCEPTOR]: Event scheduled: %s",desEvent.getClass().getName()));
