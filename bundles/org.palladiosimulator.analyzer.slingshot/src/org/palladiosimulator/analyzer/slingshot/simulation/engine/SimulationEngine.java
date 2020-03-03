@@ -7,9 +7,13 @@ import com.google.common.eventbus.EventBus;
 
 public interface SimulationEngine {
 	
+	void init();
+	
 	void start();
 	
-	void scheduleEvent(DESEvent e);
+	void scheduleEvent(DESEvent event);
+	
+	void scheduleEvent(DESEvent event, double delay);
 	
 	// returns the simulated time
 	void getTime();

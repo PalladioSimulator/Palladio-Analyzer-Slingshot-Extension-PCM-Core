@@ -73,7 +73,12 @@ public class SimulationDriver implements Simulation, SimulationScheduling {
 
 	public void startSimulation() {
 		DESEvent simulationStart = new SimulationStarted();
+		
+		//initialize
+		simEngine.init();
+		// initial events
 		simEngine.scheduleEvent(simulationStart);
+		// start
 		simEngine.start();
 	}
 

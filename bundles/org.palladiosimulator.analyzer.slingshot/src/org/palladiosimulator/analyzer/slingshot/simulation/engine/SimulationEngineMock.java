@@ -1,6 +1,7 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.engine;
 
 import com.google.common.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +35,7 @@ public class SimulationEngineMock implements SimulationEngine {
 		//this code should go in the right place
 		futureEventList.add(event);
 		LOGGER.info(EventPrettyLogPrinter.prettyPrint(event, "Received Event and added to FEL", "Simulation Engine"));
+		
 	}
 
 	@Override
@@ -43,7 +45,8 @@ public class SimulationEngineMock implements SimulationEngine {
 
 	@Override
 	public void start() {
-		LOGGER.info("********** SimulationEngineMock.start    **********");
+
+		LOGGER.info("********** SimulationEngineMock.start **********");
 		
 		int simulatedEvents = 0;
 		
@@ -55,7 +58,6 @@ public class SimulationEngineMock implements SimulationEngine {
 			//and it may be the case that for example I user is scheduled in the next second so its not FCFS on the event list
 			DESEvent nextEvent = futureEventList.remove(0);
 			nextEvent.handle();
-			LOGGER.info(EventPrettyLogPrinter.prettyPrint(nextEvent, "Processed evt from FEL and published to event bus", "Simulation Engine"));
 			
 			//TODO:: Schedule the side-effects of that event.
 			// nextEvent is an object with operations 
@@ -63,7 +65,6 @@ public class SimulationEngineMock implements SimulationEngine {
 			// because they dont need it and cant do anything with it. it is idempotent and cant effect the fel
 			eventBus.post(nextEvent);
 		}
-		
 		
 		LOGGER.info("********** SimulationEngineMock.start ---  finished due to empty FEL or Stopping Condition*********");
 	}
@@ -74,6 +75,20 @@ public class SimulationEngineMock implements SimulationEngine {
 			return true;
 		}
 		return false;
+	}
+
+
+	@Override
+	public void init() {
+		LOGGER.info("********** SimulationEngineMock.init --- *********");
+
+	}
+
+
+	@Override
+	public void scheduleEvent(DESEvent e, double delay) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
