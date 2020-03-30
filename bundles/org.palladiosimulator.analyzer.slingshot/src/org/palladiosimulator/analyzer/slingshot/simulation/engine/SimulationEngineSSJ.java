@@ -2,16 +2,13 @@ package org.palladiosimulator.analyzer.slingshot.simulation.engine;
 
 import com.google.common.eventbus.EventBus;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.EventPrettyLogPrinter;
 
-import umontreal.ssj.*;
 import umontreal.ssj.simevents.Event;
 import umontreal.ssj.simevents.Sim;
+import umontreal.ssj.simevents.Simulator;
 
 public class SimulationEngineSSJ implements SimulationEngine {
 	
@@ -21,6 +18,8 @@ public class SimulationEngineSSJ implements SimulationEngine {
 	
 	private final EventBus eventBus;
 	
+	private final Simulator simulator;
+	
 	@Override
 	public EventBus getEventDispatcher() {
 		return eventBus;
@@ -29,6 +28,7 @@ public class SimulationEngineSSJ implements SimulationEngine {
 
 	public SimulationEngineSSJ() {
 		this.eventBus = new EventBus();
+		this.simulator = new Simulator();
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public class SimulationEngineSSJ implements SimulationEngine {
 	@Override
 	public void start() {
 		LOGGER.info("********** SimulationEngineSSJ.start **********");		
-		Sim.start();
+		simulator.start();
 	}
 
 	@Override
@@ -57,15 +57,15 @@ public class SimulationEngineSSJ implements SimulationEngine {
 
 	@Override
 	public void init() {
-		Sim.init();
+		simulator.init();
 	}
 
 
 	@Override
 	public void scheduleEvent(DESEvent event, double delay) {
 		LOGGER.info(EventPrettyLogPrinter.prettyPrint(event, "Received Event and added to FEL", "Simulation Engine"));
-		
-		new Event() {
+
+		new Event(simulator) {
 			@Override
 			public void actions() {
 				event.handle();
