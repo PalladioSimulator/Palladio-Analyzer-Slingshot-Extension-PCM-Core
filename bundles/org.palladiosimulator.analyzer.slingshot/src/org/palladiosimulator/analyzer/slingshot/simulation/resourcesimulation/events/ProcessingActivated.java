@@ -1,32 +1,26 @@
-package org.palladiosimulator.analyzer.slingshot.simulation.core.events;
+package org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 
-public class SimulationStarted implements DESEvent {
+public class ProcessingActivated implements DESEvent {
 
-
-	private String eventId;
-	
-	public SimulationStarted() {
-		this.eventId = UUID.randomUUID().toString();
-	}
-	
 	@Override
 	public String getId() {
-		return eventId;
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
 	public List<DESEvent> handle() {
-		// no side-effect
-		return List.of();
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
 	public double getDelay() {
+		// TODO Auto-generated method stub
 		return 0;
 	}
 

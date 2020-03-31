@@ -39,5 +39,18 @@ public class UserWokeUp implements DESEvent {
 		return user;
 	}
 
+
+	@Override
+	public double time() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+	@Override
+	public void setTime(double time) {
+		// TODO Auto-generated method stub
+	}
+
 }
  

@@ -6,4 +6,6 @@ public interface DESEvent {
 	String getId();
 	List<DESEvent> handle();
 	double getDelay();
+	double time();
+	void setTime(double time);
 }

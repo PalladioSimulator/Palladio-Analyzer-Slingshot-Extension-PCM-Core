@@ -10,6 +10,7 @@ public class UserStarted implements DESEvent {
 	
 	private String eventId;
 	private SimulatedUser simulatedUser;
+	private double time;
 	
 	public SimulatedUser getSimulatedUser() {
 		return simulatedUser;
@@ -41,6 +42,17 @@ public class UserStarted implements DESEvent {
 	@Override
 	public double getDelay() {
 		return 0;
+	}
+
+	@Override
+	public double time() {
+		// TODO Auto-generated method stub
+		return time;
+	}
+
+	@Override
+	public void setTime(double time) {
+		this.time = time;
 	}
 
 }

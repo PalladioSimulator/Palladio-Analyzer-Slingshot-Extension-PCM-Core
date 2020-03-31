@@ -24,8 +24,8 @@ import org.palladiosimulator.pcm.usagemodel.UsageModel;
 import com.google.common.eventbus.Subscribe;
 
 @OnEvent(eventType = SimulationStarted.class, outputEventType = UserStarted.class, cardinality = EventCardinality.MANY)
-@OnEvent(eventType = UserStarted.class, outputEventType = UserFinished.class, cardinality = EventCardinality.SINGLE)
-//@OnEvent(eventType = UserFinished.class, outputEventType = DESEvent.class, cardinality = EventCardinality.SINGLE)
+//@OnEvent(eventType = UserStarted.class, outputEventType = UserFinished.class, cardinality = EventCardinality.SINGLE)
+@OnEvent(eventType = UserFinished.class, outputEventType = DESEvent.class, cardinality = EventCardinality.SINGLE)
 @OnEvent(eventType = UserWokeUp.class, outputEventType = DESEvent.class, cardinality = EventCardinality.SINGLE)
 public class UsageSimulationImpl implements SimulationBehaviourExtension {
 	
@@ -81,15 +81,15 @@ public class UsageSimulationImpl implements SimulationBehaviourExtension {
 //		return initialUserStartedEvents;
 //	}
 
-//	@Subscribe public ResultEvent<DESEvent> onFinishUserEvent(UserFinished evt) {
-//		LOGGER.info(String.format("Previously scheduled userFinished '%s' has finished executing its event routine, Time To schedule a new StartUserEvent", evt.getId()));
-//		DESEvent nextEvt = createNextEvent(evt.getSimulatedUser());
-//		return new ResultEvent<DESEvent>(Set.of(nextEvt));
-//	}
-	
-	@Subscribe public ResultEvent<UserFinished> onUserStarted(UserStarted evt) {
-		return new ResultEvent<UserFinished>(Set.of(new UserFinished(evt.getSimulatedUser())));
+	@Subscribe public ResultEvent<DESEvent> onFinishUserEvent(UserFinished evt) {
+		LOGGER.info(String.format("Previously scheduled userFinished '%s' has finished executing its event routine, Time To schedule a new StartUserEvent", evt.getId()));
+		DESEvent nextEvt = createNextEvent(evt.getSimulatedUser());
+		return new ResultEvent<DESEvent>(Set.of(nextEvt));
 	}
+	
+//	@Subscribe public ResultEvent<UserFinished> onUserStarted(UserStarted evt) {
+//		return new ResultEvent<UserFinished>(Set.of(new UserFinished(evt.getSimulatedUser())));
+//	}
 	
 	@Subscribe public ResultEvent<DESEvent> onWakeUpUserEvent(UserWokeUp evt) {
 		DESEvent nextEvt = createNextEvent(evt.getSimulatedUser());

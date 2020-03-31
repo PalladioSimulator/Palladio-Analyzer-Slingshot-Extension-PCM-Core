@@ -34,7 +34,7 @@ public class SimulationEngineSSJ implements SimulationEngine {
 	@Override
 	public void scheduleEvent(DESEvent event) {
 		//this code should go in the right place
-		scheduleEvent(event, 0);
+		scheduleEvent(event, event.getDelay());
 		
 	}
 
@@ -65,14 +65,22 @@ public class SimulationEngineSSJ implements SimulationEngine {
 	public void scheduleEvent(DESEvent event, double delay) {
 		LOGGER.info(EventPrettyLogPrinter.prettyPrint(event, "Received Event and added to FEL", "Simulation Engine"));
 
-		new Event(simulator) {
+		Event myev = new Event(simulator) {
 			@Override
 			public void actions() {
 				event.handle();
 				LOGGER.info(EventPrettyLogPrinter.prettyPrint(event, "Executed evt routine from FEL and published to event bus", "SSJ Simulation Engine"));
+				LOGGER.info("Current time is:" + simulator.time());
+
+				// set time of the execution
+				event.setTime(simulator.time());
+				
+				// publish the event to the bus
 				eventBus.post(event);
 			}
-		}.schedule(0);
+		};
+		myev.schedule(delay);
+		
 	}
 
 }
