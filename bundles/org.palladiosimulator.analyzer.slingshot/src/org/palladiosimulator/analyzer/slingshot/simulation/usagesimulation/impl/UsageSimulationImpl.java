@@ -83,7 +83,7 @@ public class UsageSimulationImpl implements SimulationBehaviourExtension {
 
 	@Subscribe public ResultEvent<DESEvent> onFinishUserEvent(UserFinished evt) {
 		LOGGER.info(String.format("Previously scheduled userFinished '%s' has finished executing its event routine, Time To schedule a new StartUserEvent", evt.getId()));
-		DESEvent nextEvt = createNextEvent(evt.getSimulatedUser());
+		DESEvent nextEvt = createNextEvent(evt.getEntity());
 		return new ResultEvent<DESEvent>(Set.of(nextEvt));
 	}
 	
@@ -92,7 +92,7 @@ public class UsageSimulationImpl implements SimulationBehaviourExtension {
 //	}
 	
 	@Subscribe public ResultEvent<DESEvent> onWakeUpUserEvent(UserWokeUp evt) {
-		DESEvent nextEvt = createNextEvent(evt.getSimulatedUser());
+		DESEvent nextEvt = createNextEvent(evt.getEntity());
 		return new ResultEvent<DESEvent>(Set.of(nextEvt));
 	}
 	

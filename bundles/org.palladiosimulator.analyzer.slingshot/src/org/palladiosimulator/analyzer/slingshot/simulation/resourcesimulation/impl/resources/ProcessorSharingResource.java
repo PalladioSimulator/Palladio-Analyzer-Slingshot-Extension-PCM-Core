@@ -1,4 +1,4 @@
-package org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl;
+package org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl.resources;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -13,12 +13,21 @@ import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.resul
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobProgressed;
+import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl.Job;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserStarted;
 
 import de.uka.ipd.sdq.probfunction.math.util.MathTools;
 
-public class ProcessorSharingResource {
+
+/**
+ * An event-driven implemenation of ProcessorSharingResource where the behavior is as specified in 
+ * de.uka.ipd.sdq.scheduler.resources.active.ProcessorSharing
+ * 
+ * @author Floriment Klinaku
+ *
+ */
+public class ProcessorSharingResource implements IResource {
 
 	private final Logger LOGGER = Logger.getLogger(ProcessorSharingResource.class);
 
@@ -50,15 +59,17 @@ public class ProcessorSharingResource {
 		return capacity;
 	}
 
+	@Override
 	public ResultEvent<DESEvent> onSimulationStarted(SimulationStarted evt) {
 		return new ResultEvent<DESEvent>(Set.of());
 	}
 
+	@Override
 	public ResultEvent<DESEvent> onUserStarted(UserStarted evt) {
 		toNow(evt.time());
 
 		// TODO:: this needs to come from evt, UserStarted evt.
-		Job newJob = new Job(0, null, false, evt.getSimulatedUser(), 10.0);
+		Job newJob = new Job(0, null, false, evt.getEntity(), 10.0);
 
 		double demand = newJob.getDemand();
 
@@ -77,28 +88,30 @@ public class ProcessorSharingResource {
 		return new ResultEvent<DESEvent>(Set.of(jobProgressed));
 	}
 
-	public ResultEvent<DESEvent> onJobFinished(JobFinished evt) {
-		return new ResultEvent<DESEvent>(Set.of(new UserFinished(evt.getProcess().getUser())));
+	@Override
+	public ResultEvent<DESEvent> onJobFinished(JobFinished jobFinishedEvt) {
+		return new ResultEvent<DESEvent>(Set.of(new UserFinished(jobFinishedEvt.getEntity().getUser())));
 	}
 
-	public ResultEvent<DESEvent> onJobProgressed(JobProgressed evt) {
+	@Override
+	public ResultEvent<DESEvent> onJobProgressed(JobProgressed jobProgressedEvt) {
 
-		if (currentState.compareTo(evt.getExpectedResourceState()) != 0) {
+		if (currentState.compareTo(jobProgressedEvt.getExpectedResourceState()) != 0) {
 			LOGGER.info("State of passive resource has changed, waiting for next JobProgressed");
 
 			// in case they are not equal ignore this
 			return new ResultEvent<DESEvent>(Set.of());
 		}
 
-		toNow(evt.time());
+		toNow(jobProgressedEvt.time());
 
-		Job shortestJob = evt.getJob();
+		Job shortestJob = jobProgressedEvt.getEntity();
 
 		running_processes.remove(shortestJob);
 
 		reportCoreUsage();
 
-		LOGGER.info("Job Finished " + evt.getExpectedResourceState());
+		LOGGER.info("Job Finished " + jobProgressedEvt.getExpectedResourceState());
 		
 		
 		JobFinished jobFinishedEvt = new JobFinished(shortestJob, 0);
@@ -218,7 +231,6 @@ public class ProcessorSharingResource {
 //		toNow();
 //		return running_processes.get(process);
 //	}
-
 //	@Override
 //	public void updateDemand(final ISchedulableProcess process, final double demand) {
 //		boolean updated = false;

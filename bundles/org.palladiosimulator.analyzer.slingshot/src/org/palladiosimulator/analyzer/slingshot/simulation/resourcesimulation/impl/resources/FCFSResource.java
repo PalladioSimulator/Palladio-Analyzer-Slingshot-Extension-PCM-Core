@@ -1,4 +1,4 @@
-package org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl;
+package org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl.resources;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -10,12 +10,22 @@ import org.palladiosimulator.analyzer.slingshot.simulation.core.events.Simulatio
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.ResultEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobFinished;
+import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobProgressed;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobScheduled;
+import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl.Job;
+import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl.ResourceSimulationImpl;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserStarted;
 import de.uka.ipd.sdq.probfunction.math.util.MathTools;
 
-public class FCFSResource {
+/**
+ * An event-driven implemenation of ProcessorSharingResource where the behavior is as specified in 
+ * de.uka.ipd.sdq.scheduler.resources.active.SimFCFSResource
+ * 
+ * @author Floriment Klinaku
+ *
+ */
+public class FCFSResource implements IResource {
 	private final Logger LOGGER = Logger.getLogger(ResourceSimulationImpl.class);
 
 	// this is the data that is updated event after event for an activeresource.
@@ -38,6 +48,7 @@ public class FCFSResource {
 	
 
 	
+	@Override
 	public ResultEvent<DESEvent> onSimulationStarted(SimulationStarted evt) {
 		// activate resouces
 		// we could create a tuple of next processing finished and also that a user
@@ -48,6 +59,7 @@ public class FCFSResource {
 	}
 
 
+	@Override
 	public ResultEvent<DESEvent> onUserStarted(UserStarted evt) {
 
 		LOGGER.info(String.format("User requests processing '%f' users for closed workload simulation", evt.time()));
@@ -56,7 +68,7 @@ public class FCFSResource {
 		
 		
 		// TODO:: Demand should come from the clients currently all set to one.
-		Job newJob = new Job(0, null, false, evt.getSimulatedUser(), 10.0);
+		Job newJob = new Job(0, null, false, evt.getEntity(), 10.0);
 
 		running_processes.put(newJob, newJob.getDemand());
 		processQ.add(newJob);
@@ -66,21 +78,22 @@ public class FCFSResource {
 		// it is the the one that arrived now
 		if(processQ.size()==1) {
 			LOGGER.info("[User Arrival]: Single user -> we need to schedule the getNextEvent");
-			return new ResultEvent<DESEvent>(Set.of(new JobScheduled(), getNextEvent()));
+			return new ResultEvent<DESEvent>(Set.of(new JobScheduled(newJob,0), getNextEvent()));
 		} else { 
 			LOGGER.info("[User Arrival]: Multiple users exist -> wait in queue");
-			return new ResultEvent<DESEvent>(Set.of(new JobScheduled()));
+			return new ResultEvent<DESEvent>(Set.of(new JobScheduled(newJob,0)));
 		}
 	}
 
 	
-	public ResultEvent<DESEvent> onJobFinished(JobFinished evt) {
+	@Override
+	public ResultEvent<DESEvent> onJobFinished(JobFinished jobFinishedEvt) {
 
 			// the state of the resource has not changed until this point in time.
-			toNow(evt.time());
-			LOGGER.info(String.format("[Processing Finished]: User requests finished at '%f'", evt.time()));
+			toNow(jobFinishedEvt.time());
+			LOGGER.info(String.format("[Processing Finished]: User requests finished at '%f'", jobFinishedEvt.time()));
 
-			Job job = evt.getProcess();
+			Job job = jobFinishedEvt.getEntity();
 			
 			assert MathTools.equalsDouble(0, running_processes.get(job)) : "Remaining demand ("
 					+ running_processes.get(job) + ") not zero!";
@@ -89,7 +102,7 @@ public class FCFSResource {
 //	       fireStateChange(processQ.size(), 0); -> for this another type of events might be introduced
 //	       fireDemandCompleted(first); -> UserFinished
 
-			UserFinished userFinished = new UserFinished(evt.getProcess().getUser());
+			UserFinished userFinished = new UserFinished(jobFinishedEvt.getEntity().getUser());
 
 //	       LoggingWrapper.log("Demand of Process " + first + " finished.");
 //	       scheduleNextEvent();
@@ -102,7 +115,8 @@ public class FCFSResource {
 		return new ResultEvent<DESEvent>(Set.of(getNextEvent(), userFinished));
 	}
 
-	public ResultEvent<DESEvent> onJobProgressed(JobFinished evt) {
+	@Override
+	public ResultEvent<DESEvent> onJobProgressed(JobProgressed evt) {
 
 		return new ResultEvent<DESEvent>(Set.of());
 	}

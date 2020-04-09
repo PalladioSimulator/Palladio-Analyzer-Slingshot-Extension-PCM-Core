@@ -16,6 +16,9 @@ import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.resul
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobScheduled;
+import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl.resources.FCFSResource;
+import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl.resources.IResource;
+import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl.resources.ProcessorSharingResource;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobProgressed;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserStarted;
@@ -30,12 +33,11 @@ import de.uka.ipd.sdq.probfunction.math.util.MathTools;
 public class ResourceSimulationImpl implements SimulationBehaviourExtension {
 
 	
-	FCFSResource myFCFSResource = new FCFSResource();
-	ProcessorSharingResource myPSResource = new ProcessorSharingResource("test", UUID.randomUUID().toString(),2L);
+	IResource myFCFSResource = new FCFSResource();
+	IResource myPSResource = new ProcessorSharingResource("test", UUID.randomUUID().toString(),2L);
 	
 	private final Logger LOGGER = Logger.getLogger(ResourceSimulationImpl.class);
 
-	
 	
 	// all these should  belong to a registry
 	// TODO:: the Resource Container ID is container in the Request and its base is the PCM spec.
