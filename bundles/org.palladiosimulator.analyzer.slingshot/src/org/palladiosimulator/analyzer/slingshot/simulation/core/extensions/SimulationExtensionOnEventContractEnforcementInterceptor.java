@@ -49,7 +49,8 @@ public class SimulationExtensionOnEventContractEnforcementInterceptor extends Ab
 					LOGGER.info(EventPrettyLogPrinter.prettyPrint((DESEvent) args[0], "Failure of enforcing contract on extension reacting to the event", "Simulation Extension OnEvent Contract Enforcement Interceptor"));
 					throw new RuntimeException(contractResultForType.getMessage());
 				}
-								
+				
+				//TODO:: MANY 
 				ContractResult contractResultForCardinality = eventContractChecker.checkCardinality(resultEvent, onEvent);
 				
 				if(contractResultForCardinality.isFailed()) {

@@ -28,12 +28,6 @@ public class EventContractChecker {
 				msg = "Extension Method Is Not Returning the Cardinality According to Contract, Returned: Many Events, Contract: " + onEventContract.cardinality().toString();
 			}
 		}
-		else if(outputEvent.isOne()) {
-			if (!onEventContract.cardinality().equals(EventCardinality.SINGLE)) {
-				failed = true;
-				msg = "Extension Method Is Not Returning the Cardinality According to Contract, Returned: Single, Contract: " + onEventContract.cardinality().toString();
-			}
-		}
 
 		return new ContractResult(failed, msg);
 				
