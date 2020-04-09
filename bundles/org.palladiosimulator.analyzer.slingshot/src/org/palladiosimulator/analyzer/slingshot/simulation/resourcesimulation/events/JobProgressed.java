@@ -6,21 +6,27 @@ import java.util.UUID;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl.Job;
 
-public class JobFinished implements DESEvent {
+public class JobProgressed implements DESEvent {
 
 	
 	private final Job job;
 	private double delay;
 	private double simulationTime;
 	private String id;
+	private UUID expectedResourceState;
 	
-	public JobFinished(Job job, double delay) {
+	public JobProgressed(Job job, double delay, UUID expectedState) {
 		this.job = job;
 		this.delay = delay;
 		this.id = UUID.randomUUID().toString();
+		this.expectedResourceState = expectedState;
 	}
 	
-	public Job getProcess() {
+	public UUID getExpectedResourceState() {
+		return expectedResourceState;
+	}
+
+	public Job getJob() {
 		return job;
 	}
 	
@@ -33,16 +39,6 @@ public class JobFinished implements DESEvent {
 	@Override
 	public List<DESEvent> handle() {
 		// TODO Auto-generated method stub
-//       toNow();
-//       assert MathTools.equalsDouble(0, running_processes.get(first)) : "Remaining demand ("
-//               + running_processes.get(first) + ") not zero!";
-//       running_processes.remove(first);
-//       processQ.remove(first);
-//       fireStateChange(processQ.size(), 0);
-//       fireDemandCompleted(first);
-//       LoggingWrapper.log("Demand of Process " + first + " finished.");
-//       scheduleNextEvent();
-//       first.activate();
 		return null;
 	}
 

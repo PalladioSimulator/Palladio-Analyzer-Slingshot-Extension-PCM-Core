@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 
-public class ProcessingStarted implements DESEvent {
+public class JobScheduled implements DESEvent {
 
 	//TODO:: This should contain the meta-data for assigning it to a specific resource
 	
