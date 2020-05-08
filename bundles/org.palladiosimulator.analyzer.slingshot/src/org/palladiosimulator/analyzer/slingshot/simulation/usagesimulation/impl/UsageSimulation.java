@@ -13,12 +13,12 @@ public interface UsageSimulation {
 	/**
 	 * Retrieves the StartEvent for the given user
 	 * */
-	DESEvent findStartEvent(SimulatedUser user);
+	DESEvent findStartEvent(User user);
 	
 	/**
 	 * Retrieves the next event for the given user
 	 * */
-	DESEvent findNextEvent(SimulatedUser user);
+	DESEvent findNextEvent(User user);
 	
 	
 }

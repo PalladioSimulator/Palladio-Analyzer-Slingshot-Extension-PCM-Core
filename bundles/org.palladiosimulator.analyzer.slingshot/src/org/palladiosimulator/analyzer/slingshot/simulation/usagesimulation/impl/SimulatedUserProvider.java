@@ -24,16 +24,16 @@ public class SimulatedUserProvider {
 		this.usageModelRepository = usageModelRepository;
 	}
 	
-	public List<SimulatedUser> createSimulatedUsers() {
+	public List<User> createSimulatedUsers() {
 		if (usageModelRepository == null) {
 			LOGGER.error("UsageModelRepository was not initialized. No usage model available to create simulated users");
-			return new ArrayList<SimulatedUser>();
+			return new ArrayList<User>();
 		}
 		
 		// parse usage model
 		List<UsageScenario> usageScenarios = usageModelRepository.findAllUsageScenarios();
 		
-		List<SimulatedUser> simulatedUsers = new ArrayList<SimulatedUser>();
+		List<User> simulatedUsers = new ArrayList<User>();
 		for (UsageScenario usageScenario : usageScenarios) {
 			Workload workload = usageModelRepository.findWorkloadForUsageScenario(usageScenario);
 			
@@ -56,11 +56,11 @@ public class SimulatedUserProvider {
 		return simulatedUsers;
 	}
 	
-	private List<SimulatedUser> createUsersForClosedWorkload(final UsageScenario scenario, final int population) {
-		List<SimulatedUser> simulatedUsers = new ArrayList<SimulatedUser>();
+	private List<User> createUsersForClosedWorkload(final UsageScenario scenario, final int population) {
+		List<User> simulatedUsers = new ArrayList<User>();
 		for (int i = 0; i < population; i++) {
 			AbstractUserAction currentPosition = usageModelRepository.findFirstActionOf(scenario);
-			SimulatedUser user = new SimulatedUser(currentPosition.getEntityName(), scenario, currentPosition, usageModelRepository);
+			User user = new User(currentPosition.getEntityName(), scenario, currentPosition, usageModelRepository);
 			simulatedUsers.add(user);
 		}
 		return simulatedUsers;

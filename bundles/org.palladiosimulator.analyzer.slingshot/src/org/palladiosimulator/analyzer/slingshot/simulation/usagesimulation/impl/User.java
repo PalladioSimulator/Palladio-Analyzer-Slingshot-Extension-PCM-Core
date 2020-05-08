@@ -7,9 +7,9 @@ import org.palladiosimulator.analyzer.slingshot.repositories.UsageModelRepositor
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
-public class SimulatedUser {
+public class User {
 	
-	private final Logger LOGGER = Logger.getLogger(SimulatedUser.class);
+	private final Logger LOGGER = Logger.getLogger(User.class);
 	
 	private String userId;
 	private String userName;
@@ -18,7 +18,7 @@ public class SimulatedUser {
 	
 	private UsageModelRepository usageModelRepository;
 	
-	public SimulatedUser(String userName, final UsageScenario scenario, final AbstractUserAction currentPosition, UsageModelRepository usageModelRepository) {
+	public User(String userName, final UsageScenario scenario, final AbstractUserAction currentPosition, UsageModelRepository usageModelRepository) {
 		this.userId = UUID.randomUUID().toString();
 		this.userName = userName;
 		this.scenario = scenario;

@@ -3,15 +3,15 @@ package org.palladiosimulator.analyzer.slingshot.simulation.core;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.SimulatedUser;
+import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.User;
 
 public class SimulationStatus implements SimulationMonitoring {
 	
-	private List<SimulatedUser> simulatedUsers;
+	private List<User> simulatedUsers;
 	
 	
-	public SimulationStatus(final List<SimulatedUser> simulatedUsers) {
-		this.simulatedUsers = new ArrayList<SimulatedUser>(simulatedUsers);
+	public SimulationStatus(final List<User> simulatedUsers) {
+		this.simulatedUsers = new ArrayList<User>(simulatedUsers);
 	}
 	
 
@@ -24,7 +24,7 @@ public class SimulationStatus implements SimulationMonitoring {
 
 
 	@Override
-	public List<SimulatedUser> getSimulatedUsers() {
+	public List<User> getSimulatedUsers() {
 		return simulatedUsers;
 	}
 

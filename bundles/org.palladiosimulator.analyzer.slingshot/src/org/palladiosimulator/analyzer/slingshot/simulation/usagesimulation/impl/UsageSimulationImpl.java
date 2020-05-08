@@ -32,7 +32,7 @@ public class UsageSimulationImpl implements SimulationBehaviourExtension {
 	private final Logger LOGGER = Logger.getLogger(UsageSimulationImpl.class);
 
 	// internal property for the behavior
-	private List<SimulatedUser> simulatedUsers;
+	private List<User> simulatedUsers;
 
 	// dependency on the core
 	private UsageModelRepository usageModelRepository;
@@ -64,7 +64,7 @@ public class UsageSimulationImpl implements SimulationBehaviourExtension {
 	// the method that was invoked has the generic type of UserStarted.
 	@Subscribe public ResultEvent<UserStarted> onSimulationStart(SimulationStarted evt) {
 		Set<UserStarted> initialEvents = new HashSet<UserStarted>();
-		for (SimulatedUser simulatedUser : simulatedUsers) {
+		for (User simulatedUser : simulatedUsers) {
 			UserStarted startUserEvent = findStartEvent(simulatedUser);
 			initialEvents.add(startUserEvent);
 		}		
@@ -105,16 +105,16 @@ public class UsageSimulationImpl implements SimulationBehaviourExtension {
 		LOGGER.info("UsageSimulation: usage model was loaded.");
 	}
 
-	private List<SimulatedUser> createSimulatedUsers() {
+	private List<User> createSimulatedUsers() {
 		return simulatedUserProvider.createSimulatedUsers();
 	}
 
 	// TODO:: Fix interpretation
-	private UserStarted findStartEvent(SimulatedUser user) {
+	private UserStarted findStartEvent(User user) {
 		return new UserStarted(user);
 	}
 
-	private DESEvent createNextEvent(SimulatedUser user) {
+	private DESEvent createNextEvent(User user) {
 		AbstractUserAction nextAction = user.nextAction();		
 		if (null == nextAction) {
 			LOGGER.info(String.format("SimulatedUser['%s'|'%s']: no more actions found.", user.getUserName(), user.getUserId()));
