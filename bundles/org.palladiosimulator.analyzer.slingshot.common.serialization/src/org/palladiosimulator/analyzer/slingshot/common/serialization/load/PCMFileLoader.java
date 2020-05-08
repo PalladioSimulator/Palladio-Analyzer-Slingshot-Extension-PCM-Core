@@ -6,16 +6,16 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.palladiosimulator.pcm.usagemodel.UsageModel;
 
-public class UsageModelFileLoader {
-	
-	public UsageModel load(final Path filePath) {
+public class PCMFileLoader {
+
+	@SuppressWarnings("unchecked")
+	public <T> T load(final Path filePath) {
 		EMFResourceSetInitializerHelper.initEMF(filePath);
 		ResourceSet resourceSet = new ResourceSetImpl();
 		URI fileURI = URI.createFileURI(filePath.toString());
-		Resource usageModelResource = resourceSet.getResource(fileURI, true);
-		return (UsageModel)usageModelResource.getContents().get(0);
+		Resource modelResource = resourceSet.getResource(fileURI, true);
+		return (T) modelResource.getContents().get(0);
 	}
-
+	
 }

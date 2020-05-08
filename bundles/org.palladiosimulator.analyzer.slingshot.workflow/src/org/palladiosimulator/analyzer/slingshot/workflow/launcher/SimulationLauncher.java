@@ -54,7 +54,7 @@ public class SimulationLauncher extends AbstractPCMLaunchConfigurationDelegate<S
 			
 			ArchitecturalModelsConfiguration architecturalModels = new ArchitecturalModelsConfiguration(
 					(String) launchConfigurationParams.get(ModelFileTypeConstants.USAGE_FILE)
-					, Arrays.asList((String) launchConfigurationParams.get(ModelFileTypeConstants.ALLOCATION_FILE))
+					, (String) launchConfigurationParams.get(ModelFileTypeConstants.ALLOCATION_FILE)
 					, (String) launchConfigurationParams.get(ModelFileTypeConstants.MONITOR_REPOSITORY_FILE));
 			
 			workflowConfiguration = new SimulationWorkflowConfiguration(architecturalModels);

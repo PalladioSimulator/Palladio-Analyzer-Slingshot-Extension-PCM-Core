@@ -4,10 +4,11 @@ import java.nio.file.Path;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.palladiosimulator.analyzer.slingshot.common.serialization.load.UsageModelFileLoader;
+import org.palladiosimulator.analyzer.slingshot.common.serialization.load.PCMFileLoader;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.Simulation;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationFactory;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
+import org.palladiosimulator.pcm.allocation.Allocation;
 
 import de.uka.ipd.sdq.workflow.jobs.CleanupFailedException;
 import de.uka.ipd.sdq.workflow.jobs.IBlackboardInteractingJob;
@@ -21,21 +22,25 @@ public class SimulationJob implements IBlackboardInteractingJob<MDSDBlackboard> 
 
 	private MDSDBlackboard blackboard;
 	
-	private UsageModelFileLoader usageModelLoader;
 	private Path usageModelPath;
+	private Path allocationModelPath;
+	private PCMFileLoader pcmFileLoader;
 	
-	public SimulationJob(final UsageModelFileLoader fileLoader, final Path usageModelPath) {
+	public SimulationJob(final PCMFileLoader pcmFileLoader,  final Path usageModelPath, final Path allocationModelPath) {
 		this.usageModelPath = usageModelPath;
-		this.usageModelLoader = fileLoader;
+		this.pcmFileLoader = pcmFileLoader;
+		this.allocationModelPath = allocationModelPath;
 	}
 
 	@Override
 	public void execute(IProgressMonitor monitor) throws JobFailedException, UserCanceledException {
 		LOGGER.info("**** SimulationJob.execute ****");
 		
-		UsageModel usageModel = usageModelLoader.load(usageModelPath);
-		Simulation simulation;
+		UsageModel usageModel = pcmFileLoader.load(usageModelPath);
+		Allocation allocation = pcmFileLoader.load(allocationModelPath);
 		
+		Simulation simulation;
+						
 		try {
 			simulation = SimulationFactory.createSimulation();
 			simulation.init(usageModel);
@@ -70,3 +75,4 @@ public class SimulationJob implements IBlackboardInteractingJob<MDSDBlackboard> 
 	}
 
 }
+

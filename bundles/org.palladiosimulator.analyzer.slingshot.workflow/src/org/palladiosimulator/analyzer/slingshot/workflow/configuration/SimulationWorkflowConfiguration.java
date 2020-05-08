@@ -1,5 +1,7 @@
 package org.palladiosimulator.analyzer.slingshot.workflow.configuration;
 
+import java.util.List;
+
 import org.palladiosimulator.analyzer.workflow.configurations.AbstractPCMWorkflowRunConfiguration;
 
 public class SimulationWorkflowConfiguration extends AbstractPCMWorkflowRunConfiguration {
@@ -16,7 +18,7 @@ public class SimulationWorkflowConfiguration extends AbstractPCMWorkflowRunConfi
 		 * for simulation it is current not required; therefore pass empty list in order to successfully execute workflow
 		 * */
 		this.setUsageModelFile(inputModels.getUsageModelFile());
-		this.setAllocationFiles(inputModels.getAllocationFiles());
+		this.setAllocationFiles(List.of(inputModels.getAllocationFile()));
 	}
 
 	@Override
