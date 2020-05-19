@@ -2,7 +2,8 @@ package org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.i
 
 import java.util.UUID;
 
-import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.User;
+import org.palladiosimulator.analyzer.slingshot.simulation.systemsimulation.impl.Request;
+import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.entities.User;
 
 public class Job {
 
@@ -11,8 +12,9 @@ public class Job {
 	private int priority;
 	private Job rootProcess;
 	private boolean finished;
-	private final User user;
 	private double demand;
+
+	private final Request request;
 	
 	public double getDemand() {
 		return demand;
@@ -22,12 +24,12 @@ public class Job {
 		this.demand = demand;
 	}
 
-	public Job(int priority, Job rootProcess, boolean finished, User user, double demand) {
+	public Job(int priority, Job rootProcess, boolean finished, double demand, Request request) {
+		this.request = request;
 		this.id = UUID.randomUUID().toString();
 		this.priority = priority;
 		this.rootProcess = rootProcess;
 		this.finished = finished;
-		this.user = user;
 		this.demand = demand;
 	}
 
@@ -50,9 +52,10 @@ public class Job {
 		// TODO Auto-generated method stub
 		return finished;
 	}
-	
-	public User getUser() {
-		return user;
+
+	public Request getRequest() {
+		return request;
 	}
+	
 
 }

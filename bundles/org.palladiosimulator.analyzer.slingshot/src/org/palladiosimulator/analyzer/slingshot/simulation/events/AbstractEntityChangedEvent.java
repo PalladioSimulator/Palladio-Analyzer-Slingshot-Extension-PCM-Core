@@ -14,6 +14,7 @@ public abstract class AbstractEntityChangedEvent<T> implements DESEvent{
 
 	protected double delay;
 	private double simulationTime;
+	// id here not needed
 	protected String id;
 	private T entity;
 

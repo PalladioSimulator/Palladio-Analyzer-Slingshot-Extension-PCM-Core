@@ -3,6 +3,7 @@ package org.palladiosimulator.analyzer.slingshot.simulation.badextension;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationModel;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationBehaviourExtension;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.annotations.EventCardinality;
@@ -18,14 +19,15 @@ import com.google.common.eventbus.Subscribe;
 public class MyBadExtension implements SimulationBehaviourExtension {
 
 	@Override
-	public void init(UsageModel usageModel) {
+	public void init(final SimulationModel usageModel) {
 		// TODO Auto-generated method stub
+
 
 	}
 	
 	@Subscribe public ResultEvent<UserFinished> onSimulationStart(SimulationStarted evt) {
 		Set<UserFinished> initialEvents = new HashSet<UserFinished>();
-		initialEvents.add(new UserFinished(null));
+//		initialEvents.add(new UserFinished(null));
 		ResultEvent<UserFinished> initialUserStartedEvents = new ResultEvent<UserFinished>(initialEvents);
 		return initialUserStartedEvents;
 	}

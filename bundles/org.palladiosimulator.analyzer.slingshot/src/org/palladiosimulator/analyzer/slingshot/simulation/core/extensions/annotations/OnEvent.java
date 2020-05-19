@@ -16,7 +16,7 @@ import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 @Target(TYPE)
 public @interface OnEvent {
 
-	Class<? extends DESEvent> outputEventType();
+	Class<? extends DESEvent>[] outputEventType();
 
 	EventCardinality cardinality() default EventCardinality.SINGLE;
 

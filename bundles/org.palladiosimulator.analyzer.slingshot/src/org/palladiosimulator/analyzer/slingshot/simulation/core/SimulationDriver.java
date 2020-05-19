@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.Simulation;
+import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationModel;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.SimulationExtensionOnEventContractEnforcementInterceptor;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.ExtensionLoggingInterceptor;
@@ -43,13 +44,14 @@ public class SimulationDriver implements Simulation, SimulationScheduling {
 		this.decoratedSimulationBehaviorProviders.addAll(decoratedSimProviders);
 	}
 
-	public void init(final UsageModel usageModel) throws Exception {
+	
+	public void init(final SimulationModel model) throws Exception {
 		LOGGER.info("Start simulation driver initialization.");
 
 		registerSimulationBehaviorExtensionInterceptors();
 
 		for (SimulationBehaviourExtension simulationBehaviourExtension : behaviorExtensions) {
-			simulationBehaviourExtension.init(usageModel);
+			simulationBehaviourExtension.init(model);
 			this.simEngine.getEventDispatcher().register(simulationBehaviourExtension);
 		}
 

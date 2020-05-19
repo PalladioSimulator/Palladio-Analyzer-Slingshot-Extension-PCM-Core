@@ -4,6 +4,7 @@ import org.palladiosimulator.analyzer.slingshot.simulation.core.events.Simulatio
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.ResultEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobFinished;
+import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobInitiated;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobProgressed;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserStarted;
 
@@ -22,7 +23,7 @@ public interface IResource {
 
 	ResultEvent<DESEvent> onSimulationStarted(SimulationStarted evt);
 
-	ResultEvent<DESEvent> onUserStarted(UserStarted evt);
+	ResultEvent<DESEvent> onJobInitiated(JobInitiated evt);
 
 	ResultEvent<DESEvent> onJobFinished(JobFinished evt);
 

@@ -7,6 +7,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.palladiosimulator.analyzer.slingshot.common.serialization.load.PCMFileLoader;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.Simulation;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationFactory;
+import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationModel;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
 import org.palladiosimulator.pcm.allocation.Allocation;
 
@@ -38,12 +39,13 @@ public class SimulationJob implements IBlackboardInteractingJob<MDSDBlackboard> 
 		
 		UsageModel usageModel = pcmFileLoader.load(usageModelPath);
 		Allocation allocation = pcmFileLoader.load(allocationModelPath);
+		SimulationModel model = SimulationFactory.createSimulizarSimulationModel(usageModel, allocation);
 		
 		Simulation simulation;
 						
 		try {
 			simulation = SimulationFactory.createSimulation();
-			simulation.init(usageModel);
+			simulation.init(model);
 			simulation.startSimulation();
 		} catch (Exception e) {
 			throw new JobFailedException("Simulation Could Not Be Created", e);

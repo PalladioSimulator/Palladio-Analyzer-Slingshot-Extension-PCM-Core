@@ -12,8 +12,10 @@ import org.palladiosimulator.analyzer.slingshot.simulation.core.events.Simulatio
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.ResultEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobFinished;
+import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobInitiated;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobProgressed;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl.Job;
+import org.palladiosimulator.analyzer.slingshot.simulation.systemsimulation.impl.events.RequestFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserStarted;
 
@@ -65,11 +67,11 @@ public class ProcessorSharingResource implements IResource {
 	}
 
 	@Override
-	public ResultEvent<DESEvent> onUserStarted(UserStarted evt) {
+	public ResultEvent<DESEvent> onJobInitiated(JobInitiated evt) {
 		toNow(evt.time());
 
 		// TODO:: this needs to come from evt, UserStarted evt.
-		Job newJob = new Job(0, null, false, evt.getEntity(), 10.0);
+		Job newJob = evt.getEntity();
 
 		double demand = newJob.getDemand();
 
@@ -90,7 +92,7 @@ public class ProcessorSharingResource implements IResource {
 
 	@Override
 	public ResultEvent<DESEvent> onJobFinished(JobFinished jobFinishedEvt) {
-		return new ResultEvent<DESEvent>(Set.of(new UserFinished(jobFinishedEvt.getEntity().getUser())));
+		return new ResultEvent<DESEvent>(Set.of(new RequestFinished(jobFinishedEvt.getEntity().getRequest())));
 	}
 
 	@Override

@@ -1,15 +1,11 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events;
 
-import java.util.List;
-import java.util.UUID;
+import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.UserInterpretationContext;
+import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.entities.User;
 
-import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntityChangedEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.User;
-
-public class UserFinished extends AbstractEntityChangedEvent<User> {
+public class UserFinished extends UserChangedEvent<User> {
 	
-	public UserFinished(final User simulatedUser) {
-		super(simulatedUser,0);
+	public UserFinished(final User simulatedUser, final UserInterpretationContext userContext) {
+		super(simulatedUser, userContext, 0);
 	}
 }

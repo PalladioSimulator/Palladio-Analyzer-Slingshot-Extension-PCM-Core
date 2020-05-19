@@ -1,57 +1,58 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.repositories.UsageModelRepository;
+import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationModel;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationBehaviourExtension;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.annotations.EventCardinality;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.annotations.OnEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.ResultEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserStarted;
+import org.palladiosimulator.analyzer.slingshot.simulation.systemsimulation.impl.events.RequestInitiated;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserWokeUp;
+import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.interpreters.UsageScenarioInterpreter;
+import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.entities.User;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserFinished;
-import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserSlept;
+import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserRequestFinished;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
-import org.palladiosimulator.pcm.usagemodel.Delay;
-import org.palladiosimulator.pcm.usagemodel.Stop;
+import org.palladiosimulator.pcm.usagemodel.ClosedWorkload;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
+import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
 import com.google.common.eventbus.Subscribe;
 
-@OnEvent(eventType = SimulationStarted.class, outputEventType = UserStarted.class, cardinality = EventCardinality.MANY)
+
+@OnEvent(eventType = SimulationStarted.class, outputEventType = RequestInitiated.class, cardinality = EventCardinality.MANY)
 //@OnEvent(eventType = UserStarted.class, outputEventType = UserFinished.class, cardinality = EventCardinality.SINGLE)
 @OnEvent(eventType = UserFinished.class, outputEventType = DESEvent.class, cardinality = EventCardinality.SINGLE)
 @OnEvent(eventType = UserWokeUp.class, outputEventType = DESEvent.class, cardinality = EventCardinality.SINGLE)
 public class UsageSimulationImpl implements SimulationBehaviourExtension {
 	
 	private final Logger LOGGER = Logger.getLogger(UsageSimulationImpl.class);
-
-	// internal property for the behavior
-	private List<User> simulatedUsers;
+	private UsageInterpretationContext usageInterpretationContext;
 
 	// dependency on the core
 	private UsageModelRepository usageModelRepository;
-	private SimulatedUserProvider simulatedUserProvider;
-	
 	public UsageSimulationImpl() {
 		
 	}
 
 	public UsageSimulationImpl(final UsageModelRepository usageModelRepository, final SimulatedUserProvider simulatedUserProvider) {
-		this.usageModelRepository = usageModelRepository;
-		this.simulatedUserProvider = simulatedUserProvider;
+		this.usageModelRepository = usageModelRepository;	
 	}
 
 	@Override
-	public void init(final UsageModel usageModel) {
-		loadModel(usageModel);
-		simulatedUsers = createSimulatedUsers();
-		LOGGER.info(String.format("Created '%s' users for closed workload simulation", simulatedUsers.size()));
+	public void init(final SimulationModel model) {
+		loadModel(model.getUsageModel());
+		usageInterpretationContext = new UsageInterpretationContext(usageModelRepository.findAllUsageScenarios().get(0));
+		LOGGER.info("Usage Simulation Extension Started");
 	}
 
 	// @OnEvent(output=UserStarted -> checker its fine ... -> check them all) 
@@ -62,38 +63,55 @@ public class UsageSimulationImpl implements SimulationBehaviourExtension {
 	// FIXME: explore runtime checks and in combination with rule checks.
 	// TODO: Also when enforcing the contract rather then observing the result object directly we could easily check whether 
 	// the method that was invoked has the generic type of UserStarted.
-	@Subscribe public ResultEvent<UserStarted> onSimulationStart(SimulationStarted evt) {
-		Set<UserStarted> initialEvents = new HashSet<UserStarted>();
-		for (User simulatedUser : simulatedUsers) {
-			UserStarted startUserEvent = findStartEvent(simulatedUser);
-			initialEvents.add(startUserEvent);
-		}		
-		ResultEvent<UserStarted> initialUserStartedEvents = new ResultEvent<UserStarted>(initialEvents);
+	@Subscribe public ResultEvent<DESEvent> onSimulationStart(SimulationStarted evt) {
+		Set<DESEvent> initialEvents = new HashSet<DESEvent>();
+		
+		// 1. determine the number of users by traversing the scenario in the model.
+		// - UsageModelInterpreter . continueInterpretation() returns a UsageInterpretationContext which has the type of workload: closed the number of users: 7
+		// - and this can be stored as a member of this field and initialized in init. 
+		
+		// 2. for the number of users continue UsageScenarioInterpretation 
+		UsageScenario usageScenario = usageInterpretationContext.getUsageScenario();
+		AbstractUserAction firstAction = usageModelRepository.findFirstActionOf(usageScenario);
+		
+		if(usageInterpretationContext.isClosedWorkload()) {
+			
+			ClosedWorkload workloadSpec = (ClosedWorkload) usageInterpretationContext.getWorkload();
+			
+			for(int i=0; i < workloadSpec.getPopulation(); i++) {
+				UsageScenarioInterpreter<Object> interpreter = new UsageScenarioInterpreter<Object>(new User(), new UserInterpretationContext(usageScenario, firstAction));
+				interpreter.continoueInterpretation();
+				initialEvents.addAll(interpreter.getSideEffectEvents());
+			}
+			
+			
+		}
+		
+		
+			
+		ResultEvent<DESEvent> initialUserStartedEvents = new ResultEvent<DESEvent>(initialEvents);
 		return initialUserStartedEvents;
 	}
 	
-	
-//  Example method violating the contract for types
-//	@Subscribe public ResultEvent<UserFinished> onSimulationStart(SimulationStarted evt) {
-//		Set<UserFinished> initialEvents = new HashSet<UserFinished>();
-//		initialEvents.add(new UserFinished(null));
-//		ResultEvent<UserFinished> initialUserStartedEvents = new ResultEvent<UserFinished>(initialEvents);
-//		return initialUserStartedEvents;
-//	}
-
-	@Subscribe public ResultEvent<DESEvent> onFinishUserEvent(UserFinished evt) {
-		LOGGER.info(String.format("Previously scheduled userFinished '%s' has finished executing its event routine, Time To schedule a new StartUserEvent", evt.getId()));
-		DESEvent nextEvt = createNextEvent(evt.getEntity());
-		return new ResultEvent<DESEvent>(Set.of(nextEvt));
+	@Subscribe public ResultEvent<DESEvent> onWakeUpUserEvent(UserWokeUp evt) {
+		UsageScenarioInterpreter<Object> interpreter = new UsageScenarioInterpreter<Object>(evt.getEntity(), evt.getUserInterpretationContext());
+		interpreter.continoueInterpretation();
+		Set<DESEvent> events = interpreter.getSideEffectEvents();
+		return new ResultEvent<DESEvent>(events);
 	}
 	
-//	@Subscribe public ResultEvent<UserFinished> onUserStarted(UserStarted evt) {
-//		return new ResultEvent<UserFinished>(Set.of(new UserFinished(evt.getSimulatedUser())));
-//	}
+	@Subscribe public ResultEvent<DESEvent> onFinishUserRequest(UserRequestFinished evt) {
+		UsageScenarioInterpreter<Object> interpreter = new UsageScenarioInterpreter<Object>(evt.getEntity().getUser(), evt.getUserContext());
+		interpreter.continoueInterpretation();
+		Set<DESEvent> events = interpreter.getSideEffectEvents();
+		return new ResultEvent<DESEvent>(events);
+	}
 	
-	@Subscribe public ResultEvent<DESEvent> onWakeUpUserEvent(UserWokeUp evt) {
-		DESEvent nextEvt = createNextEvent(evt.getEntity());
-		return new ResultEvent<DESEvent>(Set.of(nextEvt));
+	@Subscribe public ResultEvent<DESEvent> onUserFinished(UserFinished evt) {
+		UsageScenarioInterpreter<Object> interpreter = new UsageScenarioInterpreter<Object>(evt.getEntity(),evt.getUserInterpretationContext());
+		interpreter.caseScenarioBehaviour(evt.getUserInterpretationContext().getScenario().getScenarioBehaviour_UsageScenario());
+		Set<DESEvent> events = interpreter.getSideEffectEvents();
+		return new ResultEvent<DESEvent>(events);
 	}
 	
 
@@ -101,43 +119,12 @@ public class UsageSimulationImpl implements SimulationBehaviourExtension {
 	
 	private void loadModel(final UsageModel usageModel) {
 		usageModelRepository.load(usageModel);
-		simulatedUserProvider.initializeRepository(usageModelRepository);
+//		simulatedUserProvider.initializeRepository(usageModelRepository);
 		LOGGER.info("UsageSimulation: usage model was loaded.");
 	}
 
-	private List<User> createSimulatedUsers() {
-		return simulatedUserProvider.createSimulatedUsers();
-	}
-
-	// TODO:: Fix interpretation
-	private UserStarted findStartEvent(User user) {
-		return new UserStarted(user);
-	}
-
-	private DESEvent createNextEvent(User user) {
-		AbstractUserAction nextAction = user.nextAction();		
-		if (null == nextAction) {
-			LOGGER.info(String.format("SimulatedUser['%s'|'%s']: no more actions found.", user.getUserName(), user.getUserId()));
-			// Time to sleep for the think time
-			// Schedule UserSleep -> inside the event routine -> schedule WakeUpUserEvent 
-			
-			
-		} else {
-			if (nextAction instanceof Delay) {
-				LOGGER.info(String.format("SimulatedUser['%s'|'%s']: scheduled DelayEvent", user.getUserName(), user.getUserId()));
-				// here is the point where we extract the information and we pass it to the UserSleep event. 
-				// this involves callling StoEx libraries to determine the time needed for this user to sleep
-				//FIXME::currently hardcoded
-				double timeToSleep = 10;
-				return new UserSlept(user, timeToSleep);
-				
-			} else if (nextAction instanceof Stop) {
-				LOGGER.info(String.format("SimulatedUser['%s'|'%s']: scheduled StopEvent", user.getUserName(), user.getUserId()));
-				double thinkTime = 10;
-				return new UserSlept(user, thinkTime);
-			}
-		}
-		return new UserStarted(user);
-	}
-	
+//	private List<User> createSimulatedUsers() {
+//		return simulatedUserProvider.createSimulatedUsers();
+//	}
+//	
 }

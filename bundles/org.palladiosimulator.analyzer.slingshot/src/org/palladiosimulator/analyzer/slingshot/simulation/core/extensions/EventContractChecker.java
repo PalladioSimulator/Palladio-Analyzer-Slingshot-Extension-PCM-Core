@@ -38,16 +38,16 @@ public class EventContractChecker {
 		String msg = "Contract Check Successful";
 		
 		
-		Class<? extends DESEvent> outputClazz = onEventContract.outputEventType();
-		
-		for (DESEvent event : outputResultEvent.getEventsForScheduling()) {
-			try {
-				outputClazz.cast(event);
-			}catch(ClassCastException ex) {
-				failed = true;
-				msg = "The EventResult contains events of a type which is not as the one in the contract: " + outputClazz.getCanonicalName();
-			}
-		}
+		Class<? extends DESEvent>[] outputClazz = onEventContract.outputEventType();
+//		
+//		for (DESEvent event : outputResultEvent.getEventsForScheduling()) {
+//			try {
+//				outputClazz.cast(event);
+//			}catch(ClassCastException ex) {
+//				failed = true;
+//				msg = "The EventResult contains events of a type which is not as the one in the contract: " + outputClazz.getCanonicalName();
+//			}
+//		}
 		
 		return new ContractResult(failed, msg);
 	}

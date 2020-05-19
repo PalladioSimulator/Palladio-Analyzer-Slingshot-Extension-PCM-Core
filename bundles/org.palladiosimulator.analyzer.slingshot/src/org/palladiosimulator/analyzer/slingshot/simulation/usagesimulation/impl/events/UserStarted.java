@@ -1,13 +1,14 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events;
 
-import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntityChangedEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.User;
+import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.UserInterpretationContext;
+import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.entities.User;
 
-public class UserStarted extends AbstractEntityChangedEvent<User> {
+public class UserStarted extends UserChangedEvent<User> {
 
+	
 
-	public UserStarted(final User simulatedUser) {
-		super(simulatedUser,0);
+	public UserStarted(final User simulatedUser, final UserInterpretationContext userCtx) {
+		super(simulatedUser, userCtx, 0);
 	}
 
 

@@ -1,13 +1,10 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import org.apache.log4j.Logger;
+import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationModel;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationBehaviourExtension;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.annotations.EventCardinality;
@@ -15,21 +12,20 @@ import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.annot
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.ResultEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobFinished;
-import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobScheduled;
+import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobInitiated;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl.resources.FCFSResource;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl.resources.IResource;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl.resources.ProcessorSharingResource;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobProgressed;
-import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserStarted;
-import org.palladiosimulator.pcm.usagemodel.UsageModel;
-
+import org.palladiosimulator.pcm.allocation.Allocation;
+import org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment;
+import org.palladiosimulator.pcm.system.System;
 import com.google.common.eventbus.Subscribe;
-import de.uka.ipd.sdq.probfunction.math.util.MathTools;
 
 @OnEvent(eventType = JobProgressed.class, outputEventType = DESEvent.class, cardinality = EventCardinality.MANY)
 @OnEvent(eventType = JobFinished.class, outputEventType = DESEvent.class, cardinality = EventCardinality.MANY)
-@OnEvent(eventType = UserStarted.class, outputEventType = DESEvent.class, cardinality = EventCardinality.MANY)
+@OnEvent(eventType = JobInitiated.class, outputEventType = DESEvent.class, cardinality = EventCardinality.MANY)
 public class ResourceSimulationImpl implements SimulationBehaviourExtension {
 
 	
@@ -52,7 +48,14 @@ public class ResourceSimulationImpl implements SimulationBehaviourExtension {
 	}
 
 	@Override
-	public void init(UsageModel usageModel) {
+	public void init(final SimulationModel model) {
+		
+		Allocation allocation = model.getAllocation();
+		System system = allocation.getSystem_Allocation();
+		ResourceEnvironment resourceEnvironmentModel = allocation.getTargetResourceEnvironment_Allocation();
+		
+		resourceEnvironmentModel.getResourceContainer_ResourceEnvironment();
+		
 		// TODO Auto-generated method stub
 		// Resource Environment Model 
 		LOGGER.info(String.format("Primitive FCFS Single ResourceSimulation initialized"));
@@ -70,9 +73,9 @@ public class ResourceSimulationImpl implements SimulationBehaviourExtension {
 	}
 
 	// the event-driven variant of doProcessing: work arrives for processing
-	@Subscribe public ResultEvent<DESEvent> onUserStarted(UserStarted evt) {
-
-		return myPSResource.onUserStarted(evt);
+	@Subscribe public ResultEvent<DESEvent> onJobInitiated(JobInitiated evt) {
+		
+		return myPSResource.onJobInitiated(evt);
 	}
 
 	// the other event-driven trigger of the resource: work leaves

@@ -1,19 +1,15 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events;
 
-import java.util.List;
-import java.util.UUID;
-
-import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntityChangedEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.*;
+import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.entities.User;
 
-public class UserSlept extends AbstractEntityChangedEvent<User> {
+public class UserSlept extends UserChangedEvent<User> {
 
-	private final double timeToSleep;
+//	private final double timeToSleep;
 
-	public UserSlept(final User user, final double timeToSleep) {
-		super(user,0);
-		this.timeToSleep = timeToSleep;
+	public UserSlept(final User user, final UserInterpretationContext userContext) {
+		super(user,userContext,0);
+//		this.timeToSleep = timeToSleep;
 	}
 
 }

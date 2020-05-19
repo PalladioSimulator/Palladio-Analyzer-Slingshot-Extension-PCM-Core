@@ -10,10 +10,12 @@ import org.palladiosimulator.analyzer.slingshot.simulation.core.events.Simulatio
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.ResultEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobFinished;
+import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobInitiated;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobProgressed;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobScheduled;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl.Job;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl.ResourceSimulationImpl;
+import org.palladiosimulator.analyzer.slingshot.simulation.systemsimulation.impl.events.RequestFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserStarted;
 import de.uka.ipd.sdq.probfunction.math.util.MathTools;
@@ -60,7 +62,7 @@ public class FCFSResource implements IResource {
 
 
 	@Override
-	public ResultEvent<DESEvent> onUserStarted(UserStarted evt) {
+	public ResultEvent<DESEvent> onJobInitiated(JobInitiated evt) {
 
 		LOGGER.info(String.format("User requests processing '%f' users for closed workload simulation", evt.time()));
 
@@ -68,7 +70,7 @@ public class FCFSResource implements IResource {
 		
 		
 		// TODO:: Demand should come from the clients currently all set to one.
-		Job newJob = new Job(0, null, false, evt.getEntity(), 10.0);
+		Job newJob = evt.getEntity();
 
 		running_processes.put(newJob, newJob.getDemand());
 		processQ.add(newJob);
@@ -102,7 +104,7 @@ public class FCFSResource implements IResource {
 //	       fireStateChange(processQ.size(), 0); -> for this another type of events might be introduced
 //	       fireDemandCompleted(first); -> UserFinished
 
-			UserFinished userFinished = new UserFinished(jobFinishedEvt.getEntity().getUser());
+			RequestFinished userFinished = new RequestFinished(job.getRequest());
 
 //	       LoggingWrapper.log("Demand of Process " + first + " finished.");
 //	       scheduleNextEvent();

@@ -3,7 +3,7 @@ package org.palladiosimulator.analyzer.slingshot.simulation.core;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.User;
+import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.entities.User;
 
 public class SimulationStatus implements SimulationMonitoring {
 	
