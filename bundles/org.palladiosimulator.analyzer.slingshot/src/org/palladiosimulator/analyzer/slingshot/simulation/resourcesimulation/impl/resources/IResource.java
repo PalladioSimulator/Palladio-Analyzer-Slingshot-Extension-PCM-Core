@@ -1,7 +1,7 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl.resources;
 
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.ResultEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.results.ResultEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobInitiated;

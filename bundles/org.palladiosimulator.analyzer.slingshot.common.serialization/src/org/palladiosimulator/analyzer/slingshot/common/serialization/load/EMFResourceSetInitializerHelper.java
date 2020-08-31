@@ -1,6 +1,5 @@
 package org.palladiosimulator.analyzer.slingshot.common.serialization.load;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.Map;
 
@@ -11,6 +10,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.URIConverter;
 import org.palladiosimulator.analyzer.slingshot.common.constants.model.ModelTypeConstants;
 import org.palladiosimulator.pcm.PcmPackage;
+import org.palladiosimulator.pcm.allocation.AllocationPackage;
 import org.palladiosimulator.pcm.allocation.util.AllocationResourceFactoryImpl;
 import org.palladiosimulator.pcm.repository.util.RepositoryResourceFactoryImpl;
 import org.palladiosimulator.pcm.resourceenvironment.util.ResourceenvironmentResourceFactoryImpl;
@@ -27,7 +27,7 @@ public class EMFResourceSetInitializerHelper {
 	public static void initEMF(final Path usageModelPath) {
 		
 		// register default resource factories in the standalone EMF environment
-		Resource.Factory.Registry registry = Resource.Factory.Registry.INSTANCE;
+		final Resource.Factory.Registry registry = Resource.Factory.Registry.INSTANCE;
 		
 		registry.getExtensionToFactoryMap().put(ModelTypeConstants.REPOSITORY_EXTENSION, new RepositoryResourceFactoryImpl());
 		registry.getExtensionToFactoryMap().put(ModelTypeConstants.RESOURCE_ENVIRONMENT_EXTENSION, new ResourceenvironmentResourceFactoryImpl());
@@ -37,7 +37,7 @@ public class EMFResourceSetInitializerHelper {
 		registry.getExtensionToFactoryMap().put(ModelTypeConstants.USAGEMODEL_EXTENSION, new UsagemodelResourceFactoryImpl());
 		
 		// register your package(s)
-//		Registry.INSTANCE.put(AllocationPackage.eNS_URI, AllocationPackage.eINSTANCE);
+		Registry.INSTANCE.put(AllocationPackage.eNS_URI, AllocationPackage.eINSTANCE);
 //		Registry.INSTANCE.put(CorePackage.eNS_URI, CorePackage.eINSTANCE);
 //		Registry.INSTANCE.put(CompletionsPackage.eNS_URI, CompletionsPackage.eINSTANCE);
 //		Registry.INSTANCE.put(ParameterPackage.eNS_URI, ParameterPackage.eINSTANCE);

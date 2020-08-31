@@ -1,10 +1,10 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.engine;
 
-import com.google.common.eventbus.EventBus;
-
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.EventPrettyLogPrinter;
+
+import com.google.common.eventbus.EventBus;
 
 import umontreal.ssj.simevents.Event;
 import umontreal.ssj.simevents.Sim;
@@ -32,7 +32,7 @@ public class SimulationEngineSSJ implements SimulationEngine {
 	}
 
 	@Override
-	public void scheduleEvent(DESEvent event) {
+	public void scheduleEvent(final DESEvent event) {
 		//this code should go in the right place
 		scheduleEvent(event, event.getDelay());
 		
@@ -40,7 +40,7 @@ public class SimulationEngineSSJ implements SimulationEngine {
 
 	@Override
 	public void getTime() {
-		
+		simulator.time();
 	}
 
 	@Override
@@ -62,10 +62,10 @@ public class SimulationEngineSSJ implements SimulationEngine {
 
 
 	@Override
-	public void scheduleEvent(DESEvent event, double delay) {
+	public void scheduleEvent(final DESEvent event, final double delay) {
 		LOGGER.info(EventPrettyLogPrinter.prettyPrint(event, "Received Event and added to FEL", "Simulation Engine"));
 
-		Event myev = new Event(simulator) {
+		final Event myev = new Event(simulator) {
 			@Override
 			public void actions() {
 				event.handle();

@@ -5,11 +5,11 @@ import java.util.function.Consumer;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationModel;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationBehaviourExtension;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.annotations.EventCardinality;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.annotations.OnEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.ResultEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.SimulationBehaviourExtension;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.annotations.EventCardinality;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.annotations.OnEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.results.ResultEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobInitiated;
@@ -23,9 +23,9 @@ import org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment;
 import org.palladiosimulator.pcm.system.System;
 import com.google.common.eventbus.Subscribe;
 
-@OnEvent(eventType = JobProgressed.class, outputEventType = DESEvent.class, cardinality = EventCardinality.MANY)
-@OnEvent(eventType = JobFinished.class, outputEventType = DESEvent.class, cardinality = EventCardinality.MANY)
-@OnEvent(eventType = JobInitiated.class, outputEventType = DESEvent.class, cardinality = EventCardinality.MANY)
+@OnEvent(when = JobProgressed.class, then = DESEvent.class, cardinality = EventCardinality.MANY)
+@OnEvent(when = JobFinished.class, then = DESEvent.class, cardinality = EventCardinality.MANY)
+@OnEvent(when = JobInitiated.class, then = DESEvent.class, cardinality = EventCardinality.MANY)
 public class ResourceSimulationImpl implements SimulationBehaviourExtension {
 
 	

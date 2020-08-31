@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Slingshot
-Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot
+Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot
 Bundle-RequiredExecutionEnvironment: JavaSE-11
@@ -12,6 +12,20 @@ Require-Bundle: org.palladiosimulator.pcm;bundle-version="4.1.0",
  ca.umontreal.iro.simul.ssj;bundle-version="3.3.1",
  de.uka.ipd.sdq.scheduler,
  de.uka.ipd.sdq.probfunction.math,
- de.uka.ipd.sdq.simucomframework.variables
-Export-Package: org.palladiosimulator.analyzer.slingshot.simulation.api
+ de.uka.ipd.sdq.simucomframework.variables,
+ org.eclipse.e4.core.di;bundle-version="1.7.600",
+ org.eclipse.core.runtime.source;bundle-version="3.18.0",
+ org.eclipse.e4.core.di.annotations
+Export-Package: org.palladiosimulator.analyzer.slingshot.repositories,
+ org.palladiosimulator.analyzer.slingshot.repositories.impl,
+ org.palladiosimulator.analyzer.slingshot.simulation.api,
+ org.palladiosimulator.analyzer.slingshot.simulation.core.events,
+ org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural,
+ org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.annotations,
+ org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.decorators,
+ org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.results,
+ org.palladiosimulator.analyzer.slingshot.simulation.events,
+ org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events,
+ org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl,
+ org.palladiosimulator.analyzer.slingshot.simulation.utils
 Import-Package: com.google.common.eventbus

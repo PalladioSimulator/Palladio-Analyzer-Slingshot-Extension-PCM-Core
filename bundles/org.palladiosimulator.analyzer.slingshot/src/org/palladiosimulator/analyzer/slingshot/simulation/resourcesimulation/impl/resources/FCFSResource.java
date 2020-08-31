@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.ResultEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.results.ResultEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobInitiated;
@@ -16,8 +16,7 @@ import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.ev
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl.Job;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl.ResourceSimulationImpl;
 import org.palladiosimulator.analyzer.slingshot.simulation.systemsimulation.impl.events.RequestFinished;
-import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserFinished;
-import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserStarted;
+
 import de.uka.ipd.sdq.probfunction.math.util.MathTools;
 
 /**
@@ -51,18 +50,18 @@ public class FCFSResource implements IResource {
 
 	
 	@Override
-	public ResultEvent<DESEvent> onSimulationStarted(SimulationStarted evt) {
+	public ResultEvent<DESEvent> onSimulationStarted(final SimulationStarted evt) {
 		// activate resouces
 		// we could create a tuple of next processing finished and also that a user
 		// request is finished.
 		// new ProcessingFinished(delay) -> next
 		// new UserFinished(now)
-		return new ResultEvent<DESEvent>(Set.of());
+		return ResultEvent.empty();
 	}
 
 
 	@Override
-	public ResultEvent<DESEvent> onJobInitiated(JobInitiated evt) {
+	public ResultEvent<DESEvent> onJobInitiated(final JobInitiated evt) {
 
 		LOGGER.info(String.format("User requests processing '%f' users for closed workload simulation", evt.time()));
 
@@ -70,7 +69,7 @@ public class FCFSResource implements IResource {
 		
 		
 		// TODO:: Demand should come from the clients currently all set to one.
-		Job newJob = evt.getEntity();
+		final Job newJob = evt.getEntity();
 
 		running_processes.put(newJob, newJob.getDemand());
 		processQ.add(newJob);
@@ -80,22 +79,22 @@ public class FCFSResource implements IResource {
 		// it is the the one that arrived now
 		if(processQ.size()==1) {
 			LOGGER.info("[User Arrival]: Single user -> we need to schedule the getNextEvent");
-			return new ResultEvent<DESEvent>(Set.of(new JobScheduled(newJob,0), getNextEvent()));
+			return ResultEvent.ofAll(Set.of(new JobScheduled(newJob,0), getNextEvent()));
 		} else { 
 			LOGGER.info("[User Arrival]: Multiple users exist -> wait in queue");
-			return new ResultEvent<DESEvent>(Set.of(new JobScheduled(newJob,0)));
+			return ResultEvent.of(new JobScheduled(newJob,0));
 		}
 	}
 
 	
 	@Override
-	public ResultEvent<DESEvent> onJobFinished(JobFinished jobFinishedEvt) {
+	public ResultEvent<DESEvent> onJobFinished(final JobFinished jobFinishedEvt) {
 
 			// the state of the resource has not changed until this point in time.
 			toNow(jobFinishedEvt.time());
 			LOGGER.info(String.format("[Processing Finished]: User requests finished at '%f'", jobFinishedEvt.time()));
 
-			Job job = jobFinishedEvt.getEntity();
+			final Job job = jobFinishedEvt.getEntity();
 			
 			assert MathTools.equalsDouble(0, running_processes.get(job)) : "Remaining demand ("
 					+ running_processes.get(job) + ") not zero!";
@@ -104,7 +103,7 @@ public class FCFSResource implements IResource {
 //	       fireStateChange(processQ.size(), 0); -> for this another type of events might be introduced
 //	       fireDemandCompleted(first); -> UserFinished
 
-			RequestFinished userFinished = new RequestFinished(job.getRequest());
+			final RequestFinished userFinished = new RequestFinished(job.getRequest());
 
 //	       LoggingWrapper.log("Demand of Process " + first + " finished.");
 //	       scheduleNextEvent();
@@ -114,13 +113,13 @@ public class FCFSResource implements IResource {
 		// request is finished.
 		// new ProcessingFinished(delay) -> next
 		// new UserFinished(now)
-		return new ResultEvent<DESEvent>(Set.of(getNextEvent(), userFinished));
+		return ResultEvent.ofAll(Set.of(getNextEvent(), userFinished));
 	}
 
 	@Override
-	public ResultEvent<DESEvent> onJobProgressed(JobProgressed evt) {
+	public ResultEvent<DESEvent> onJobProgressed(final JobProgressed evt) {
 
-		return new ResultEvent<DESEvent>(Set.of());
+		return ResultEvent.empty();
 	}
 	
 	private JobFinished getNextEvent() {

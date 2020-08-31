@@ -9,15 +9,13 @@ import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.ResultEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.results.ResultEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobInitiated;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobProgressed;
 import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl.Job;
 import org.palladiosimulator.analyzer.slingshot.simulation.systemsimulation.impl.events.RequestFinished;
-import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserFinished;
-import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserStarted;
 
 import de.uka.ipd.sdq.probfunction.math.util.MathTools;
 
@@ -44,7 +42,7 @@ public class ProcessorSharingResource implements IResource {
 	private double last_time;
 	/** Keeps track of the current number of processes assigned to each core. */
 	private final List<Integer> numberProcessesOnCore;
-	private long capacity;
+	private final long capacity;
 
 	UUID currentState;
 
@@ -62,16 +60,16 @@ public class ProcessorSharingResource implements IResource {
 	}
 
 	@Override
-	public ResultEvent<DESEvent> onSimulationStarted(SimulationStarted evt) {
-		return new ResultEvent<DESEvent>(Set.of());
+	public ResultEvent<DESEvent> onSimulationStarted(final SimulationStarted evt) {
+		return ResultEvent.empty();
 	}
 
 	@Override
-	public ResultEvent<DESEvent> onJobInitiated(JobInitiated evt) {
+	public ResultEvent<DESEvent> onJobInitiated(final JobInitiated evt) {
 		toNow(evt.time());
 
 		// TODO:: this needs to come from evt, UserStarted evt.
-		Job newJob = evt.getEntity();
+		final Job newJob = evt.getEntity();
 
 		double demand = newJob.getDemand();
 
@@ -85,29 +83,29 @@ public class ProcessorSharingResource implements IResource {
 		running_processes.put(newJob, demand);
 //		TODO:: Check reportCoreUsage
 //		reportCoreUsage();
-		JobProgressed jobProgressed = scheduleNextEvent();
+		final JobProgressed jobProgressed = scheduleNextEvent();
 
-		return new ResultEvent<DESEvent>(Set.of(jobProgressed));
+		return ResultEvent.of(jobProgressed);
 	}
 
 	@Override
-	public ResultEvent<DESEvent> onJobFinished(JobFinished jobFinishedEvt) {
-		return new ResultEvent<DESEvent>(Set.of(new RequestFinished(jobFinishedEvt.getEntity().getRequest())));
+	public ResultEvent<DESEvent> onJobFinished(final JobFinished jobFinishedEvt) {
+		return ResultEvent.of(new RequestFinished(jobFinishedEvt.getEntity().getRequest()));
 	}
 
 	@Override
-	public ResultEvent<DESEvent> onJobProgressed(JobProgressed jobProgressedEvt) {
+	public ResultEvent<DESEvent> onJobProgressed(final JobProgressed jobProgressedEvt) {
 
 		if (currentState.compareTo(jobProgressedEvt.getExpectedResourceState()) != 0) {
 			LOGGER.info("State of passive resource has changed, waiting for next JobProgressed");
 
 			// in case they are not equal ignore this
-			return new ResultEvent<DESEvent>(Set.of());
+			return ResultEvent.empty();
 		}
 
 		toNow(jobProgressedEvt.time());
 
-		Job shortestJob = jobProgressedEvt.getEntity();
+		final Job shortestJob = jobProgressedEvt.getEntity();
 
 		running_processes.remove(shortestJob);
 
@@ -116,12 +114,12 @@ public class ProcessorSharingResource implements IResource {
 		LOGGER.info("Job Finished " + jobProgressedEvt.getExpectedResourceState());
 		
 		
-		JobFinished jobFinishedEvt = new JobFinished(shortestJob, 0);
+		final JobFinished jobFinishedEvt = new JobFinished(shortestJob, 0);
 		
 		
-		Set<DESEvent> events = Set.of(jobFinishedEvt, scheduleNextEvent());
+		final Set<DESEvent> events = Set.of(jobFinishedEvt, scheduleNextEvent());
 		
-		return new ResultEvent<DESEvent>(events);
+		return ResultEvent.ofAll(events);
 	}
 
 	private JobProgressed scheduleNextEvent() {
@@ -151,14 +149,14 @@ public class ProcessorSharingResource implements IResource {
 
 			return new JobProgressed(shortestJob, remainingTime, currentState);
 		}
-		return null;
+		return null; // TODO: Maybe use Optionals instead of nulls.
 	}
 
 	private void toNow(final double simulationTime) {
 		final double now = simulationTime;
 		final double passed_time = now - last_time;
 
-		double processedDemandPerJob = passed_time / getProcessingDelayFactorPerJob();
+		final double processedDemandPerJob = passed_time / getProcessingDelayFactorPerJob();
 
 		if (MathTools.less(0, passed_time)) {
 			for (final Entry<Job, Double> e : running_processes.entrySet()) {
@@ -218,7 +216,7 @@ public class ProcessorSharingResource implements IResource {
 	 *                                    core.
 	 * @param coreNumber                  Number of the core, starting with 0.
 	 */
-	private void assignProcessesAndFireStateChange(int targetNumberProcessesAtCore, int coreNumber) {
+	private void assignProcessesAndFireStateChange(final int targetNumberProcessesAtCore, final int coreNumber) {
 //		if (!numberProcessesOnCore.get(coreNumber).equals(targetNumberProcessesAtCore)) {
 //			numberProcessesOnCore.set(coreNumber, targetNumberProcessesAtCore);
 //			fireStateChange(targetNumberProcessesAtCore, coreNumber);

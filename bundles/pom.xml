@@ -18,6 +18,7 @@
 		<module>org.palladiosimulator.analyzer.slingshot</module>
 		<module>org.palladiosimulator.analyzer.slingshot.workflow</module>
 		<module>org.palladiosimulator.analyzer.slingshot.ui</module>
+		<module>org.palladiosimulator.analyzer.slingshot.behavior.usagemodel</module>
 	</modules>
 	<dependencies>
 		<dependency>
@@ -26,5 +27,30 @@
 			<version>28.1-jre</version>
 		</dependency>
 	</dependencies>
-
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
+					<show>private</show>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
+					<show>public</show>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
 </project>

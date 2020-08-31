@@ -12,6 +12,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.palladiosimulator.analyzer.slingshot.common.constants.model.ModelFileTypeConstants;
+
 import de.uka.ipd.sdq.workflow.launchconfig.ImageRegistryHelper;
 import de.uka.ipd.sdq.workflow.launchconfig.LaunchConfigPlugin;
 import de.uka.ipd.sdq.workflow.launchconfig.tabs.TabHelper;
@@ -23,8 +24,10 @@ public class SimulationArchitectureModelsTab extends AbstractLaunchConfiguration
 	/** The path to the image file for the tab icon. */
 	private static final String FILENAME_TAB_IMAGE_PATH = "icons/filenames_tab.gif";
 	
-
+	/** The field for path to the allocation file. */
 	private Text textAllocation;
+	
+	/** The field for path to the usage file. */
 	private Text textUsage;
 //	private Text textMonitorRepository;
 	
@@ -34,9 +37,10 @@ public class SimulationArchitectureModelsTab extends AbstractLaunchConfiguration
 	
 	
 	@Override
-	public void createControl(Composite parent) {
+	public void createControl(final Composite parent) {
 		modifyListener = new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
+			@Override
+			public void modifyText(final ModifyEvent e) {
 				setDirty(true);
 				updateLaunchConfigurationDialog();
 			}
@@ -59,19 +63,19 @@ public class SimulationArchitectureModelsTab extends AbstractLaunchConfiguration
 	}
 
 	@Override
-	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
+	public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
 	}
 
 	@Override
-	public void initializeFrom(ILaunchConfiguration configuration) {
+	public void initializeFrom(final ILaunchConfiguration configuration) {
 		try {
 			textAllocation.setText(configuration.getAttribute(ModelFileTypeConstants.ALLOCATION_FILE, ModelFileTypeConstants.EMPTY_STRING));
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			LaunchConfigPlugin.errorLogger(getName(),"Allocation File", e.getMessage());
 		}
 		try {
 			textUsage.setText(configuration.getAttribute(ModelFileTypeConstants.USAGE_FILE, ModelFileTypeConstants.EMPTY_STRING));
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			LaunchConfigPlugin.errorLogger(getName(),"Usage File", e.getMessage());
 		}
 //		try {
@@ -83,7 +87,7 @@ public class SimulationArchitectureModelsTab extends AbstractLaunchConfiguration
 	}
 
 	@Override
-	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
+	public void performApply(final ILaunchConfigurationWorkingCopy configuration) {
 		configuration.setAttribute(ModelFileTypeConstants.ALLOCATION_FILE, textAllocation.getText());
 		configuration.setAttribute(ModelFileTypeConstants.USAGE_FILE, textUsage.getText());
 //		configuration.setAttribute(ModelFileTypeConstants.MONITOR_REPOSITORY_FILE, textMonitorRepository.getText());
@@ -91,7 +95,7 @@ public class SimulationArchitectureModelsTab extends AbstractLaunchConfiguration
 	
 	
 	@Override
-	public boolean isValid(ILaunchConfiguration launchConfig){
+	public boolean isValid(final ILaunchConfiguration launchConfig){
 		setErrorMessage(null);
 
 		if (!TabHelper.validateFilenameExtension(textAllocation.getText(), ModelFileTypeConstants.ALLOCATION_FILE_EXTENSION)) {
@@ -109,6 +113,7 @@ public class SimulationArchitectureModelsTab extends AbstractLaunchConfiguration
 		return true;
 	}
 	
+	@Override
 	public Image getImage() {
 		return ImageRegistryHelper.getTabImage(PLUGIN_ID,FILENAME_TAB_IMAGE_PATH);
 	}

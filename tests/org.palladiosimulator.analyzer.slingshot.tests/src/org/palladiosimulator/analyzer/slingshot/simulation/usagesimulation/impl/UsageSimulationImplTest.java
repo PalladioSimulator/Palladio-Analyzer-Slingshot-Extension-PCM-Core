@@ -15,7 +15,7 @@ import org.palladiosimulator.analyzer.slingshot.repositories.UsageModelRepositor
 import org.palladiosimulator.analyzer.slingshot.repositories.impl.UsageModelRepositoryImpl;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationDriver;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.results.ManyEvents;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.results.ManyEvents;
 import org.palladiosimulator.analyzer.slingshot.simulation.usagesimulation.impl.events.UserStarted;
 import org.palladiosimulator.pcm.usagemodel.ClosedWorkload;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;

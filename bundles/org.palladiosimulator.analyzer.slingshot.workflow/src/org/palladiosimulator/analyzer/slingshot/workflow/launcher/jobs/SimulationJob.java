@@ -8,8 +8,8 @@ import org.palladiosimulator.analyzer.slingshot.common.serialization.load.PCMFil
 import org.palladiosimulator.analyzer.slingshot.simulation.api.Simulation;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationFactory;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationModel;
-import org.palladiosimulator.pcm.usagemodel.UsageModel;
 import org.palladiosimulator.pcm.allocation.Allocation;
+import org.palladiosimulator.pcm.usagemodel.UsageModel;
 
 import de.uka.ipd.sdq.workflow.jobs.CleanupFailedException;
 import de.uka.ipd.sdq.workflow.jobs.IBlackboardInteractingJob;
@@ -23,9 +23,9 @@ public class SimulationJob implements IBlackboardInteractingJob<MDSDBlackboard> 
 
 	private MDSDBlackboard blackboard;
 	
-	private Path usageModelPath;
-	private Path allocationModelPath;
-	private PCMFileLoader pcmFileLoader;
+	private final Path usageModelPath;
+	private final Path allocationModelPath;
+	private final PCMFileLoader pcmFileLoader;
 	
 	public SimulationJob(final PCMFileLoader pcmFileLoader,  final Path usageModelPath, final Path allocationModelPath) {
 		this.usageModelPath = usageModelPath;
@@ -34,12 +34,12 @@ public class SimulationJob implements IBlackboardInteractingJob<MDSDBlackboard> 
 	}
 
 	@Override
-	public void execute(IProgressMonitor monitor) throws JobFailedException, UserCanceledException {
+	public void execute(final IProgressMonitor monitor) throws JobFailedException, UserCanceledException {
 		LOGGER.info("**** SimulationJob.execute ****");
 		
-		UsageModel usageModel = pcmFileLoader.load(usageModelPath);
-		Allocation allocation = pcmFileLoader.load(allocationModelPath);
-		SimulationModel model = SimulationFactory.createSimulizarSimulationModel(usageModel, allocation);
+		final UsageModel usageModel = pcmFileLoader.load(usageModelPath);
+		final Allocation allocation = pcmFileLoader.load(allocationModelPath);
+		final SimulationModel model = SimulationFactory.createSimulizarSimulationModel(usageModel, allocation);
 		
 		Simulation simulation;
 						
@@ -47,7 +47,7 @@ public class SimulationJob implements IBlackboardInteractingJob<MDSDBlackboard> 
 			simulation = SimulationFactory.createSimulation();
 			simulation.init(model);
 			simulation.startSimulation();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			throw new JobFailedException("Simulation Could Not Be Created", e);
 		}
 		
@@ -58,7 +58,7 @@ public class SimulationJob implements IBlackboardInteractingJob<MDSDBlackboard> 
 
 
 	@Override
-	public void cleanup(IProgressMonitor monitor) throws CleanupFailedException {
+	public void cleanup(final IProgressMonitor monitor) throws CleanupFailedException {
 		/**
 		 * 
 		 * nothing to do here
@@ -72,7 +72,7 @@ public class SimulationJob implements IBlackboardInteractingJob<MDSDBlackboard> 
 	}
 
 	@Override
-	public void setBlackboard(MDSDBlackboard blackboard) {
+	public void setBlackboard(final MDSDBlackboard blackboard) {
 		this.blackboard = blackboard;
 	}
 
