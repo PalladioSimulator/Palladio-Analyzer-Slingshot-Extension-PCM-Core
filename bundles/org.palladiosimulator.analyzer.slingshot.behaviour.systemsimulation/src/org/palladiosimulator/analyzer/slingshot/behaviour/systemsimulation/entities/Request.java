@@ -1,4 +1,4 @@
-package org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation;
+package org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation.entities;
 
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.User;
 import org.palladiosimulator.pcm.repository.ProvidedRole;

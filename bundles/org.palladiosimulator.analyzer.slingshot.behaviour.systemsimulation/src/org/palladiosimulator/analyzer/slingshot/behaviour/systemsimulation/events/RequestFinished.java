@@ -1,6 +1,6 @@
 package org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation.events;
 
-import org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation.Request;
+import org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation.entities.Request;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntityChangedEvent;
 
 public class RequestFinished extends AbstractEntityChangedEvent<Request> {

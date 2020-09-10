@@ -1,6 +1,7 @@
 package org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation;
 
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.UserInterpretationContext;
+import org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation.entities.Request;
 
 public class RequestInterpretationContext {
 

@@ -7,6 +7,9 @@ import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.UserRequest;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserRequestFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserRequestInitiated;
+import org.palladiosimulator.analyzer.slingshot.behaviour.resourcesimulation.entities.Job;
+import org.palladiosimulator.analyzer.slingshot.behaviour.resourcesimulation.events.JobInitiated;
+import org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation.entities.Request;
 import org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation.events.RequestFinished;
 import org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation.events.RequestInitiated;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationModel;
@@ -16,8 +19,6 @@ import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behav
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.results.ResultEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.results.ResultEventBuilder;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events.JobInitiated;
-import org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl.Job;
 import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.allocation.AllocationContext;
 import org.palladiosimulator.pcm.repository.BasicComponent;
@@ -110,7 +111,7 @@ public class SystemSimulationImpl implements SimulationBehaviourExtension {
 			final UserRequest userReq = new UserRequest(null, null, null);
 			
 			final ResultEventBuilder<UserRequestFinished> builder = ResultEvent.createResult();
-			builder.addEvent(new UserRequestFinished(userReq, requestContexts.get(request), getUserInterpretationContext()));
+			builder.addEvent(new UserRequestFinished(userReq, requestContexts.get(request).getUserInterpretationContext()));
 			
 			
 			return builder.build();
