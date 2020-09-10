@@ -1,5 +1,8 @@
 package org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.interpreters;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.UserInterpretationContext;
@@ -11,7 +14,7 @@ import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserS
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserStarted;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserWokeUp;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.annotations.ProvidesEvents;
-import org.palladiosimulator.analyzer.slingshot.simulation.utils.DESEventSet;
+import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.pcm.repository.OperationProvidedRole;
 import org.palladiosimulator.pcm.repository.OperationSignature;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
@@ -29,12 +32,7 @@ public class UsageScenarioInterpreter<T> extends UsagemodelSwitch<T> {
 	
 	private final Logger LOGGER = Logger.getLogger(UsageScenarioInterpreter.class);
 	
-	@ProvidesEvents({
-		UserRequestInitiated.class,
-		UserFinished.class, UserStarted.class,
-		UserSlept.class, UserWokeUp.class
-	})
-	private final DESEventSet sideEffectEvents;
+	private final Set<DESEvent> sideEffectEvents;
 	private final UserInterpretationContext userContext;
 	private final User user;
 	
@@ -42,17 +40,22 @@ public class UsageScenarioInterpreter<T> extends UsagemodelSwitch<T> {
 	public UsageScenarioInterpreter(final User user, final UserInterpretationContext userContext) {
 		super();
 		
-		this.sideEffectEvents = new DESEventSet();
+		this.sideEffectEvents = new HashSet<>();
 		this.userContext = userContext;
 		this.user = user;
 	}
 	
-	public DESEventSet continueInterpretation() {
+	public Set<DESEvent> continueInterpretation() {
 		this.doSwitch(userContext.getCurrentAction());
 		return this.getSideEffectEvents();
 	}
 	
-	public DESEventSet getSideEffectEvents() {
+	@ProvidesEvents({
+		UserRequestInitiated.class,
+		UserFinished.class, UserStarted.class,
+		UserSlept.class, UserWokeUp.class
+	})
+	public Set<DESEvent> getSideEffectEvents() {
 		return sideEffectEvents;
 	}
 
@@ -63,19 +66,19 @@ public class UsageScenarioInterpreter<T> extends UsagemodelSwitch<T> {
 		
 		final UserRequest userRequest = new UserRequest(user, opProvidedRole, signature);
 		final UserRequestInitiated uRequestInitiated = new UserRequestInitiated(userRequest, userContext, 0);
-		sideEffectEvents.addEvent(uRequestInitiated);
+		sideEffectEvents.add(uRequestInitiated);
 		return super.caseEntryLevelSystemCall(object);
 	}
 
 	@Override
 	public T caseStop(final Stop object) {
-		sideEffectEvents.addEvent(new UserFinished(user, userContext));
+		sideEffectEvents.add(new UserFinished(user, userContext));
 		return super.caseStop(object);
 	}
 
 	@Override
 	public T caseStart(final Start object) {
-		sideEffectEvents.addEvent(new UserStarted(user, userContext));
+		sideEffectEvents.add(new UserStarted(user, userContext));
 		
 		if (object.getSuccessor() != null) {
 			this.doSwitch(object.getSuccessor());
@@ -110,8 +113,8 @@ public class UsageScenarioInterpreter<T> extends UsagemodelSwitch<T> {
 	@Override
 	public T caseDelay(final Delay object) {
 		final double delay = StackContext.evaluateStatic(object.getTimeSpecification_Delay().getSpecification(), Double.class);
-		sideEffectEvents.addEvent(new UserSlept(user, userContext.setCurrentAction(object.getSuccessor())));
-		sideEffectEvents.addEvent(new UserWokeUp(user, userContext.setCurrentAction(object.getSuccessor()), delay));
+		sideEffectEvents.add(new UserSlept(user, userContext.setCurrentAction(object.getSuccessor())));
+		sideEffectEvents.add(new UserWokeUp(user, userContext.setCurrentAction(object.getSuccessor()), delay));
 		return super.caseDelay(object);
 	}
 
