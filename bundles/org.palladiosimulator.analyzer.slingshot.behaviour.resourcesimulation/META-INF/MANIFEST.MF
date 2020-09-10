@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Resourcesimulation
+Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.behaviour.resourcesimulation;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.behaviour.resourcesimulation
+Bundle-RequiredExecutionEnvironment: JavaSE-12
+Require-Bundle: org.palladiosimulator.analyzer.slingshot;bundle-version="1.0.0",
+ org.apache.log4j;bundle-version="1.2.15",
+ de.uka.ipd.sdq.probfunction.math,
+ org.palladiosimulator.pcm
+Import-Package: com.google.common.eventbus,
+ org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation.entities;version="1.0.0",
+ org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation.events;version="1.0.0"
+Export-Package: org.palladiosimulator.analyzer.slingshot.behaviour.resourcesimulation.entities;version="1.0.0",
+ org.palladiosimulator.analyzer.slingshot.behaviour.resourcesimulation.events;version="1.0.0"
