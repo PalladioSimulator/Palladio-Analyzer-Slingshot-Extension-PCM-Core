@@ -44,22 +44,22 @@ public class EventContractChecker {
 	 */
 	ContractResult checkEventType(final ResultEvent<DESEvent> outputResultEvent, final OnEvent onEventContract) {
 		ContractResult result = ContractResult.success();
+		final StringBuilder strBuilder = new StringBuilder();
 		
 		final Class<? extends DESEvent>[] outputClazz = onEventContract.then();
 
 		for (final DESEvent event : outputResultEvent.getEventsForScheduling()) {
 			for (final Class<? extends DESEvent> clazz : outputClazz) {
-				try {
+				try { // FIXME:: Isn't this bad practice? Maybe using Javassist tools might be better, or the reflection API.
 					clazz.cast(event);
-				}catch(final ClassCastException ex) {
-					result = ContractResult.fail("Contract Specification is not met: Required is an event that is a subtype of '"
-							+ clazz.getSimpleName() + "'. However, '" + event.getClass().getSimpleName() + "' was found.");
-					return result;
+					result = ContractResult.success();
+					return result; // FIXME
+				} catch(final ClassCastException ex) {
+					strBuilder.append("Requires " + clazz.getSimpleName() + ", but has " + event.getClass().getSimpleName() + "; ");
+					result = ContractResult.fail(strBuilder.toString());
 				}
 			}
 		}
-		
-		
 		
 		return result;
 	}

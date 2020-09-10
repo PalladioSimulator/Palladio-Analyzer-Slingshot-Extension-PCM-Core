@@ -30,4 +30,18 @@
          version="0.0.0"
          unpack="false"/>
 
+   <plugin
+         id="org.palladiosimulator.analyzer.slingshot.behaviour.resourcesimulation"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>

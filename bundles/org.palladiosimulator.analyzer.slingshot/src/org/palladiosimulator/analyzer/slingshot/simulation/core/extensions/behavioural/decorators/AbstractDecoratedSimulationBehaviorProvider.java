@@ -3,6 +3,7 @@ package org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.beha
 import java.lang.reflect.Method;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.ExtensionMethodHandlerWithInterceptors;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.Interceptor;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.SimulationBehaviourExtension;
@@ -25,7 +26,9 @@ import javassist.util.proxy.ProxyFactory;
  * @author Julijan Katic
  */
 public abstract class AbstractDecoratedSimulationBehaviorProvider implements DecoratedSimulationBehaviorProvider {
-
+	
+	private static final Logger LOGGER = Logger.getLogger(AbstractDecoratedSimulationBehaviorProvider.class);
+	
 	@Override
 	public SimulationBehaviourExtension decorateSimulationBehaviorWithInterceptors(final List<Interceptor> interceptors)
 			throws Exception {
@@ -47,9 +50,11 @@ public abstract class AbstractDecoratedSimulationBehaviorProvider implements Dec
 
 			}
 		});
+		
+		LOGGER.debug("The to be decorated class: " + this.getToBeDecoratedClazz().getSimpleName());
 
 		final Class<?> simulationBehaviourProxyClazz = proxyFactory.createClass();
-
+		
 		final SimulationBehaviourExtension decoratedUsageSimulation = (SimulationBehaviourExtension) simulationBehaviourProxyClazz
 				.getConstructor(getConstructorArgumentsClazzes()).newInstance(getConstructorInstances());
 

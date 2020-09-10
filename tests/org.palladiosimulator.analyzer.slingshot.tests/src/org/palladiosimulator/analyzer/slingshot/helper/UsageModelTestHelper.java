@@ -2,7 +2,7 @@ package org.palladiosimulator.analyzer.slingshot.helper;
 
 import java.nio.file.Path;
 
-import org.palladiosimulator.analyzer.slingshot.common.serialization.load.UsageModelFileLoader;
+import org.palladiosimulator.analyzer.slingshot.common.serialization.load.PCMFileLoader;
 import org.palladiosimulator.pcm.core.PCMRandomVariable;
 import org.palladiosimulator.pcm.usagemodel.ClosedWorkload;
 import org.palladiosimulator.pcm.usagemodel.Delay;
@@ -16,21 +16,21 @@ public class UsageModelTestHelper extends AbstractModelTestHelper {
 	
 	
 	public static UsageModel createUsageModelFromFile(final Path filePath) {
-		UsageModelFileLoader loader = new UsageModelFileLoader();
-		UsageModel usageModel = loader.load(filePath);
+		final PCMFileLoader loader = new PCMFileLoader();
+		final UsageModel usageModel = loader.load(filePath);
 		return usageModel;
 	}
 
 	public static UsageModel createClosedWorkloadUsagModelWithDelay(final int population, final double thinkTimeSpecification) {
-		UsageModel usageModel = usageModelFactory.createUsageModel();
-		UsageScenario usageScenario = usageModelFactory.createUsageScenario();
+		final UsageModel usageModel = usageModelFactory.createUsageModel();
+		final UsageScenario usageScenario = usageModelFactory.createUsageScenario();
 
 		// workload
-		ClosedWorkload closedWorkload = usageModelFactory.createClosedWorkload();
+		final ClosedWorkload closedWorkload = usageModelFactory.createClosedWorkload();
 		// set bi-directional reference to usage scenario
 		closedWorkload.setUsageScenario_Workload(usageScenario);
 		closedWorkload.setPopulation(population);
-		PCMRandomVariable thinkTime = coreFactory.createPCMRandomVariable();
+		final PCMRandomVariable thinkTime = coreFactory.createPCMRandomVariable();
 		thinkTime.setSpecification(String.valueOf(thinkTimeSpecification));
 		thinkTime.setClosedWorkload_PCMRandomVariable(closedWorkload);
 		closedWorkload.setThinkTime_ClosedWorkload(thinkTime);
@@ -38,13 +38,13 @@ public class UsageModelTestHelper extends AbstractModelTestHelper {
 
 		// usage behavior
 		// entities
-		ScenarioBehaviour behavior = usageModelFactory.createScenarioBehaviour();
+		final ScenarioBehaviour behavior = usageModelFactory.createScenarioBehaviour();
 		behavior.setEntityName("scenarioBehavior");
-		Start startEntity = usageModelFactory.createStart();
+		final Start startEntity = usageModelFactory.createStart();
 		startEntity.setEntityName("start");
-		Delay delayEntity = usageModelFactory.createDelay();
+		final Delay delayEntity = usageModelFactory.createDelay();
 		delayEntity.setEntityName("delay");
-		Stop stopEntity = usageModelFactory.createStop();
+		final Stop stopEntity = usageModelFactory.createStop();
 		stopEntity.setEntityName("stop");
 
 		// references

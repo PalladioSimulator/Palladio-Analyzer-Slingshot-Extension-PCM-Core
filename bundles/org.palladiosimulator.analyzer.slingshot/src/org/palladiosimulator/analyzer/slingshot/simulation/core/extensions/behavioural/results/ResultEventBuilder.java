@@ -29,16 +29,19 @@ public final class ResultEventBuilder<T extends DESEvent> {
 		return new ResultEvent<T>(enclosedEvents);
 	}
 	
-	public void addEvent(final T event) {
+	public ResultEventBuilder<T> addEvent(final T event) {
 		this.enclosedEvents.add(event);
+		return this;
 	}
 	
-	public void removeEvent(final T event) {
+	public ResultEventBuilder<T> removeEvent(final T event) {
 		this.enclosedEvents.remove(event);
+		return this;
 	}
 	
-	public void addAll(final Collection<T> events) {
+	public ResultEventBuilder<T> addAll(final Collection<T> events) {
 		this.enclosedEvents.addAll(events);
+		return this;
 	}
 
 }

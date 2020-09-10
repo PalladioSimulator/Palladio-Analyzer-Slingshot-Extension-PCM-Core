@@ -58,15 +58,27 @@ public class ResultEvent<T extends DESEvent> {
 		return new ResultEventBuilder<T>();
 	}
 	
-	public static ResultEvent<DESEvent> ofAll(final Set<DESEvent> set) {
-		return new ResultEvent<DESEvent>(set);
+	/**
+	 * Directly creates a ResultEvent from a set of events. 
+	 * @param set the set of events.
+	 * @return a new instance of ResultEvent.
+	 */
+	public static <T extends DESEvent> ResultEvent<T> ofAll(final Set<T> events) {
+		return new ResultEvent<T>(events);
 	}
 	
-	public static <T extends DESEvent> ResultEvent<T> of(final T event) {
-		return new ResultEvent<T>(Set.of(event));
+	/**
+	 * Returns a new ResultEvent instance from a variable number of events.
+	 */
+	@SafeVarargs
+	public static <T extends DESEvent> ResultEvent<T> of(final T... events) {
+		return new ResultEvent<T>(Set.of(events));
 	}
 	
-	public static ResultEvent<DESEvent> empty() {
-		return new ResultEvent<DESEvent>(Set.of());
+	/**
+	 * Creates a ResultEvent instance with no events.
+	 */
+	public static EmptyResultEvent empty() {
+		return new EmptyResultEvent();
 	}
 }

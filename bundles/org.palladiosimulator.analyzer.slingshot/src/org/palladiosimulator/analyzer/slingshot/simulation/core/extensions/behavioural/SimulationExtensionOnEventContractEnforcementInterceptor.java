@@ -37,7 +37,7 @@ public class SimulationExtensionOnEventContractEnforcementInterceptor extends Ab
 		final OnEvent.OnEvents annotations = extension.getClass().getSuperclass().getAnnotation(OnEvent.OnEvents.class);
 		final OnEvent[] onEvents = annotations.value();
 
-		final Class eventClass = args[0].getClass(); // e.g., SimulationStarted -> ManyEvent<UserStarted>
+		final Class<?> eventClass = args[0].getClass(); // e.g., SimulationStarted -> ManyEvent<UserStarted>
 		boolean annotationExists = false;
 
 		final ResultEvent<DESEvent> resultEvent = (ResultEvent<DESEvent>) result;
