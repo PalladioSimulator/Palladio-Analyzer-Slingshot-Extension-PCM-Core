@@ -17,12 +17,11 @@ Require-Bundle: org.palladiosimulator.pcm;bundle-version="4.1.0",
 Export-Package: org.palladiosimulator.analyzer.slingshot.repositories,
  org.palladiosimulator.analyzer.slingshot.repositories.impl,
  org.palladiosimulator.analyzer.slingshot.simulation.api,
+ org.palladiosimulator.analyzer.slingshot.simulation.core.entities,
  org.palladiosimulator.analyzer.slingshot.simulation.core.events,
  org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural,
  org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.annotations,
  org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.decorators,
  org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.results,
- org.palladiosimulator.analyzer.slingshot.simulation.events,
- org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.events,
- org.palladiosimulator.analyzer.slingshot.simulation.resourcesimulation.impl
+ org.palladiosimulator.analyzer.slingshot.simulation.events
 Import-Package: com.google.common.eventbus
