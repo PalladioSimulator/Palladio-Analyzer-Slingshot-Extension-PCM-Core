@@ -3,9 +3,8 @@ import java.util.List;
 
 import org.palladiosimulator.analyzer.slingshot.repositories.impl.UsageModelRepositoryImpl;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationDriver;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.decorators.DecoratedResourceBehaviorProvider;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.decorators.DecoratedSystemBehaviorProvider;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.decorators.DecoratedUsageSimulationProvider;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.BehaviourExtensionsHandler;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.decorators.DecoratedSimulationBehaviorProvider;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.model.SimulizarSimulationModel;
 import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngine;
 import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngineSSJ;
@@ -25,12 +24,14 @@ public class SimulationFactory {
 		final SimulationEngine simEngine = new SimulationEngineSSJ();
 		
 		// Extensions
-		final DecoratedUsageSimulationProvider decoratedUsageSimulationProvider = new DecoratedUsageSimulationProvider(usageModelRepository, simulatedUserProvider);
-		final DecoratedResourceBehaviorProvider decoratedResourceBehavoirProvider = new DecoratedResourceBehaviorProvider();
-		final DecoratedSystemBehaviorProvider decoratedSystemBehaviorProvider = new DecoratedSystemBehaviorProvider();
+		//final DecoratedUsageSimulationProvider decoratedUsageSimulationProvider = new DecoratedUsageSimulationProvider(usageModelRepository, simulatedUserProvider);
+		//final DecoratedResourceBehaviorProvider decoratedResourceBehavoirProvider = new DecoratedResourceBehaviorProvider();
+		//final DecoratedSystemBehaviorProvider decoratedSystemBehaviorProvider = new DecoratedSystemBehaviorProvider();
+		
+		final List<DecoratedSimulationBehaviorProvider> providers = BehaviourExtensionsHandler.getAllProviders();
 		
 		// Simulation Driver
-		final SimulationDriver simulationDriver =  new SimulationDriver(simEngine, List.of(decoratedUsageSimulationProvider, decoratedResourceBehavoirProvider, decoratedSystemBehaviorProvider));
+		final SimulationDriver simulationDriver =  new SimulationDriver(simEngine, providers);
 						
 		return simulationDriver;
 	}
