@@ -1,24 +1,23 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.events;
 
-import java.util.List;
 import java.util.UUID;
 
-
 /**
+ * Represents those types of events that describe a change in an predefined
+ * entity.
  * 
  * @author Floriment Klinaku
  *
- * @param <T> The typed entity
+ * @param <T> The entity that whose state has somehow changed.
  */
-public abstract class AbstractEntityChangedEvent<T> implements DESEvent{
+public abstract class AbstractEntityChangedEvent<T> implements DESEvent {
 
-	protected double delay;
+	private final double delay;
 	private double simulationTime;
-	// id here not needed
-	protected String id;
-	private T entity;
+	private final String id;
+	private final T entity;
 
-	public AbstractEntityChangedEvent(T entity, double delay) {
+	public AbstractEntityChangedEvent(final T entity, final double delay) {
 		this.delay = delay;
 		this.entity = entity;
 		this.id = UUID.randomUUID().toString();
@@ -36,19 +35,12 @@ public abstract class AbstractEntityChangedEvent<T> implements DESEvent{
 
 	@Override
 	public double time() {
-		// TODO Auto-generated method stub
 		return simulationTime;
 	}
 
 	@Override
-	public void setTime(double time) {
+	public void setTime(final double time) {
 		this.simulationTime = time;
-	}
-
-	@Override
-	public List<DESEvent> handle() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	public T getEntity() {

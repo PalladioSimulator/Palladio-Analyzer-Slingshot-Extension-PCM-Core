@@ -2,9 +2,7 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         id="org.palladiosimulator.analyzer.slingshot.behavior.usagemodel"
-         name="UsageSimulation"
-         point="org.palladiosimulator.analyzer.slingshot.extensionpoint.behaviour">
+         point="org.palladiosimulator.analyzer.slingshot.extensionpoint.behavior">
       <client
             class="org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.UsageSimulationProvider">
       </client>

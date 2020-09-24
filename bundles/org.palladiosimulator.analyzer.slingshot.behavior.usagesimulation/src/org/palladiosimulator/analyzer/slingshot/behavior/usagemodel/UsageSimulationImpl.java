@@ -2,8 +2,6 @@ package org.palladiosimulator.analyzer.slingshot.behavior.usagemodel;
 
 import java.util.Set;
 
-import javax.inject.Inject;
-
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.User;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserFinished;
@@ -46,14 +44,14 @@ public class UsageSimulationImpl implements SimulationBehaviorExtension {
 
 	}
 
-	@Inject
 	public UsageSimulationImpl(final UsageModelRepository usageModelRepository,
-			final SimulatedUserProvider simulatedUserProvider, final UsageModel usageModel) {
+			final SimulatedUserProvider simulatedUserProvider) {
 		this.usageModelRepository = usageModelRepository;
 	}
 
 	@Override
 	public void init(final SimulationModel model) {
+		usageModel = model.getUsageModel();
 		loadModel(usageModel);
 		usageInterpretationContext = new UsageInterpretationContext(
 				usageModelRepository.findAllUsageScenarios().get(0));

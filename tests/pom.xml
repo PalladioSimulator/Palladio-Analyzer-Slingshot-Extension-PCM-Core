@@ -12,7 +12,7 @@
 	
 	<modules>
 		<module>org.palladiosimulator.analyzer.slingshot.tests</module>
-		<module>org.palladiosimulator.analyzer.slingshot.annotationprocessor.test</module>
+		<module>org.palladiosimulator.analyzer.slingshot.extensionpoint.annotationprocessor.test</module>
 		<module>com.google.testing.compile</module>
 	</modules>
 	

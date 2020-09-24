@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.SimulationBehaviorExtension;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.annotations.EventMethod;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.interceptors.ExtensionMethodHandlerWithInterceptors;
 import org.palladiosimulator.analyzer.slingshot.simulation.interceptor.Interceptor;
 
-import javassist.util.proxy.MethodFilter;
 import javassist.util.proxy.Proxy;
 import javassist.util.proxy.ProxyFactory;
 
@@ -36,20 +36,7 @@ public abstract class AbstractDecoratedSimulationBehaviorProvider implements Dec
 		final ProxyFactory proxyFactory = new ProxyFactory();
 		proxyFactory.setSuperclass(getToBeDecoratedClazz());
 
-		proxyFactory.setFilter(new MethodFilter() {
-			@Override
-			public boolean isHandled(final Method m) {
-				boolean answer = false;
-
-				// TODO:: Think how to filter the methods that we are particulary checking
-				if (m.getName().startsWith("on")) {
-					answer = true;
-				}
-
-				return answer;
-
-			}
-		});
+		proxyFactory.setFilter(this::isBehaviorExtensionHandler);
 
 		LOGGER.debug("The to be decorated class: " + this.getToBeDecoratedClazz().getSimpleName());
 
@@ -58,7 +45,6 @@ public abstract class AbstractDecoratedSimulationBehaviorProvider implements Dec
 		final SimulationBehaviorExtension decoratedUsageSimulation = (SimulationBehaviorExtension) simulationBehaviourProxyClazz
 				.getConstructor(getConstructorArgumentsClazzes()).newInstance(getConstructorInstances());
 
-		// TODO:: Have a look at this Proxy cast
 		((Proxy) decoratedUsageSimulation).setHandler(new ExtensionMethodHandlerWithInterceptors(interceptors));
 
 		return decoratedUsageSimulation;
@@ -73,13 +59,31 @@ public abstract class AbstractDecoratedSimulationBehaviorProvider implements Dec
 	/**
 	 * This method should return an array of classes that are needed to construct
 	 * the class from {@link #getToBeDecoratedClazz()}.
+	 * 
+	 * @return an empty array on default.
 	 */
-	protected abstract Class<?>[] getConstructorArgumentsClazzes();
+	protected Class<?>[] getConstructorArgumentsClazzes() {
+		return new Class<?>[] {};
+	}
 
 	/**
 	 * This method should return an array of instances for the constructor in order
 	 * to construct the class returned by {@link #getToBeDecoratedClazz()}.
+	 * 
+	 * @return an empty array on default.
 	 */
-	protected abstract Object[] getConstructorInstances();
+	protected Object[] getConstructorInstances() {
+		return new Object[] {};
+	}
 
+	/**
+	 * Helper method to check whether the method is an event handler method.
+	 * 
+	 * @param method the method to check.
+	 * @return true iff the method starts with "on" or has an {@link EventMethod}
+	 *         annotation.
+	 */
+	private boolean isBehaviorExtensionHandler(final Method method) {
+		return method.getName().startsWith("on") || method.getAnnotation(EventMethod.class) != null;
+	}
 }

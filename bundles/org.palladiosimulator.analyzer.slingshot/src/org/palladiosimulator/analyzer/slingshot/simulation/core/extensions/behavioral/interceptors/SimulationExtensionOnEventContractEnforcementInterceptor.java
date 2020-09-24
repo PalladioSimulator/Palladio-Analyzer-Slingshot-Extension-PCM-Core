@@ -37,12 +37,15 @@ public class SimulationExtensionOnEventContractEnforcementInterceptor extends Ab
 	 *                                              {@link ResultEvent} contains an
 	 *                                              instance of a type not specified
 	 *                                              in the contract.
+	 * @throws IllegalArgumentException             if the method has not exactly
+	 *                                              one argument.
 	 */
 	@Override
 	public void postIntercept(final Object extension, final Method m, final Object[] args, final Object result)
 			throws NoContractDefinitionException, ViolatedContractCardinalityException, ViolatedContractTypeException {
 
 		checkExtensionClass(extension);
+		checkHasSingleArgument(args);
 
 		final OnEvent.OnEvents annotations = extension.getClass().getSuperclass().getAnnotation(OnEvent.OnEvents.class);
 		final OnEvent[] onEvents = annotations.value();
@@ -54,17 +57,11 @@ public class SimulationExtensionOnEventContractEnforcementInterceptor extends Ab
 
 		for (final OnEvent onEvent : onEvents) {
 			if (onEvent.when().equals(eventClass)) {
-
 				annotationExists = true;
-
 				checkContractForResultType(args, resultEvent, onEvent);
-
 				checkContractForCardinality(args, resultEvent, onEvent);
-
 				break;
-
 			}
-
 		}
 
 		if (!annotationExists) {
@@ -74,6 +71,20 @@ public class SimulationExtensionOnEventContractEnforcementInterceptor extends Ab
 			throw new NoContractDefinitionException(eventClass.getCanonicalName());
 		}
 
+	}
+
+	/**
+	 * Helper method that checks whether args is not null and has exactly one
+	 * argument.
+	 * 
+	 * @param args the argument (parameter) instance of the method.
+	 * @throws IllegalArgumentException if args is null or has not exactly one
+	 *                                  argument.
+	 */
+	private void checkHasSingleArgument(final Object[] args) throws IllegalArgumentException {
+		if (args == null || args.length != 1) {
+			throw new IllegalArgumentException("The behavior extension method handler must have exactly one argument.");
+		}
 	}
 
 	/**

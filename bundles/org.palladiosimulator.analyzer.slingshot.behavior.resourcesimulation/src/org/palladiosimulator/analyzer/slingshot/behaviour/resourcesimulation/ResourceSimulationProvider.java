@@ -6,20 +6,7 @@ public class ResourceSimulationProvider extends AbstractDecoratedSimulationBehav
 
 	@Override
 	protected Class<?> getToBeDecoratedClazz() {
-		// TODO Auto-generated method stub
 		return ResourceSimulation.class;
-	}
-
-	@Override
-	protected Class<?>[] getConstructorArgumentsClazzes() {
-		// TODO Auto-generated method stub
-		return new Class<?>[] {};
-	}
-
-	@Override
-	protected Object[] getConstructorInstances() {
-		// TODO Auto-generated method stub
-		return new Object[] {};
 	}
 
 }

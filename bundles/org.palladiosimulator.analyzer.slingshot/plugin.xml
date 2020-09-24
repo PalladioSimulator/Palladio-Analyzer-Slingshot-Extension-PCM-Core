@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension-point id="org.palladiosimulator.analyzer.slingshot.extensionpoint.behaviour" name="Behaviour" schema="schema/org.palladiosimulator.analyzer.slingshot.extensionpoint.behaviour.exsd"/>
+   <extension-point id="org.palladiosimulator.analyzer.slingshot.extensionpoint.behavior" name="Behavior" schema="schema/org.palladiosimulator.analyzer.slingshot.extensionpoint.behavior.exsd"/>
 
 </plugin>

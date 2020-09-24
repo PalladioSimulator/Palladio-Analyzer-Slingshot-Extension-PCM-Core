@@ -13,7 +13,7 @@ Require-Bundle: org.palladiosimulator.pcm;bundle-version="4.1.0",
  de.uka.ipd.sdq.probfunction.math,
  de.uka.ipd.sdq.simucomframework.variables,
  org.eclipse.e4.core.di;bundle-version="1.7.600",
- Java-Assist;bundle-version="3.27.0"
+ javassist;bundle-version="3.27.0";visibility:=reexport
 Export-Package: org.palladiosimulator.analyzer.slingshot.annotations,
  org.palladiosimulator.analyzer.slingshot.repositories,
  org.palladiosimulator.analyzer.slingshot.repositories.impl,
@@ -24,9 +24,9 @@ Export-Package: org.palladiosimulator.analyzer.slingshot.annotations,
  org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.annotations,
  org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.decorators,
  org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.results,
- org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural,
- org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.annotations,
- org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.decorators,
- org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.results,
+ org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral,
+ org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.annotations,
+ org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.decorators,
+ org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.results,
  org.palladiosimulator.analyzer.slingshot.simulation.events
 Import-Package: com.google.common.eventbus

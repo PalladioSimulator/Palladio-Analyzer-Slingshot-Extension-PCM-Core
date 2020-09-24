@@ -3,7 +3,7 @@
 <schema targetNamespace="org.palladiosimulator.analyzer.slingshot" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="org.palladiosimulator.analyzer.slingshot" id="org.palladiosimulator.analyzer.slingshot.extensionpoint.behaviour" name="Behaviour"/>
+         <meta.schema plugin="org.palladiosimulator.analyzer.slingshot" id="org.palladiosimulator.analyzer.slingshot.extensionpoint.behavior" name="Behavior"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]
