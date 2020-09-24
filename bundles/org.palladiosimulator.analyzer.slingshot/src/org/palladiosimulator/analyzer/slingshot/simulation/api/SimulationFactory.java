@@ -2,7 +2,7 @@ package org.palladiosimulator.analyzer.slingshot.simulation.api;
 import java.util.List;
 
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationDriver;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.BehaviorExtensionsHandler;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.BehaviorExtensionsHandler;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.decorators.DecoratedSimulationBehaviorProvider;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.model.SimulizarSimulationModel;
 import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngine;

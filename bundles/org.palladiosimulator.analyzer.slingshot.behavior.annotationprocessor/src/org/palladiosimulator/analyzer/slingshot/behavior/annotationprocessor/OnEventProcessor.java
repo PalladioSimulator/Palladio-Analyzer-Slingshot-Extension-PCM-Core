@@ -15,8 +15,8 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.tools.Diagnostic.Kind;
 
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.annotations.EventMethod;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.annotations.OnEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.annotations.EventMethod;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.annotations.OnEvent;
 
 public class OnEventProcessor extends AbstractProcessor {
 

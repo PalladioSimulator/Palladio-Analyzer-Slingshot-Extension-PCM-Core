@@ -9,7 +9,6 @@ Require-Bundle: org.palladiosimulator.analyzer.slingshot;bundle-version="1.0.0",
  org.palladiosimulator.pcm;bundle-version="4.3.0",
  org.apache.log4j;bundle-version="1.2.15",
  org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.data;bundle-version="1.0.0",
- org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.data
+ org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.data,
+ org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.data;bundle-version="1.0.0"
 Import-Package: com.google.common.eventbus;version="21.0.0"
-Export-Package: org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation.entities;version="1.0.0",
- org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation.events;version="1.0.0"

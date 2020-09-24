@@ -1,6 +1,6 @@
 package org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation;
 
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.decorators.AbstractDecoratedSimulationBehaviorProvider;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.decorators.AbstractDecoratedSimulationBehaviorProvider;
 
 public class SystemSimulationProvider extends AbstractDecoratedSimulationBehaviorProvider {
 

@@ -4,14 +4,15 @@ import org.palladiosimulator.analyzer.slingshot.behaviour.resourcesimulation.eve
 import org.palladiosimulator.analyzer.slingshot.behaviour.resourcesimulation.events.JobInitiated;
 import org.palladiosimulator.analyzer.slingshot.behaviour.resourcesimulation.events.JobProgressed;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.results.ResultEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.results.ResultEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 
 /**
- * IResource represents the interface that every resource has to conform to. It is an event-driven
- * representation that is necessary to realize FCFS, PS and other resources. The four operations
- * help implementations to specify how the resource state changes when the simulation is started,
- * when job arrives (TODO:: replace onUserStarted with onJobSecheduled), when job is finished and
+ * IResource represents the interface that every resource has to conform to. It
+ * is an event-driven representation that is necessary to realize FCFS, PS and
+ * other resources. The four operations help implementations to specify how the
+ * resource state changes when the simulation is started, when job arrives
+ * (TODO:: replace onUserStarted with onJobSecheduled), when job is finished and
  * lastly when job makes progress.
  * 
  * @author Floriment Klinaku
@@ -19,10 +20,10 @@ import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 public interface IResource {
 
 	ResultEvent<DESEvent> onSimulationStarted(SimulationStarted evt);
-	
+
 	ResultEvent<DESEvent> onJobInitiated(JobInitiated evt);
-	
+
 	ResultEvent<DESEvent> onJobFinished(JobFinished evt);
-	
+
 	ResultEvent<DESEvent> onJobProgressed(JobProgressed evt);
 }

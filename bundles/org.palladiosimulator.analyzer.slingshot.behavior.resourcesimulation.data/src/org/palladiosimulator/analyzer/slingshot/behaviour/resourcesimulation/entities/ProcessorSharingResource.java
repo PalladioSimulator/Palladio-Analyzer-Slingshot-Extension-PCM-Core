@@ -12,7 +12,7 @@ import org.palladiosimulator.analyzer.slingshot.behaviour.resourcesimulation.eve
 import org.palladiosimulator.analyzer.slingshot.behaviour.resourcesimulation.events.JobProgressed;
 import org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation.events.RequestFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.results.ResultEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.results.ResultEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 
 import de.uka.ipd.sdq.probfunction.math.util.MathTools;
@@ -119,33 +119,33 @@ public class ProcessorSharingResource implements IResource {
 		// in case a new job arrives that is shorter than this will be scheduled earlier
 		// then we will have JobProgressed at time t,
 		// JobProgressed at time t+delta should be invalidated somehow.
-		
+
 		currentState = UUID.randomUUID();
-		
+
 		Job shortestJob = null;
 		for (final Job job : running_processes.keySet()) {
 			if (shortestJob == null || running_processes.get(shortestJob) > running_processes.get(job)) {
 				shortestJob = job;
 			}
 		}
-		
+
 //		processingFinished.removeEvent(); -> no need in the new world
 		if (shortestJob != null) {
 			double remainingTime = running_processes.get(shortestJob) * getProcessingDelayFactorPerJob();
-			
+
 			// avoid trouble caused by rounding issues
 			remainingTime = remainingTime < JIFFY ? 0.0 : remainingTime;
-			
+
 			assert remainingTime >= 0 : "Remaining time (" + remainingTime + ") smaller than zero!";
-			
+
 //			processingFinished.schedule(shortest, remainingTime);
-			
+
 			return new JobProgressed(shortestJob, remainingTime, currentState);
 		}
-		
+
 		return null;
 	}
-	
+
 	private void toNow(final double simulationTime) {
 		final double now = simulationTime;
 		final double passed_time = now - last_time;

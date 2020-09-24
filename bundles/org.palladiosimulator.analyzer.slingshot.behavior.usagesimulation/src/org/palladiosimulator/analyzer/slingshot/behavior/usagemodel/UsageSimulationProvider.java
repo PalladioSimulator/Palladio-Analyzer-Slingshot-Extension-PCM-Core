@@ -3,8 +3,8 @@ package org.palladiosimulator.analyzer.slingshot.behavior.usagemodel;
 import org.palladiosimulator.analyzer.slingshot.annotations.Extension;
 import org.palladiosimulator.analyzer.slingshot.repositories.UsageModelRepository;
 import org.palladiosimulator.analyzer.slingshot.repositories.impl.UsageModelRepositoryImpl;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.BehaviorExtensionsHandler;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.decorators.AbstractDecoratedSimulationBehaviorProvider;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.BehaviorExtensionsHandler;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.decorators.AbstractDecoratedSimulationBehaviorProvider;
 
 @Extension(extensionPointId = BehaviorExtensionsHandler.BEHAVIOR_EXTENSION_POINT_ID)
 public class UsageSimulationProvider extends AbstractDecoratedSimulationBehaviorProvider {

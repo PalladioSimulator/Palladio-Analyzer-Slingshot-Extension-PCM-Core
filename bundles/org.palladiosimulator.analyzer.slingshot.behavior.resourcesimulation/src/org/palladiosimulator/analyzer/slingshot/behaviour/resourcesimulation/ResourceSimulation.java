@@ -11,10 +11,10 @@ import org.palladiosimulator.analyzer.slingshot.behaviour.resourcesimulation.eve
 import org.palladiosimulator.analyzer.slingshot.behaviour.resourcesimulation.events.JobProgressed;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationModel;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.SimulationBehaviourExtension;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.annotations.EventCardinality;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.annotations.OnEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.results.ResultEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.SimulationBehaviorExtension;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.annotations.EventCardinality;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.annotations.OnEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.results.ResultEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment;
@@ -26,7 +26,7 @@ import com.google.common.eventbus.Subscribe;
 @OnEvent(when = JobProgressed.class, then = DESEvent.class, cardinality = EventCardinality.MANY)
 @OnEvent(when = JobFinished.class, then = DESEvent.class, cardinality = EventCardinality.MANY)
 @OnEvent(when = JobFinished.class, then = DESEvent.class, cardinality = EventCardinality.MANY)
-public class ResourceSimulation implements SimulationBehaviourExtension {
+public class ResourceSimulation implements SimulationBehaviorExtension {
 
 	IResource myFCFSResource = new FCFSResource();
 	IResource myPSResource = new ProcessorSharingResource("test", UUID.randomUUID().toString(), 2L);

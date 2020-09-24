@@ -16,11 +16,11 @@ import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.interpreters
 import org.palladiosimulator.analyzer.slingshot.repositories.UsageModelRepository;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationModel;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.SimulationBehaviourExtension;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.annotations.EventCardinality;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.annotations.OnEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.results.ResultEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.results.ResultEventBuilder;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.SimulationBehaviorExtension;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.annotations.EventCardinality;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.annotations.OnEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.results.ResultEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.results.ResultEventBuilder;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.ClosedWorkload;
@@ -34,7 +34,7 @@ import com.google.common.eventbus.Subscribe;
 //@OnEvent(eventType = UserStarted.class, outputEventType = UserFinished.class, cardinality = EventCardinality.SINGLE)
 @OnEvent(when = UserFinished.class, then = DESEvent.class, cardinality = EventCardinality.SINGLE)
 @OnEvent(when = UserWokeUp.class, then = DESEvent.class, cardinality = EventCardinality.SINGLE)
-public class UsageSimulationImpl implements SimulationBehaviourExtension {
+public class UsageSimulationImpl implements SimulationBehaviorExtension {
 
 	private final Logger LOGGER = Logger.getLogger(UsageSimulationImpl.class);
 
@@ -48,8 +48,7 @@ public class UsageSimulationImpl implements SimulationBehaviourExtension {
 
 	@Inject
 	public UsageSimulationImpl(final UsageModelRepository usageModelRepository,
-			final SimulatedUserProvider simulatedUserProvider,
-			final UsageModel usageModel) {
+			final SimulatedUserProvider simulatedUserProvider, final UsageModel usageModel) {
 		this.usageModelRepository = usageModelRepository;
 	}
 
