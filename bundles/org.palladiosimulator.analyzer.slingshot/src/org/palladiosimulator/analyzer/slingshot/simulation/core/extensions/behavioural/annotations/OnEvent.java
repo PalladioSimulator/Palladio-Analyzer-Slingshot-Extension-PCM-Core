@@ -8,12 +8,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.EventContractChecker;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.interceptors.EventContractChecker;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 
 /**
- * Annotates a class that is needed for contract checking. It specifies a contract for incoming events and enforces
- * it at runtime.
+ * Annotates a class that is needed for contract checking. It specifies a
+ * contract for incoming events and enforces it at runtime.
  * 
  * @author Julijan Katic
  * @see EventContractChecker
@@ -23,9 +23,10 @@ import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 @Documented
 @Target(TYPE)
 public @interface OnEvent {
-	
-	/** 
-	 * The types of events that are expected when {@link #when()} has been triggered.
+
+	/**
+	 * The types of events that are expected when {@link #when()} has been
+	 * triggered.
 	 */
 	Class<? extends DESEvent>[] then();
 
@@ -39,12 +40,12 @@ public @interface OnEvent {
 	 * Specifies the incoming event type.
 	 */
 	Class<? extends DESEvent> when();
-	
+
 	@Retention(RetentionPolicy.RUNTIME)
 	@Documented
 	@Target(TYPE)
 	@interface OnEvents {
 		OnEvent[] value();
 	}
-	
+
 }
