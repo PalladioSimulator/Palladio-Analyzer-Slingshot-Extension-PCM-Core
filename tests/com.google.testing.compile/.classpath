@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry exported="true" kind="lib" path="auto-value-1.5.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="com.google.auto.jar"/>
+	<classpathentry exported="true" kind="lib" path="compile-testing-0.18.jar"/>
+	<classpathentry exported="true" kind="lib" path="truth-0.44.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

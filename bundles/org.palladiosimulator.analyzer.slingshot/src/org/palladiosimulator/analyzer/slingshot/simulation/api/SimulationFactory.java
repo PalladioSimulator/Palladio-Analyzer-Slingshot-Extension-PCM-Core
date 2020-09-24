@@ -2,7 +2,7 @@ package org.palladiosimulator.analyzer.slingshot.simulation.api;
 import java.util.List;
 
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationDriver;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.BehaviourExtensionsHandler;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.BehaviorExtensionsHandler;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.decorators.DecoratedSimulationBehaviorProvider;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.model.SimulizarSimulationModel;
 import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngine;
@@ -26,7 +26,7 @@ public class SimulationFactory {
 		//final DecoratedResourceBehaviorProvider decoratedResourceBehavoirProvider = new DecoratedResourceBehaviorProvider();
 		//final DecoratedSystemBehaviorProvider decoratedSystemBehaviorProvider = new DecoratedSystemBehaviorProvider();
 		
-		final List<DecoratedSimulationBehaviorProvider> providers = BehaviourExtensionsHandler.getAllProviders();
+		final List<DecoratedSimulationBehaviorProvider> providers = BehaviorExtensionsHandler.getAllProviders();
 		
 		// Simulation Driver
 		final SimulationDriver simulationDriver =  new SimulationDriver(simEngine, providers);

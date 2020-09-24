@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Slingshot Extensionpoint Annotationprocessor
+Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.extensionpoint.annotationprocessor
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: org.palladiosimulator
+Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.extensionpoint.annotationprocessor
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Import-Package: org.palladiosimulator.analyzer.slingshot.annotations,
+ org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.annotations
+Export-Package: org.palladiosimulator.analyzer.slingshot.extensionpoint.annotationprocessor,
+ org.palladiosimulator.analyzer.slingshot.extensionpoint.annotationprocessor.extension,
+ org.palladiosimulator.analyzer.slingshot.extensionpoint.annotationprocessor.extensionannotation

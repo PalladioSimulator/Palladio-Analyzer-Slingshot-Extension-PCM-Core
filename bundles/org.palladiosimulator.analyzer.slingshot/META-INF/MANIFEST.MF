@@ -8,13 +8,14 @@ Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.palladiosimulator.pcm;bundle-version="4.1.0",
  de.uka.ipd.sdq.identifier,
  org.apache.log4j,
- Java-Assist;bundle-version="3.26.0";visibility:=reexport,
  ca.umontreal.iro.simul.ssj;bundle-version="3.3.1",
  de.uka.ipd.sdq.scheduler,
  de.uka.ipd.sdq.probfunction.math,
  de.uka.ipd.sdq.simucomframework.variables,
- org.eclipse.e4.core.di;bundle-version="1.7.600"
-Export-Package: org.palladiosimulator.analyzer.slingshot.repositories,
+ org.eclipse.e4.core.di;bundle-version="1.7.600",
+ Java-Assist;bundle-version="3.27.0"
+Export-Package: org.palladiosimulator.analyzer.slingshot.annotations,
+ org.palladiosimulator.analyzer.slingshot.repositories,
  org.palladiosimulator.analyzer.slingshot.repositories.impl,
  org.palladiosimulator.analyzer.slingshot.simulation.api,
  org.palladiosimulator.analyzer.slingshot.simulation.core.entities,

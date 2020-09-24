@@ -18,7 +18,15 @@
 		<module>org.palladiosimulator.analyzer.slingshot</module>
 		<module>org.palladiosimulator.analyzer.slingshot.workflow</module>
 		<module>org.palladiosimulator.analyzer.slingshot.ui</module>
-		<module>org.palladiosimulator.analyzer.slingshot.behavior.usagemodel</module>
+		<module>org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation</module>
+		<module>org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.data</module>
+		<module>org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation</module>
+		<module>org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.data</module>
+		<module>org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation</module>
+		<module>org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.data</module>
+		<module>org.palladiosimulator.analyzer.slingshot.extensionpoint.annotationprocessor</module>
+		<module>org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor</module>
+		<module>Javassist</module>
 	</modules>
 	<dependencies>
 		<dependency>

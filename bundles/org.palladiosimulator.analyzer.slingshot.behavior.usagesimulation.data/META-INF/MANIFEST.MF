@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: UsageModelData
+Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.data
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.behaviour.usagesimulation.data
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.palladiosimulator.analyzer.slingshot;bundle-version="1.0.0",
+ org.palladiosimulator.pcm,
+ org.apache.log4j
+Export-Package: org.palladiosimulator.analyzer.slingshot.behavior.usagemodel,
+ org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities,
+ org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events

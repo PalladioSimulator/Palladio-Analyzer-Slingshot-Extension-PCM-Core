@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SystemSimulationData
+Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.data
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation.data
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation.entities;version="1.0.0",
+ org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation.events;version="1.0.0"
+Require-Bundle: org.palladiosimulator.analyzer.slingshot;bundle-version="1.0.0",
+ org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.data;bundle-version="1.0.0",
+ org.palladiosimulator.pcm

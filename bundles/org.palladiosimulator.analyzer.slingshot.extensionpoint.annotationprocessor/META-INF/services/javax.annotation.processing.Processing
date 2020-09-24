@@ -1,0 +1,2 @@
+org.palladiosimulator.analyzer.slingshot.extensionpoint.annotationprocessor.extension.ExtensionProcessor
+org.palladiosimulator.analyzer.slingshot.extensionpoint.annotationprocessor.extensionannotation.ExtensionAnnotationProcessor
