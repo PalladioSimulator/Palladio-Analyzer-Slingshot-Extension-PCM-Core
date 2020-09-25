@@ -1,5 +1,7 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.api;
 
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.model.SimulationModel;
+
 /**
  * Describes the general simulation behavior.
  * 

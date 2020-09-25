@@ -15,10 +15,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.palladiosimulator.analyzer.slingshot.helper.TestHelperConstants;
 import org.palladiosimulator.analyzer.slingshot.helper.UsageModelTestHelper;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.SimulationBehaviorExtension;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.decorators.DecoratedSimulationBehaviorProvider;
 import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngine;
-import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngineMock;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.decorators.DecoratedSimulationBehaviorProvider;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
 
 import com.google.common.eventbus.EventBus;
@@ -54,16 +53,6 @@ public class SimulationDriverTest {
 		// currently the tests consider no extensions
 	}
 
-	// FIXME:: How to rewrite this test. What is SimulationMonitoring? This is
-	// already now an integration test isn't it?
-
-	// asert that inceptor registration works
-	// assert that dispatcher registration works (driver)
-	// assert that dispatcher registration works for behaviorExtentiosn (single |
-	// multiple)
-	// if there is not behaviorExtension -> throw an exception ? -> invalid test
-	// case; not relevant
-
 	@Test
 	public void testInitializeSingleBehaviorExtensionWorks() throws Exception {
 		final List<DecoratedSimulationBehaviorProvider> decoratedSimulationBehaviorProviders = new ArrayList<DecoratedSimulationBehaviorProvider>();
@@ -76,12 +65,8 @@ public class SimulationDriverTest {
 		when(simulationBehaviorExtensionProviderA.decorateSimulationBehaviorWithInterceptors(any()))
 				.thenReturn(simulationBehaviorExtension);
 
-//		driver.init(usageModel);
-
-//		verify(simulationBehaviorExtension,times(1)).init(usageModel);
 	}
 
-	// intention: every init of each extension is called
 	@Test
 	public void testInitializeMultipleBehaviorExtensionsWorks() throws Exception {
 		final List<DecoratedSimulationBehaviorProvider> decoratedSimulationBehaviorProviders = new ArrayList<DecoratedSimulationBehaviorProvider>();
@@ -96,11 +81,6 @@ public class SimulationDriverTest {
 				.thenReturn(simulationBehaviorExtension);
 		when(simulationBehaviorExtensionProviderB.decorateSimulationBehaviorWithInterceptors(any()))
 				.thenReturn(simulationBehaviorExtensionB);
-
-//		driver.init(usageModel);
-
-//		verify(simulationBehaviorExtension,times(1)).init(usageModel);
-//		verify(simulationBehaviorExtensionB,times(1)).init(usageModel);
 
 	}
 

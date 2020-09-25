@@ -12,13 +12,13 @@ import org.palladiosimulator.analyzer.slingshot.behaviour.resourcesimulation.eve
 import org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation.entities.Request;
 import org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation.events.RequestFinished;
 import org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation.events.RequestInitiated;
-import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationModel;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.SimulationBehaviorExtension;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.annotations.EventCardinality;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.annotations.OnEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.results.ResultEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.results.ResultEventBuilder;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventCardinality;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.OnEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEventBuilder;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.model.SimulationModel;
 import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.allocation.AllocationContext;
 import org.palladiosimulator.pcm.repository.BasicComponent;
@@ -99,10 +99,9 @@ public class SystemSimulationImpl implements SimulationBehaviorExtension {
 		requestContexts.put(request, requestInterpretationContext);
 		// final ResultEvent<DESEvent> result = ResultEvent.ofAll(Set.of(new
 		// JobInitiated(new Job(0, null, false, 10.0, request), 0)));
-		final ResultEventBuilder<DESEvent> builder = ResultEvent.createResult();
 		// builder.addEvent(new JobInitiated(new Job(0, null, false, 10.0, request),
 		// 0));
-		return builder.build();
+		return ResultEvent.empty();
 	}
 
 	@SuppressWarnings("unchecked")

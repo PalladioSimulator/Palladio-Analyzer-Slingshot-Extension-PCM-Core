@@ -12,8 +12,8 @@ import org.palladiosimulator.analyzer.slingshot.behaviour.resourcesimulation.eve
 import org.palladiosimulator.analyzer.slingshot.behaviour.resourcesimulation.events.JobProgressed;
 import org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation.events.RequestFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.results.ResultEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
 
 import de.uka.ipd.sdq.probfunction.math.util.MathTools;
 

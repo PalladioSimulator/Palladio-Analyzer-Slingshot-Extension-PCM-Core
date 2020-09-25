@@ -7,7 +7,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.palladiosimulator.analyzer.slingshot.common.serialization.load.PCMFileLoader;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.Simulation;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationFactory;
-import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationModel;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.model.SimulationModel;
 import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
 

@@ -3,11 +3,12 @@ package org.palladiosimulator.analyzer.slingshot.simulation.api;
 import java.util.List;
 
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationDriver;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.BehaviorExtensionsHandler;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.decorators.DecoratedSimulationBehaviorProvider;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.model.SimulizarSimulationModel;
 import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngine;
 import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngineSSJ;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.BehaviorExtensionsHandler;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.decorators.DecoratedSimulationBehaviorProvider;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.model.SimulationModel;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.model.SimulizarSimulationModel;
 import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
 

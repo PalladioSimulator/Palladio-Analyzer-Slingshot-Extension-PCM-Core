@@ -12,14 +12,14 @@ import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserS
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserWokeUp;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.interpreters.UsageScenarioInterpreter;
 import org.palladiosimulator.analyzer.slingshot.repositories.UsageModelRepository;
-import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationModel;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.SimulationBehaviorExtension;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.annotations.EventCardinality;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.annotations.OnEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.results.ResultEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.results.ResultEventBuilder;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventCardinality;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.OnEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEventBuilder;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.model.SimulationModel;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.ClosedWorkload;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
@@ -96,7 +96,13 @@ public class UsageSimulationImpl implements SimulationBehaviorExtension {
 
 		}
 
-		return builder.build();
+		final ResultEvent<DESEvent> result = builder.build();
+
+		for (final DESEvent event : result.getEventsForScheduling()) {
+			LOGGER.info("Event added after SimulationStarted: " + event.getClass().getSimpleName());
+		}
+
+		return result;
 	}
 
 	@Subscribe

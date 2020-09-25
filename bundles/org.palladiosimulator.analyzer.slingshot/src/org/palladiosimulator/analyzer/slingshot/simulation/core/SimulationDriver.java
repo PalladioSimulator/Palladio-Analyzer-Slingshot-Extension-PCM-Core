@@ -5,33 +5,27 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.Simulation;
-import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationModel;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.SimulationBehaviorExtension;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.decorators.DecoratedSimulationBehaviorProvider;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.interceptors.ExtensionLoggingInterceptor;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.interceptors.SchedulingInterceptor;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioral.interceptors.SimulationExtensionOnEventContractEnforcementInterceptor;
 import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngine;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.EventPrettyLogPrinter;
-import org.palladiosimulator.analyzer.slingshot.simulation.interceptor.Interceptor;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.decorators.DecoratedSimulationBehaviorProvider;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.interceptors.ExtensionLoggingInterceptor;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.interceptors.SchedulingInterceptor;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.interceptors.SimulationExtensionOnEventContractEnforcementInterceptor;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.interceptor.Interceptor;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.model.SimulationModel;
 
 public class SimulationDriver implements Simulation, SimulationScheduling {
 
 	private final Logger LOGGER = Logger.getLogger(SimulationDriver.class);
 
-	// FIXME: Remove the dependency to usageSimulation.
 	private final SimulationEngine simEngine;
 
 	private final List<SimulationBehaviorExtension> behaviorExtensions;
 
-	private List<DecoratedSimulationBehaviorProvider> decoratedSimulationBehaviorProviders;
-
-	public SimulationDriver(final SimulationEngine simEngine) {
-		this.simEngine = simEngine;
-		this.behaviorExtensions = new ArrayList<SimulationBehaviorExtension>();
-	}
+	private final List<DecoratedSimulationBehaviorProvider> decoratedSimulationBehaviorProviders;
 
 	public SimulationDriver(final SimulationEngine simEngine,
 			final List<DecoratedSimulationBehaviorProvider> decoratedSimProviders) {
@@ -47,9 +41,11 @@ public class SimulationDriver implements Simulation, SimulationScheduling {
 
 		registerSimulationBehaviorExtensionInterceptors();
 
-		for (final SimulationBehaviorExtension simulationBehaviourExtension : behaviorExtensions) {
-			simulationBehaviourExtension.init(model);
-			this.simEngine.getEventDispatcher().register(simulationBehaviourExtension);
+		for (final SimulationBehaviorExtension simulationBehaviorExtension : behaviorExtensions) {
+			simulationBehaviorExtension.init(model);
+			this.simEngine.getEventDispatcher().register(simulationBehaviorExtension);
+			LOGGER.info("Registered behavior extension to the event dispatcher: "
+					+ simulationBehaviorExtension.getClass().getSimpleName());
 		}
 
 		this.simEngine.getEventDispatcher().register(this);
@@ -70,9 +66,13 @@ public class SimulationDriver implements Simulation, SimulationScheduling {
 	 */
 	public void registerSimulationBehaviorExtension(
 			final DecoratedSimulationBehaviorProvider decoratedSimulationBehaviorProvider) throws Exception {
+
+		LOGGER.info("Add all the interceptors to " + decoratedSimulationBehaviorProvider.getClass().getSimpleName());
+
 		final ExtensionLoggingInterceptor myLoggingInterceptor = new ExtensionLoggingInterceptor();
 		final SchedulingInterceptor schedulingInterceptor = new SchedulingInterceptor(this);
 		final SimulationExtensionOnEventContractEnforcementInterceptor contract = new SimulationExtensionOnEventContractEnforcementInterceptor();
+
 		final List<Interceptor> interceptors = List.of(contract, myLoggingInterceptor, schedulingInterceptor);
 
 		behaviorExtensions
@@ -83,11 +83,11 @@ public class SimulationDriver implements Simulation, SimulationScheduling {
 	public void startSimulation() {
 		final DESEvent simulationStart = new SimulationStarted();
 
-		// initialize
 		simEngine.init();
-		// initial events
+
 		simEngine.scheduleEvent(simulationStart);
-		// start
+
+		LOGGER.debug("Start simulation");
 		simEngine.start();
 	}
 
@@ -99,35 +99,12 @@ public class SimulationDriver implements Simulation, SimulationScheduling {
 		return new SimulationStatus(null);
 	}
 
-//	@Subscribe
-//	public void update(DESEvent evt) {
-//		// FIXME:: Check from which of the interested types the event is then delegate
-//		// to usageSimulation to find the nextEvent and schedule that event.
-//		// FIXME:: The FinishedUserEvent is scheduled somewhere from the component in
-//		// the last action which will be interpreted somewhere
-//
-//		if (evt instanceof UserStarted) {
-//			UserStarted startUserEvent = UserStarted.class.cast(evt);
-//			LOGGER.info(String.format(
-//					"Previously scheduled event '%s' has finished executing its event routine now we could schedule a FinishUserEvent",
-//					startUserEvent.getId()));
-//			UserFinished userFinished = new UserFinished(startUserEvent.getSimulatedUser());
-//			simEngine.scheduleEvent(userFinished);
-//
-//		}
-//
-//	}
-
 	@Override
 	public void scheduleForSimulation(final DESEvent evt) {
-		// all the events are scheduled through this public available method of the
-		// simulation driver
 		LOGGER.info(EventPrettyLogPrinter.prettyPrint(evt, "Scheduled for simulation", "Simulation Driver"));
 		simEngine.scheduleEvent(evt);
-
 	}
 
-	// another convenient method would be scheduleForSimulation of several events
 	@Override
 	public void scheduleForSimulation(final List<DESEvent> evt) {
 		for (final DESEvent desEvent : evt) {
