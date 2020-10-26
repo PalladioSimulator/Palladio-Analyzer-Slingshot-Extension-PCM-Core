@@ -12,22 +12,11 @@
  * </p>
  * 
  * <p>
- * <strong>Interceptor</strong>. The interceptor extension point defines further
- * interceptors. An interceptor is another handler that intercepts the behavior
- * handlers. The behavior extension point therefore depends on this extension
- * point.
- * </p>
- * 
- * <p>
  * <strong>Model</strong>. TODO: The model extension point. This extension point
  * will give possibilities to define further models that are needed for the
  * simulation. Right now, only the usage model and allocation model are
  * supported (See {@link SimulationModel}).
  * </p>
  * 
- * <p>
- * <strong>Extension Point</strong>. This extension point is used to define
- * further extension points.
- * </p>
  */
 package org.palladiosimulator.analyzer.slingshot.simulation.extensions;

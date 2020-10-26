@@ -3,8 +3,7 @@
 <plugin>
    <extension
          point="org.palladiosimulator.analyzer.slingshot.extensionpoint.behavior">
-      <client
-            class="org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation.SystemSimulationProvider">
-      </client>
+      
+      <behavior-provider baseClass="org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.SystemSimulationImpl" />
    </extension>
 </plugin>

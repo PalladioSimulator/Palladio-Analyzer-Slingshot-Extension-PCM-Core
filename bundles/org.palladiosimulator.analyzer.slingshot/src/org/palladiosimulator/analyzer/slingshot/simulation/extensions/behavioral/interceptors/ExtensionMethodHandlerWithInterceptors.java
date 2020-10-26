@@ -3,8 +3,9 @@ package org.palladiosimulator.analyzer.slingshot.simulation.extensions.behaviora
 import java.lang.reflect.Method;
 import java.util.List;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.apache.log4j.Logger;
-import org.palladiosimulator.analyzer.slingshot.simulation.extensions.interceptor.Interceptor;
 
 import javassist.util.proxy.MethodHandler;
 
@@ -15,7 +16,7 @@ import javassist.util.proxy.MethodHandler;
  * @author Floriment Klinaku
  *
  */
-public class ExtensionMethodHandlerWithInterceptors implements MethodHandler {
+public class ExtensionMethodHandlerWithInterceptors implements MethodHandler, MethodInterceptor {
 
 	/**
 	 * an ordered list of interceptors where for each preIntercept will be invoked
@@ -48,6 +49,21 @@ public class ExtensionMethodHandlerWithInterceptors implements MethodHandler {
 		}
 
 		LOGGER.info("+++ Interception Ended +++");
+
+		return result;
+	}
+
+	@Override
+	public Object invoke(final MethodInvocation invocation) throws Throwable {
+		for (final Interceptor interceptor : myInterceptors) {
+			interceptor.preIntercept(invocation.getThis(), invocation.getMethod(), invocation.getArguments());
+		}
+
+		final Object result = invocation.proceed();
+
+		for (final Interceptor interceptor : myInterceptors) {
+			interceptor.postIntercept(invocation.getThis(), invocation.getMethod(), invocation.getArguments(), result);
+		}
 
 		return result;
 	}

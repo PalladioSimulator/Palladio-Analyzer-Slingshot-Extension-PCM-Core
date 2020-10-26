@@ -2,7 +2,6 @@ package org.palladiosimulator.analyzer.slingshot.simulation.extensions.behaviora
 import java.lang.reflect.Method;
 
 import org.apache.log4j.Logger;
-import org.palladiosimulator.analyzer.slingshot.simulation.extensions.interceptor.AbstractInterceptor;
 
 /**
  * Helper class for debuging purposes: Prints that a method is intercepted

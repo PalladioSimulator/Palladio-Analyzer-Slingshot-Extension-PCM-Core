@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Xmlunit-Core
+Bundle-SymbolicName: org.xmlunit.xmlunit-core
+Bundle-Version: 1.0.0
+Bundle-ClassPath: xmlunit-core-2.7.0.jar
+Export-Package: org.xmlunit,
+ org.xmlunit.builder,
+ org.xmlunit.diff,
+ org.xmlunit.input,
+ org.xmlunit.transform,
+ org.xmlunit.util,
+ org.xmlunit.validation,
+ org.xmlunit.xpath
+Bundle-RequiredExecutionEnvironment: JavaSE-12
+Automatic-Module-Name: org.xmlunit.xmlunit.core

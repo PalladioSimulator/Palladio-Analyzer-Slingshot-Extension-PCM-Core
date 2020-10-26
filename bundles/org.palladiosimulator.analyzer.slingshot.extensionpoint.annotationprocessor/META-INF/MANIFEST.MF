@@ -14,4 +14,5 @@ Export-Package: org.palladiosimulator.analyzer.slingshot.extensionpoint.annotati
  org.palladiosimulator.analyzer.slingshot.extensionpoint.annotationprocessor.extensionannotation
 Require-Bundle: com.google.testing.compile;bundle-version="0.18.0",
  org.junit;bundle-version="4.13.0",
- com.google.guava
+ com.google.guava,
+ org.apache.commons.commons-text

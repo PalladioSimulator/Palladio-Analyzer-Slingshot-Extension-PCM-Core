@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Commons-text
+Bundle-SymbolicName: org.apache.commons.commons-text
+Bundle-Version: 1.0.0
+Bundle-ClassPath: commons-text-1.9.jar
+Export-Package: org.apache.commons.text,
+ org.apache.commons.text.diff,
+ org.apache.commons.text.io,
+ org.apache.commons.text.lookup,
+ org.apache.commons.text.matcher,
+ org.apache.commons.text.similarity,
+ org.apache.commons.text.translate
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: org.apache.commons.commons.text

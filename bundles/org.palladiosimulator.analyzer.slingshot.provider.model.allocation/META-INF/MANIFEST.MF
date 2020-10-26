@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Allocation
+Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.provider.model.allocation;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.provider.model.allocation
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.palladiosimulator.analyzer.slingshot.ui,
+ org.eclipse.core.runtime;bundle-version="3.18.0",
+ org.palladiosimulator.analyzer.slingshot.common.constants,
+ org.palladiosimulator.analyzer.slingshot.module.models,
+ org.palladiosimulator.pcm,
+ org.palladiosimulator.analyzer.slingshot.common.serialization

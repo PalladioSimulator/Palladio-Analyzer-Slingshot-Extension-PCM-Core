@@ -4,6 +4,12 @@ import java.util.UUID;
 
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 
+/**
+ * This special event will be spawned indicating that the simulation has
+ * started. This is a special event that cannot be spawned afterwards again.
+ * 
+ * @author Julijan Katic
+ */
 public class SimulationStarted implements DESEvent {
 
 	private final String eventId;

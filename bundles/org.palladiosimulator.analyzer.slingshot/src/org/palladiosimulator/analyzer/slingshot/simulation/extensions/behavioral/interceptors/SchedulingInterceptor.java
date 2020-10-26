@@ -7,7 +7,6 @@ import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationSchedu
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.EventPrettyLogPrinter;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.extensions.interceptor.AbstractInterceptor;
 
 /**
  * Schedules the immediate events after invoking the extension method and

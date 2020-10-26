@@ -3,7 +3,7 @@
 <schema targetNamespace="org.palladiosimulator.analyzer.slingshot" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="org.palladiosimulator.analyzer.slingshot" id="org.palladiosimulator.analyzer.slingshot.extensionpoint.behavior" name="Behavior"/>
+         <meta.schema plugin="org.palladiosimulator.analyzer.slingshot" id="org.palladiosimulator.analyzer.slingshot.extensionpoint.behavior" name="Behavior Extension Point"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]
@@ -17,9 +17,9 @@
          </appinfo>
       </annotation>
       <complexType>
-         <choice minOccurs="1" maxOccurs="unbounded">
-            <element ref="client"/>
-         </choice>
+         <sequence minOccurs="1" maxOccurs="unbounded">
+            <element ref="behavior-provider" minOccurs="1" maxOccurs="unbounded"/>
+         </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
                <documentation>
@@ -47,15 +47,15 @@
       </complexType>
    </element>
 
-   <element name="client">
+   <element name="behavior-provider">
       <complexType>
-         <attribute name="class" type="string" use="required">
+         <attribute name="baseClass" type="string" use="required">
             <annotation>
                <documentation>
                   
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":org.palladiosimulator.analyzer.slingshot.simulation.core.extensions.behavioural.decorators.DecoratedSimulationBehaviorProvider"/>
+                  <meta.attribute kind="java" basedOn=":org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension"/>
                </appinfo>
             </annotation>
          </attribute>

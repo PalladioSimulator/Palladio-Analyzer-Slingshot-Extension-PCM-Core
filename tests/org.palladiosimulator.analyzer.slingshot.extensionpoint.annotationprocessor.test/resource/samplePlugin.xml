@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse version="3.8"?><plugin>
+    <extension point="sampleExtension">
+        <client class="SampleClass"/>
+    </extension>
+</plugin>

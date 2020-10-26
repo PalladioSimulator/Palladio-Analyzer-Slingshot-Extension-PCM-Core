@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Usagemodel
+Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.provider.model.usagemodel;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.provider.model.usagemodel
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.palladiosimulator.analyzer.slingshot.ui,
+ org.palladiosimulator.analyzer.slingshot.common.constants,
+ org.eclipse.core.runtime;bundle-version="3.18.0",
+ org.palladiosimulator.pcm,
+ com.google.inject.guice,
+ javax.inject,
+ org.palladiosimulator.analyzer.slingshot.common.serialization,
+ org.palladiosimulator.analyzer.slingshot.module.models

@@ -2,9 +2,9 @@ package org.palladiosimulator.analyzer.slingshot.simulation.core;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.apache.log4j.Logger;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationBehaviorExtensionTest.CallbackInLastEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SampleEventA;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SampleEventB;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SampleEventC;
@@ -13,11 +13,11 @@ import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventMethod;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.OnEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.decorators.AbstractDecoratedSimulationBehaviorProvider;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.model.SimulationModel;
 
 import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
 
 /**
  * This mocks a simulation behavior. This provides three sample events and has
@@ -38,11 +38,12 @@ public class SimulationBehaviorExtensionMock implements SimulationBehaviorExtens
 	/**
 	 * The callback function to call at the last event.
 	 */
-	private final Consumer<List<Class<?>>> callback;
+	private final CallbackInLastEvent callback;
 
-	public SimulationBehaviorExtensionMock(final Consumer<List<Class<?>>> cachedEvents) {
+	@Inject
+	public SimulationBehaviorExtensionMock(final CallbackInLastEvent callback) {
 		this.cachedEvents = new ArrayList<>();
-		this.callback = cachedEvents;
+		this.callback = callback;
 	}
 
 	@Override
@@ -78,31 +79,4 @@ public class SimulationBehaviorExtensionMock implements SimulationBehaviorExtens
 		return ResultEvent.empty();
 	}
 
-	/**
-	 * The decorator class for this behavior extension.
-	 */
-	static class Decorator extends AbstractDecoratedSimulationBehaviorProvider {
-
-		private final Consumer<List<DESEvent>> function;
-
-		public Decorator(final Consumer<List<DESEvent>> consumer) {
-			this.function = consumer;
-		}
-
-		@Override
-		protected Class<?>[] getConstructorArgumentsClazzes() {
-			return new Class<?>[] { Consumer.class };
-		}
-
-		@Override
-		protected Object[] getConstructorInstances() {
-			return new Object[] { function };
-		}
-
-		@Override
-		protected Class<?> getToBeDecoratedClazz() {
-			return SimulationBehaviorExtensionMock.class;
-		}
-
-	}
 }

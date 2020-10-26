@@ -1,84 +1,77 @@
 package org.palladiosimulator.analyzer.slingshot.extensionpoint.annotationprocessor.test;
 
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.io.File;
+import java.io.PrintWriter;
+import java.util.Arrays;
 
-import javax.tools.StandardLocation;
+import javax.tools.JavaCompiler.CompilationTask;
+import javax.tools.JavaFileObject;
+import javax.tools.ToolProvider;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.osgi.framework.wiring.BundleWiring;
+import org.palladiosimulator.analyzer.slingshot.annotationprocessor.test.utils.AbstractAnnotationTester;
 import org.palladiosimulator.analyzer.slingshot.extensionpoint.annotationprocessor.extension.ExtensionProcessor;
+import org.w3c.dom.Node;
+import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.builder.Input;
+import org.xmlunit.diff.DefaultNodeMatcher;
+import org.xmlunit.diff.Diff;
+import org.xmlunit.diff.ElementSelectors;
 
-import com.google.common.base.Splitter;
-import com.google.common.base.StandardSystemProperty;
-import com.google.common.collect.Iterables;
-import com.google.testing.compile.Compilation;
-import com.google.testing.compile.CompilationSubject;
-import com.google.testing.compile.Compiler;
-import com.google.testing.compile.JavaFileObjects;
+/**
+ * Test class for testing the annotation processor {@link ExtensionProcessor}
+ * for the .
+ * 
+ * @author Julijan Katic
+ */
+public class ExtensionTest extends AbstractAnnotationTester {
 
-public class ExtensionTest {
+	private final String sourceDirectory = "resource/test01";
 
-	private Compilation compilation;
-	private URL sampleExtensionUrl;
+	private final String samplePluginXMLFile = "resource/test01/samplePlugin.xml";
+	private final String expectedPluginXMLFile = "resource/test01/expectedPlugin.xml";
+
+	private Iterable<JavaFileObject> simpleExtensionClass;
 
 	@Before
-	@SuppressWarnings("deprecation")
-	public void createCompilationWithAnnotationProcessor() {
-		sampleExtensionUrl = ExtensionTest.class.getResource("/resources/SampleExtension.java");
-
-		final Compiler compiler = Compiler.javac();
-		final ClassLoader loader = Activator.getContext().getBundle().adapt(BundleWiring.class).getClassLoader();
-
-		compilation = compiler.withProcessors(new ExtensionProcessor()).withClasspathFrom(loader)
-				.compile(JavaFileObjects.forResource(sampleExtensionUrl));
+	public void configureCompilation() throws Exception {
+		this.compiler = ToolProvider.getSystemJavaCompiler();
+		this.simpleExtensionClass = getSourceFiles(sourceDirectory);
 	}
 
 	@Test
-	public void testGeneration() {
-		CompilationSubject.assertThat(compilation).generatedFile(StandardLocation.SOURCE_OUTPUT, "plugin.xml");
+	public void runAnnotationProcessorForSimpleClassAndCheckXMLFiles() throws Exception {
+		final CompilationTask compilationTask = compiler.getTask(new PrintWriter(System.out), null, null, null, null,
+		        simpleExtensionClass);
+
+		compilationTask.setProcessors(Arrays.asList(new ExtensionProcessor(samplePluginXMLFile)));
+		compilationTask.call();
+
+		final Diff differencesInXML = DiffBuilder.compare(Input.fromFile(samplePluginXMLFile))
+		        .ignoreComments()
+		        .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byName))
+		        /*
+		         * Only the correct nodes are important (not their order and no whitespaces
+		         * etc.)
+		         */
+		        .checkForSimilar()
+		        /* Ignore Processing Instructions "<? ... ?>" */
+		        .withNodeFilter(node -> node.getNodeType() != Node.PROCESSING_INSTRUCTION_NODE)
+		        .withTest(Input.fromFile(expectedPluginXMLFile))
+		        .build();
+
+		Assert.assertFalse(differencesInXML.toString(), differencesInXML.hasDifferences());
 	}
 
-	// @Test
-	public void sampleTest() {
-
-		// getClasspathFromClassloader(loader);
-
-		Assert.assertTrue(true);
-	}
-
-	public static void getClasspathFromClassloader(ClassLoader currentClassLoader) {
-		final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
-		final Set<String> classPaths = new LinkedHashSet<>();
-
-		while (true) {
-			if (currentClassLoader == systemClassLoader) {
-				Iterables.addAll(classPaths, Splitter.on(StandardSystemProperty.PATH_SEPARATOR.value())
-						.split(StandardSystemProperty.JAVA_CLASS_PATH.value()));
-				break;
-			}
-
-			if (currentClassLoader instanceof URLClassLoader) {
-				for (final URL url : ((URLClassLoader) currentClassLoader).getURLs()) {
-					if (url.getProtocol().equals("file")) {
-						classPaths.add(url.getPath());
-					}
-				}
-			} else {
-				throw new IllegalArgumentException(String.format(
-						"Classpath for compilation could not be extracted since %s is not an instance of URLClassloader",
-						currentClassLoader));
-			}
-
-			currentClassLoader = currentClassLoader.getParent();
+	@After
+	public void deleteCompiledXMLFile() {
+		final File xmlFile = new File(samplePluginXMLFile);
+		if (xmlFile.exists()) {
+			xmlFile.delete();
 		}
-
-		System.out.println("Show classPath:");
-		classPaths.forEach(System.out::println);
 	}
 
 }

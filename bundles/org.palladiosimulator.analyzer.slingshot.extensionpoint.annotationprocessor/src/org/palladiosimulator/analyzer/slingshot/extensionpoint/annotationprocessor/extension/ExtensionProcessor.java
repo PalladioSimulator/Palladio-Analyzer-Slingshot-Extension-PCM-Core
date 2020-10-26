@@ -32,6 +32,21 @@ public class ExtensionProcessor extends AbstractProcessor {
 
 	private Messager messager;
 	private Filer filer;
+	private final String pluginResourceFile;
+
+	/**
+	 * This instantiates the processor, but this constructor is solely for testing
+	 * purposes. Normally, an annotation processor must have a default constructor.
+	 * 
+	 * @param pluginResourceFile The resource file to the plugin.xml
+	 */
+	public ExtensionProcessor(final String pluginResourceFile) {
+		this.pluginResourceFile = pluginResourceFile;
+	}
+
+	public ExtensionProcessor() {
+		this(PluginFiler.PLUGIN_FILE);
+	}
 
 	@Override
 	public Set<String> getSupportedAnnotationTypes() {
@@ -48,6 +63,7 @@ public class ExtensionProcessor extends AbstractProcessor {
 		super.init(processingEnv);
 
 		this.messager = processingEnv.getMessager();
+		this.filer = processingEnv.getFiler();
 	}
 
 	@Override
@@ -59,12 +75,13 @@ public class ExtensionProcessor extends AbstractProcessor {
 			try {
 				final ExtensionModel model = new ExtensionModel(classElement);
 
-				final Document doc = PluginFiler.getPluginDocument();
+				final Document doc = PluginFiler.getPluginDocument(pluginResourceFile);
 
 				PluginFiler.createExtensionElement(doc, model.getExtensionPointId(),
 						model.getExtensionPointImplementationNode(), model.getImplementation());
 
-				PluginFiler.writeDocument(doc, filer.getResource(StandardLocation.CLASS_OUTPUT, "", "plugin.xml"));
+				PluginFiler.writeDocument(doc,
+						filer.createResource(StandardLocation.SOURCE_OUTPUT, "", pluginResourceFile));
 
 			} catch (final IllegalArgumentException ex) {
 				messager.printMessage(Kind.ERROR, ex.getMessage(), classElement);

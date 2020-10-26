@@ -1,14 +1,16 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ExtensionPoint AnnotationProcessor Test
-Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.extensionpoint.annotationprocessor.test
+Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.extensionpoint.annotationprocessor.test;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.palladiosimulator.analyzer.slingshot.extensionpoint.annotationprocessor.test.Activator
 Require-Bundle: org.eclipse.core.runtime,
  com.google.testing.compile,
  org.junit,
  org.palladiosimulator.analyzer.slingshot.extensionpoint.annotationprocessor,
- org.palladiosimulator.analyzer.slingshot
+ org.palladiosimulator.analyzer.slingshot,
+ org.xmlunit.xmlunit-core;bundle-version="1.0.0",
+ org.palladiosimulator.analyzer.slingshot.annotationprocessor.test.utils
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.extensionpoint.annotationprocessor.test
 Bundle-ActivationPolicy: lazy

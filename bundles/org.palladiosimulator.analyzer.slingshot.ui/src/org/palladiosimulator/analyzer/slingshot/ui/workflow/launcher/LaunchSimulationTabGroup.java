@@ -4,20 +4,28 @@ import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
 import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
+import org.palladiosimulator.analyzer.slingshot.ui.workflow.launcher.tabs.SimulationArchitectureModelsTab;
 
+/**
+ * This creates a launch simulation with tabs. As of now, this creates the
+ * {@link SimulationArchitectureModelsTab} along with Eclipse's
+ * {@link CommonTab}.
+ * 
+ * @author Julijan Katic
+ */
 public class LaunchSimulationTabGroup extends AbstractLaunchConfigurationTabGroup {
-	
-	public LaunchSimulationTabGroup() {}
+
+	public LaunchSimulationTabGroup() {
+	}
 
 	@Override
-	public void createTabs(ILaunchConfigurationDialog dialog, String mode) {
+	public void createTabs(final ILaunchConfigurationDialog dialog, final String mode) {
 
 		// Assemble the tab pages:
-        ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] { 
-        		new SimulationArchitectureModelsTab()
-        		, new CommonTab()
-        };
-		
+		final ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
+				new SimulationArchitectureModelsTab(), new CommonTab()
+		};
+
 		setTabs(tabs);
 	}
 
