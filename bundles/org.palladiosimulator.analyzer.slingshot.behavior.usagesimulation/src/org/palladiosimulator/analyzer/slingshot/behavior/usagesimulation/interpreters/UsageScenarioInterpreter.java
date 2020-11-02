@@ -28,6 +28,9 @@ import org.palladiosimulator.pcm.usagemodel.util.UsagemodelSwitch;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 
+/*
+ * TODO: Find better way to incorporate Events with Switch interpreters.
+ */
 public class UsageScenarioInterpreter<T> extends UsagemodelSwitch<T> {
 
 	private final Logger LOGGER = Logger.getLogger(UsageScenarioInterpreter.class);
@@ -83,7 +86,9 @@ public class UsageScenarioInterpreter<T> extends UsagemodelSwitch<T> {
 
 	@Override
 	public T caseBranch(final Branch object) {
-
+		// TODO: Need a way to interpret branches, otherwise in some example PCM
+		// projects (i.e. BookStore), the
+		// simulation after "UserStarted" event ends abruptly.
 		return super.caseBranch(object);
 	}
 
