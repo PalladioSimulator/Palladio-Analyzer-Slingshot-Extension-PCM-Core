@@ -47,7 +47,7 @@ public class OnEventProcessor extends AbstractProcessor {
 
 	@Override
 	public SourceVersion getSupportedSourceVersion() {
-		return SourceVersion.RELEASE_8;
+		return SourceVersion.RELEASE_11;
 	}
 
 	@Override
@@ -210,7 +210,7 @@ public class OnEventProcessor extends AbstractProcessor {
 	private boolean checkMethodReturnType(final ExecutableElement method) {
 		final TypeMirror returnMirror = method.getReturnType();
 
-		if (returnMirror.getKind().isPrimitive()) {
+		if (returnMirror.getKind() != TypeKind.DECLARED) {
 			return false;
 		}
 

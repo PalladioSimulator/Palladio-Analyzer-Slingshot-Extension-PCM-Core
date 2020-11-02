@@ -3,17 +3,21 @@ package org.palladiosimulator.analyzer.slingshot.simulation.core;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.module.models.ModelModule;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.Simulation;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.exceptions.EventContractException;
 import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngine;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.EventPrettyLogPrinter;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.BehaviorContainer;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventContract;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventMethod;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.interceptors.ExtensionLoggingInterceptor;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.interceptors.ExtensionMethodHandlerWithInterceptors;
@@ -41,17 +45,19 @@ public class SimulationDriver implements Simulation, SimulationScheduling {
 	/**
 	 * The simulation engine that is responsible for dispatching events.
 	 */
-	private final /*@ spec_public @*/ SimulationEngine simEngine;
+	private final SimulationEngine simEngine;
 
 	/**
 	 * The list of simulation behavior extensions. These will be initialized later
 	 * by the {@link DecoratedSimulationBehaviorProvider}s.
 	 */
-	private final /*@ spec_public @*/ List<SimulationBehaviorExtension> behaviorExtensions;
+	private final List<SimulationBehaviorExtension> behaviorExtensions;
 
-	private final /*@ spec_public @*/ List<Interceptor> interceptors;
+	private final List<Interceptor> interceptors;
 
 	private final ExtensionInstancesContainer<SimulationBehaviorExtension> simulationBehaviorExtensions;
+
+	private final Map<Class<? extends DESEvent>, Integer> eventCounter;
 
 	public SimulationDriver(final SimulationEngine simEngine) {
 		this(simEngine, BehaviorContainer.getInstance());
@@ -63,6 +69,7 @@ public class SimulationDriver implements Simulation, SimulationScheduling {
 		this.behaviorExtensions = new ArrayList<>();
 		this.simulationBehaviorExtensions = extensionsContainer;
 		this.interceptors = new ArrayList<>();
+		this.eventCounter = new HashMap<>();
 	}
 
 	@Override
@@ -91,7 +98,7 @@ public class SimulationDriver implements Simulation, SimulationScheduling {
 	 * {@link ExtensionLoggingInterceptor}, {@link SchedulingIntercepor} and
 	 * {@link SimulationExtensionOnEventContractEnforcementInterceptor} in it.
 	 */
-	private /* @ helper @ */ void initializeInterceptors() {
+	private void initializeInterceptors() {
 		final ExtensionLoggingInterceptor loggingInterceptor = new ExtensionLoggingInterceptor();
 		final SchedulingInterceptor schedulingInterceptor = new SchedulingInterceptor(this);
 		final SimulationExtensionOnEventContractEnforcementInterceptor contractInterceptor = new SimulationExtensionOnEventContractEnforcementInterceptor();
@@ -125,7 +132,13 @@ public class SimulationDriver implements Simulation, SimulationScheduling {
 	@Override
 	public void scheduleForSimulation(final DESEvent evt) {
 		LOGGER.info(EventPrettyLogPrinter.prettyPrint(evt, "Scheduled for simulation", "Simulation Driver"));
-		simEngine.scheduleEvent(evt);
+
+		try {
+			checkEventContract(evt);
+			simEngine.scheduleEvent(evt);
+		} catch (final EventContractException e) {
+			LOGGER.error("Couldn't publish event.", e);
+		}
 	}
 
 	@Override
@@ -133,7 +146,22 @@ public class SimulationDriver implements Simulation, SimulationScheduling {
 		for (final DESEvent desEvent : evt) {
 			scheduleForSimulation(desEvent);
 		}
+	}
 
+	@Override
+	public void checkEventContract(final DESEvent event) throws EventContractException {
+		final Class<? extends DESEvent> eventClazz = event.getClass();
+		final EventContract contract = event.getClass().getAnnotation(EventContract.class);
+
+		if (contract != null) {
+			final int numberOfSpawns = this.eventCounter.getOrDefault(eventClazz, 0);
+
+			if (contract.maximalPublishing() <= numberOfSpawns) {
+				throw new EventContractException(contract, event, "Maximum number of publishments reached.");
+			}
+
+			this.eventCounter.put(eventClazz, numberOfSpawns + 1);
+		}
 	}
 
 	class InterceptorModule extends AbstractModule {
@@ -142,7 +170,6 @@ public class SimulationDriver implements Simulation, SimulationScheduling {
 		protected void configure() {
 			bindInterceptor(
 			        Matchers.any(),
-			        // Matchers.any(),
 			        new ExtensionMethodMatcher().or(Matchers.annotatedWith(EventMethod.class)),
 			        new ExtensionMethodHandlerWithInterceptors(interceptors));
 		}

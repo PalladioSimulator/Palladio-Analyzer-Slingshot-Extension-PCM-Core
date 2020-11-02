@@ -19,7 +19,7 @@ public class RequiredAllocationTextForm extends SingleTextModelField {
 
 	@Override
 	public String name() {
-		return PATH_BINDER_ID;
+		return ModelFileTypeConstants.ALLOCATION_FILE;
 	}
 
 }

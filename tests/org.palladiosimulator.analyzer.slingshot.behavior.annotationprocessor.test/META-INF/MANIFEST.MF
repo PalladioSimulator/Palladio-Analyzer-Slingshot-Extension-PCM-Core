@@ -4,7 +4,7 @@ Bundle-Name: Annotation Processor Behavior Test
 Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.test
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.test
-Bundle-RequiredExecutionEnvironment: JavaSE-12
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.palladiosimulator.analyzer.slingshot.annotationprocessor.test.utils,
  org.junit,
  org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor,

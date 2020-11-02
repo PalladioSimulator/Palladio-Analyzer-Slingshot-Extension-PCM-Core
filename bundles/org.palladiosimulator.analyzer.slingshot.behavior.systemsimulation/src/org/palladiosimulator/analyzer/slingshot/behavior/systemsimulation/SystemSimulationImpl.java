@@ -19,16 +19,13 @@ import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventCardinality;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.OnEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEventBuilder;
 import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.allocation.AllocationContext;
 import org.palladiosimulator.pcm.repository.BasicComponent;
 
 import com.google.common.eventbus.Subscribe;
 
-@OnEvent(when = RequestInitiated.class, then = JobInitiated.class, cardinality = EventCardinality.SINGLE) // TODO:
-                                                                                                          // Implement
-                                                                                                          // resourcesimulation
+@OnEvent(when = RequestInitiated.class, then = JobInitiated.class, cardinality = EventCardinality.SINGLE)
 @OnEvent(when = RequestFinished.class, then = UserRequestFinished.class, cardinality = EventCardinality.SINGLE)
 @OnEvent(when = UserRequestInitiated.class, then = JobInitiated.class, cardinality = EventCardinality.SINGLE)
 public class SystemSimulationImpl implements SimulationBehaviorExtension {
@@ -102,11 +99,8 @@ public class SystemSimulationImpl implements SimulationBehaviorExtension {
 		        userRequestInit.getUserContext());
 		final Request request = new Request();
 		requestContexts.put(request, requestInterpretationContext);
-		// final ResultEvent<DESEvent> result = ResultEvent.ofAll(Set.of(new
-		// JobInitiated(new Job(0, null, false, 10.0, request), 0)));
-		// builder.addEvent(new JobInitiated(new Job(0, null, false, 10.0, request),
-		// 0));
-		return ResultEvent.empty();
+
+		return ResultEvent.of(new JobInitiated(new Job(0, null, false, 10.0, request), 0));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -117,10 +111,8 @@ public class SystemSimulationImpl implements SimulationBehaviorExtension {
 		final Request request = requestFinishedEvt.getEntity();
 		final UserRequest userReq = new UserRequest(null, null, null);
 
-		final ResultEventBuilder<UserRequestFinished> builder = ResultEvent.createResult();
-		builder.addEvent(new UserRequestFinished(userReq, requestContexts.get(request).getUserInterpretationContext()));
-
-		return builder.build();
+		return ResultEvent
+		        .of(new UserRequestFinished(userReq, requestContexts.get(request).getUserInterpretationContext()));
 
 		// get the ReqeustContext
 //			RequestInterpretationContext reqContext = requestContexts.get(request.getId());
@@ -138,25 +130,27 @@ public class SystemSimulationImpl implements SimulationBehaviorExtension {
 
 		final Request request = requestInitiatedEvt.getEntity();
 
-		return ResultEvent.of(new JobInitiated(new Job(0, null, false, 10.0, request), 0));
+		// return ResultEvent.of(new JobInitiated(new Job(0, null, false, 10.0,
+		// request), 0));
 		// for a request we need to create a corresponding RequestContext that is passed
 		// to the interpreter.
 
-//			ProvidedRole providedRole = request.getProvidedRole();
-//			Signature signature = request.getSignature();
-//			InterfaceProvidingEntity providingEntity = providedRole.getProvidingEntity_ProvidedRole();
-////			getSeffsForCall(basicComponent.getServiceEffectSpecifications__BasicComponent(), this.signature);
-		//
-//			if(providingEntity instanceof BasicComponent) {
-//				BasicComponent myFirstSimulatedComponent = (BasicComponent) providingEntity;
-		//
-//			  final List<ServiceEffectSpecification> calledSeffs = this
-//		                .getSeffsForCall(myFirstSimulatedComponent.getServiceEffectSpecifications__BasicComponent(), signature);
-		//
-//				// List of SEFFs
-//				myFirstSimulatedComponent.getServiceEffectSpecifications__BasicComponent();
-//			}
-//			
-//			return new JobInitiated(new Job(0, null, false, 0, request), 0);
+//		final ProvidedRole providedRole = request.getProvidedRole();
+//		final Signature signature = request.getSignature();
+//		final InterfaceProvidingEntity providingEntity = providedRole.getProvidingEntity_ProvidedRole();
+//		getSeffsForCall(basicComponent.getServiceEffectSpecifications__BasicComponent(), this.signature);
+//
+//		if (providingEntity instanceof BasicComponent) {
+//			final BasicComponent myFirstSimulatedComponent = (BasicComponent) providingEntity;
+//
+//			final List<ServiceEffectSpecification> calledSeffs = this
+//			        .getSeffsForCall(myFirstSimulatedComponent.getServiceEffectSpecifications__BasicComponent(),
+//			                signature);
+//
+//			// List of SEFFs
+//			myFirstSimulatedComponent.getServiceEffectSpecifications__BasicComponent();
+//		}
+
+		return ResultEvent.of(new JobInitiated(new Job(0, null, false, 0, request), 0));
 	}
 }

@@ -3,13 +3,16 @@ package org.palladiosimulator.analyzer.slingshot.simulation.core.events;
 import java.util.UUID;
 
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventContract;
 
 /**
  * This special event will be spawned indicating that the simulation has
- * started. This is a special event that cannot be spawned afterwards again.
+ * started. This is a special event: No other event can cause this and this is
+ * allowed to be published to the event bus only once.
  * 
  * @author Julijan Katic
  */
+@EventContract(maximalPublishing = 1, allowedCausers = {})
 public class SimulationStarted implements DESEvent {
 
 	private final String eventId;

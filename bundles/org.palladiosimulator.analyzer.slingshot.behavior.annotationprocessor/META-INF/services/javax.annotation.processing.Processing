@@ -1,1 +1,2 @@
 org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.OnEventProcessor
+org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.EventContractProcessor

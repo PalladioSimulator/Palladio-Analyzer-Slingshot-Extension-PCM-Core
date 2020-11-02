@@ -18,7 +18,7 @@ public class RequiredUsageModelTextForm extends SingleTextModelField {
 
 	@Override
 	public String name() {
-		return PATH_BINDING_ID;
+		return ModelFileTypeConstants.USAGE_FILE;
 	}
 
 }

@@ -14,10 +14,10 @@ import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserS
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserStarted;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserWokeUp;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.ProvidesEvents;
 import org.palladiosimulator.pcm.repository.OperationProvidedRole;
 import org.palladiosimulator.pcm.repository.OperationSignature;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
+import org.palladiosimulator.pcm.usagemodel.Branch;
 import org.palladiosimulator.pcm.usagemodel.Delay;
 import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 import org.palladiosimulator.pcm.usagemodel.ScenarioBehaviour;
@@ -36,7 +36,6 @@ public class UsageScenarioInterpreter<T> extends UsagemodelSwitch<T> {
 	private final UserInterpretationContext userContext;
 	private final User user;
 
-	@SuppressWarnings("unchecked")
 	public UsageScenarioInterpreter(final User user, final UserInterpretationContext userContext) {
 		super();
 
@@ -50,8 +49,6 @@ public class UsageScenarioInterpreter<T> extends UsagemodelSwitch<T> {
 		return this.getSideEffectEvents();
 	}
 
-	@ProvidesEvents({ UserRequestInitiated.class, UserFinished.class, UserStarted.class, UserSlept.class,
-			UserWokeUp.class })
 	public Set<DESEvent> getSideEffectEvents() {
 		return sideEffectEvents;
 	}
@@ -85,6 +82,12 @@ public class UsageScenarioInterpreter<T> extends UsagemodelSwitch<T> {
 	}
 
 	@Override
+	public T caseBranch(final Branch object) {
+
+		return super.caseBranch(object);
+	}
+
+	@Override
 	public T caseUsageScenario(final UsageScenario object) {
 		this.doSwitch(object.getScenarioBehaviour_UsageScenario());
 		return super.caseUsageScenario(object);
@@ -92,6 +95,7 @@ public class UsageScenarioInterpreter<T> extends UsagemodelSwitch<T> {
 
 	@Override
 	public T caseAbstractUserAction(final AbstractUserAction object) {
+		LOGGER.debug("Interpret " + object.eClass().getName() + ": " + object);
 		return super.caseAbstractUserAction(object);
 	}
 
@@ -110,7 +114,7 @@ public class UsageScenarioInterpreter<T> extends UsagemodelSwitch<T> {
 	@Override
 	public T caseDelay(final Delay object) {
 		final double delay = StackContext.evaluateStatic(object.getTimeSpecification_Delay().getSpecification(),
-				Double.class);
+		        Double.class);
 		sideEffectEvents.add(new UserSlept(user, userContext.setCurrentAction(object.getSuccessor())));
 		sideEffectEvents.add(new UserWokeUp(user, userContext.setCurrentAction(object.getSuccessor()), delay));
 		return super.caseDelay(object);

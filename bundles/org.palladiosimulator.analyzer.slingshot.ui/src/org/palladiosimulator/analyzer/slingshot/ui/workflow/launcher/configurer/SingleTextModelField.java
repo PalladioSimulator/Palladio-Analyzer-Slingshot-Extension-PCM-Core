@@ -1,7 +1,6 @@
 package org.palladiosimulator.analyzer.slingshot.ui.workflow.launcher.configurer;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -21,7 +20,7 @@ import de.uka.ipd.sdq.workflow.launchconfig.tabs.TabHelper;
  * 
  * @author Julijan Katic
  */
-public abstract class SingleTextModelField extends ModelPathBinder
+public abstract class SingleTextModelField
         implements RequiredModelConfiguration {
 
 	/** The text field itself. */
@@ -64,13 +63,10 @@ public abstract class SingleTextModelField extends ModelPathBinder
 
 	@Override
 	public void onApply(final ILaunchConfigurationWorkingCopy configuration) {
-		configuration.setAttribute("modelpathbinder_" + name(), textField.getText());
+		configuration.setAttribute(name(), textField.getText());
 	}
 
-	@Override
-	public Path get() {
-		return Paths.get(textField.getText());
-	}
+	protected abstract String name();
 
 	/**
 	 * A simple POJO class that describes the text field. Instantiate this class by

@@ -30,11 +30,11 @@ public class BehaviorProcessorTest extends AbstractAnnotationTester {
 	        final String graphExport) throws IOException {
 		final List<String> files = new ArrayList<>(
 		        List.of("resource/events/SampleEventA.java", "resource/events/SampleEventB.java"));
-		additionalFiles.addAll(files);
+		files.addAll(additionalFiles);
 
 		final Iterable<String> options;
 		if (graphExport == null || graphExport.isBlank()) {
-			options = Set.of("-Anoexport");
+			options = Set.of("-Anoexport=true");
 		} else {
 			options = Set.of("-Aexport=" + graphExport.strip());
 		}
@@ -80,5 +80,21 @@ public class BehaviorProcessorTest extends AbstractAnnotationTester {
 		        List.of("resource/ExampleWrongParameter.java"), null);
 
 		Assert.assertTrue(diagnostics.getDiagnostics().size() > 0); // TODO: Better Testing for diagnostics.
+	}
+
+	@Test
+	public void testWhenEventIsDESEvent() throws IOException {
+		final DiagnosticCollector<JavaFileObject> diagnostics = commonTestSetup(
+		        List.of("resource/WhenEventIsDESEvent.java"), null);
+
+		Assert.assertTrue(diagnostics.getDiagnostics().size() > 0);
+	}
+
+	@Test
+	public void testThenEventHasDESEvent() throws IOException {
+		final DiagnosticCollector<JavaFileObject> diagnostics = commonTestSetup(
+		        List.of("resource/ThenEventHasDESEvent.java"), null);
+
+		Assert.assertTrue(diagnostics.getDiagnostics().size() > 0);
 	}
 }
