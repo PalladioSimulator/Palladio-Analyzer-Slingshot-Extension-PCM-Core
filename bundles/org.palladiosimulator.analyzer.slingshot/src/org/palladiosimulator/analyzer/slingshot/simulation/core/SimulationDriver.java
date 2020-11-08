@@ -2,7 +2,6 @@ package org.palladiosimulator.analyzer.slingshot.simulation.core;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,14 +46,6 @@ public class SimulationDriver implements Simulation, SimulationScheduling {
 	 */
 	private final SimulationEngine simEngine;
 
-	/**
-	 * The list of simulation behavior extensions. These will be initialized later
-	 * by the {@link DecoratedSimulationBehaviorProvider}s.
-	 */
-	private final List<SimulationBehaviorExtension> behaviorExtensions;
-
-	private final List<Interceptor> interceptors;
-
 	private final ExtensionInstancesContainer<SimulationBehaviorExtension> simulationBehaviorExtensions;
 
 	private final Map<Class<? extends DESEvent>, Integer> eventCounter;
@@ -66,9 +57,7 @@ public class SimulationDriver implements Simulation, SimulationScheduling {
 	public SimulationDriver(final SimulationEngine simEngine,
 	        final ExtensionInstancesContainer<SimulationBehaviorExtension> extensionsContainer) {
 		this.simEngine = simEngine;
-		this.behaviorExtensions = new ArrayList<>();
 		this.simulationBehaviorExtensions = extensionsContainer;
-		this.interceptors = new ArrayList<>();
 		this.eventCounter = new HashMap<>();
 	}
 
@@ -76,7 +65,6 @@ public class SimulationDriver implements Simulation, SimulationScheduling {
 	public void init(final ModelModule modelInjector) throws Exception {
 		LOGGER.info("Start simulation driver initialization using model injector.");
 
-		initializeInterceptors();
 		registerInterceptorInModelModule(modelInjector);
 
 		simulationBehaviorExtensions.loadExtensions(modelInjector.getInjector());
@@ -93,21 +81,8 @@ public class SimulationDriver implements Simulation, SimulationScheduling {
 		LOGGER.info("Finished simulation driver initialization");
 	}
 
-	/**
-	 * Initializes the interceptor list and puts the
-	 * {@link ExtensionLoggingInterceptor}, {@link SchedulingIntercepor} and
-	 * {@link SimulationExtensionOnEventContractEnforcementInterceptor} in it.
-	 */
-	private void initializeInterceptors() {
-		final ExtensionLoggingInterceptor loggingInterceptor = new ExtensionLoggingInterceptor();
-		final SchedulingInterceptor schedulingInterceptor = new SchedulingInterceptor(this);
-		final SimulationExtensionOnEventContractEnforcementInterceptor contractInterceptor = new SimulationExtensionOnEventContractEnforcementInterceptor();
-
-		interceptors.addAll(List.of(loggingInterceptor, schedulingInterceptor, contractInterceptor));
-	}
-
 	private void registerInterceptorInModelModule(final ModelModule modelModule) {
-		modelModule.getModelContainer().addModule(new InterceptorModule());
+		modelModule.getModelContainer().addModule(new InterceptorModule(this));
 	}
 
 	@Override
@@ -164,18 +139,35 @@ public class SimulationDriver implements Simulation, SimulationScheduling {
 		}
 	}
 
+	/**
+	 * A module that defines the interceptors.
+	 */
 	class InterceptorModule extends AbstractModule {
+
+		private final List<Interceptor> interceptors;
+
+		public InterceptorModule(final SimulationScheduling scheduler) {
+			final ExtensionLoggingInterceptor loggingInterceptor = new ExtensionLoggingInterceptor();
+			final SchedulingInterceptor schedulingInterceptor = new SchedulingInterceptor(scheduler);
+			final SimulationExtensionOnEventContractEnforcementInterceptor contractInterceptor = new SimulationExtensionOnEventContractEnforcementInterceptor();
+
+			interceptors = List.of(loggingInterceptor, schedulingInterceptor, contractInterceptor);
+		}
 
 		@Override
 		protected void configure() {
 			bindInterceptor(
 			        Matchers.any(),
-			        new ExtensionMethodMatcher().or(Matchers.annotatedWith(EventMethod.class)),
+			        new ExtensionMethodMatcher(),
 			        new ExtensionMethodHandlerWithInterceptors(interceptors));
 		}
 
 	}
 
+	/**
+	 * Matcher that returns true if the method either starts with "on" or is
+	 * annotated with {@link EventMethod} Annotation.
+	 */
 	class ExtensionMethodMatcher extends AbstractMatcher<Method> implements Serializable {
 
 		private static final long serialVersionUID = 1L;

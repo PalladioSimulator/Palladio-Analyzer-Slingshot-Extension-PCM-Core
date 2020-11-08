@@ -1,7 +1,6 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.api;
 
 import org.palladiosimulator.analyzer.slingshot.module.models.ModelModule;
-import org.palladiosimulator.analyzer.slingshot.simulation.extensions.model.SimulationModel;
 
 import com.google.inject.Injector;
 
@@ -11,18 +10,6 @@ import com.google.inject.Injector;
  * @author Julijan Katic
  */
 public interface Simulation {
-
-	/**
-	 * Initialize the simulation. This should be done before starting the simulation
-	 * and is generally not recommended to be called afterwards.
-	 * 
-	 * @param model The model providing the information needed within the
-	 *              simulation.
-	 * @deprecated Use {@link #init(Injector)} instead.
-	 */
-	@Deprecated
-	default void init(final SimulationModel model) throws Exception {
-	}
 
 	/**
 	 * Starts the simulation. Should only be called after

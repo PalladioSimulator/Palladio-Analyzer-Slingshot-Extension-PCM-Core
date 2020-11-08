@@ -1,11 +1,13 @@
 package org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.eclipse.emf.common.util.EList;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.Job;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.Request;
@@ -21,7 +23,11 @@ import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
 import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.allocation.AllocationContext;
+import org.palladiosimulator.pcm.core.entity.InterfaceProvidingEntity;
 import org.palladiosimulator.pcm.repository.BasicComponent;
+import org.palladiosimulator.pcm.repository.ProvidedRole;
+import org.palladiosimulator.pcm.repository.Signature;
+import org.palladiosimulator.pcm.seff.ServiceEffectSpecification;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -135,22 +141,28 @@ public class SystemSimulationImpl implements SimulationBehaviorExtension {
 		// for a request we need to create a corresponding RequestContext that is passed
 		// to the interpreter.
 
-//		final ProvidedRole providedRole = request.getProvidedRole();
-//		final Signature signature = request.getSignature();
-//		final InterfaceProvidingEntity providingEntity = providedRole.getProvidingEntity_ProvidedRole();
+		final ProvidedRole providedRole = request.getProvidedRole();
+		final Signature signature = request.getSignature();
+		final InterfaceProvidingEntity providingEntity = providedRole.getProvidingEntity_ProvidedRole();
 //		getSeffsForCall(basicComponent.getServiceEffectSpecifications__BasicComponent(), this.signature);
 //
-//		if (providingEntity instanceof BasicComponent) {
-//			final BasicComponent myFirstSimulatedComponent = (BasicComponent) providingEntity;
-//
-//			final List<ServiceEffectSpecification> calledSeffs = this
-//			        .getSeffsForCall(myFirstSimulatedComponent.getServiceEffectSpecifications__BasicComponent(),
-//			                signature);
+		if (providingEntity instanceof BasicComponent) {
+			final BasicComponent myFirstSimulatedComponent = (BasicComponent) providingEntity;
+
+			final List<ServiceEffectSpecification> calledSeffs = this
+			        .getSeffsForCall(myFirstSimulatedComponent.getServiceEffectSpecifications__BasicComponent(),
+			                signature);
 //
 //			// List of SEFFs
 //			myFirstSimulatedComponent.getServiceEffectSpecifications__BasicComponent();
-//		}
+		}
 
 		return ResultEvent.of(new JobInitiated(new Job(0, null, false, 0, request), 0));
+	}
+
+	private List<ServiceEffectSpecification> getSeffsForCall(
+	        final EList<ServiceEffectSpecification> serviceEffectSpecifications, final Signature signature) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

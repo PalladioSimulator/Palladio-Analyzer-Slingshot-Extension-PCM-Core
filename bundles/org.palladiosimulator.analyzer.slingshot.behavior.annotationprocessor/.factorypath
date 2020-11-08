@@ -1,0 +1,5 @@
+<factorypath>
+    <factorypathentry kind="WKSPJAR" id="/com.google.auto.service/auto-service-1.0-rc7.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="WKSPJAR" id="/com.google.auto.service/auto-service-annotations-1.0-rc7.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="WKSPJAR" id="/com.google.inject.guice/guava-18.0.jar" enabled="true" runInBatchMode="false"/>
+</factorypath>

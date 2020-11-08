@@ -18,17 +18,17 @@ Require-Bundle: org.palladiosimulator.pcm;bundle-version="4.1.0",
  com.google.inject.guice;visibility:=reexport,
  org.palladiosimulator.analyzer.slingshot.module.models;visibility:=reexport,
  com.google.guava
-Export-Package: org.palladiosimulator.analyzer.slingshot.annotations,
- org.palladiosimulator.analyzer.slingshot.repositories,
+Export-Package: org.palladiosimulator.analyzer.slingshot.repositories,
  org.palladiosimulator.analyzer.slingshot.repositories.impl,
+ org.palladiosimulator.analyzer.slingshot.simulation,
  org.palladiosimulator.analyzer.slingshot.simulation.api,
  org.palladiosimulator.analyzer.slingshot.simulation.core.entities,
  org.palladiosimulator.analyzer.slingshot.simulation.core.events,
  org.palladiosimulator.analyzer.slingshot.simulation.events,
+ org.palladiosimulator.analyzer.slingshot.simulation.extensions.annotations,
  org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral,
  org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations,
  org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.graph,
- org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results,
- org.palladiosimulator.analyzer.slingshot.simulation.extensions.model
+ org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results
 Import-Package: com.google.common.eventbus,
  com.google.common.graph;version="21.0.0"

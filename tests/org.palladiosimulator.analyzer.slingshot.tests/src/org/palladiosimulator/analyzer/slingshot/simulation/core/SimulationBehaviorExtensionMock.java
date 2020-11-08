@@ -14,7 +14,6 @@ import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventMethod;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.OnEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.extensions.model.SimulationModel;
 
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
@@ -47,7 +46,7 @@ public class SimulationBehaviorExtensionMock implements SimulationBehaviorExtens
 	}
 
 	@Override
-	public void init(final SimulationModel model) {
+	public void init() {
 		LOGGER.info("Init called");
 	}
 

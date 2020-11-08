@@ -6,7 +6,7 @@
       <java6processors
             enableDefault="true">
          <java6processor
-               class="org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.OnEventProcessor">
+               class="org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.onevent.OnEventProcessor">
          </java6processor>
       </java6processors>
    </extension>

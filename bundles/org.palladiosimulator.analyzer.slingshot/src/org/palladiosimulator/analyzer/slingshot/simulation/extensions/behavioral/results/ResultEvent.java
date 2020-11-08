@@ -20,6 +20,11 @@ public class ResultEvent<T extends DESEvent> {
 	ResultEvent(final Set<T> evts) {
 		events = new HashSet<T>();
 		events.addAll(evts);
+		events.remove(null);
+	}
+
+	ResultEvent() {
+		events = Set.of();
 	}
 
 	/**
@@ -63,9 +68,11 @@ public class ResultEvent<T extends DESEvent> {
 	}
 
 	/**
-	 * Directly creates a ResultEvent from a set of events.
+	 * Directly creates a ResultEvent from a set of events. Null values will be
+	 * disregarded when instantiating.
 	 * 
-	 * @param set the set of events.
+	 * @param events the set of events. Null values will be disregarded if contained
+	 *               in the set.
 	 * @return a new instance of ResultEvent.
 	 */
 	public static <T extends DESEvent> ResultEvent<T> ofAll(final Set<T> events) {
@@ -73,11 +80,24 @@ public class ResultEvent<T extends DESEvent> {
 	}
 
 	/**
-	 * Returns a new ResultEvent instance from a variable number of events.
+	 * Returns a new ResultEvent instance from a variable number of events. Null
+	 * values will be ignored when instantiating.
+	 * 
+	 * @param events list of events. Null values will be ignored.
+	 * @return new instance of ResultEvent containing these events.
 	 */
 	@SafeVarargs
 	public static <T extends DESEvent> ResultEvent<T> of(final T... events) {
 		return new ResultEvent<T>(Set.of(events));
+	}
+
+	/**
+	 * Synonym for {@link #ofAll(Set)}.
+	 * 
+	 * @see #ofAll(Set)
+	 */
+	public static <T extends DESEvent> ResultEvent<T> of(final Set<T> events) {
+		return ofAll(events);
 	}
 
 	/**

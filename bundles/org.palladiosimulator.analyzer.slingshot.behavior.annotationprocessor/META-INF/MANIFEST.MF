@@ -9,5 +9,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.palladiosimulator.analyzer.slingshot,
  org.eclipse.jdt.apt.core;bundle-version="3.6.600",
  org.palladiosimulator.analyzer.slingshot.annotationprocessor.util,
- com.google.guava
-Export-Package: org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor
+ com.google.guava,
+ com.google.auto.service
+Export-Package: org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.behaviorextension,
+ org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.eventcontract,
+ org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.onevent

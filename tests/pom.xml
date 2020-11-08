@@ -12,8 +12,24 @@
 	
 	<modules>
 		<module>org.palladiosimulator.analyzer.slingshot.tests</module>
-		<module>org.palladiosimulator.analyzer.slingshot.extensionpoint.annotationprocessor.test</module>
+		<module>org.palladiosimulator.analyzer.slingshot.annotationprocessor.test.utils</module>
+        <module>org.palladiosimulator.analyzer.slingshot.module.model.test</module>
+        <module>org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.test</module>
 		<module>com.google.testing.compile</module>
 	</modules>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessors>
+                        <annotationProcessor></annotationProcessor>
+                    </annotationProcessors>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 	
 </project>

@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Behavior
-Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.module.behavior
-Bundle-Version: 1.0.0.qualifier
-Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.module.behavior
-Bundle-RequiredExecutionEnvironment: JavaSE-12

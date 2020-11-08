@@ -24,9 +24,9 @@
 		<module>org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.data</module>
 		<module>org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation</module>
 		<module>org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.data</module>
-		<module>org.palladiosimulator.analyzer.slingshot.extensionpoint.annotationprocessor</module>
 		<module>org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor</module>
-		<module>Javassist</module>
+        <module>org.palladiosimulator.analyzer.slingshot.annotationprocessor.util</module>
+        <module>org.palladiosimulator.analyzer.slingshot.module.models</module>
 	</modules>
 	<dependencies>
 		<dependency>

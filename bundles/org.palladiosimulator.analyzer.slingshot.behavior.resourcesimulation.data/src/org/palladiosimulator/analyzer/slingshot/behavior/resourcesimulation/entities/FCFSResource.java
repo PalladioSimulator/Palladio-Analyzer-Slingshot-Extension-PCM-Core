@@ -2,7 +2,8 @@ package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.ent
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobFinished;
@@ -16,33 +17,37 @@ import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral
 
 import de.uka.ipd.sdq.probfunction.math.util.MathTools;
 
+/*
+ * Mostly from https://github.com/PalladioSimulator/Palladio-Simulation-Scheduler/blob/master/bundles/de.uka.ipd.sdq.scheduler/src/de/uka/ipd/sdq/scheduler/resources/active/SimFCFSResource.java
+ */
 /**
- * An event-driven implementation of ProcessorSharingResource where the behavior
- * is as specified in de.uka.ipd.sdq.scheduler.resources.active.SimFCFSResource
+ * An event-driven implementation of FCFS active resource where the behavior is
+ * as specified in de.uka.ipd.sdq.scheduler.resources.active.SimFCFSResource
  * 
  * @author Floriment Klinaku
  */
-public class FCFSResource implements IResource {
+public class FCFSResource implements IResourceHandler {
 	private final Logger LOGGER = Logger.getLogger(FCFSResource.class);
 
-	// this is the data that is updated event after event for an activeresource
+	/**
+	 * This data holds the jobs (or active resource) that is updated event after
+	 * event.
+	 */
 	private final Deque<Job> processQ = new ArrayDeque<>();
-	private final Hashtable<Job, Double> running_processes = new Hashtable<>();
-	private double last_time = 0.0;
 
-	// all these should belong to a registry
-	// TODO:: the Resource Container ID is container in the Request and its base is
-	// the PCM spec.
-	// so the extension creating the Request and putting as an event in the bus
-	// processes also the resource env to translate
-	// between the service request and the actual resource.
+	/**
+	 * The map mapping each job to the number of units it has acquired or worked.
+	 * Unlike {@link Job#getDemand()}, this number can change throughout the
+	 * simulation.
+	 */
+	private final Map<Job, Double> runningProcesses = new HashMap<>(); // Instead of Hashtable, use HashMap for better
+	                                                                   // performance
 
-	// maps (ResourceContainer ID, ResourceType ID) -> SimActiveResource
-	// private Map<String, SimActiveResource> containerToResourceMap;
-
-	public FCFSResource() {
-
-	}
+	/**
+	 * Used in the method {@link #toNow(double)} to calculate the time when a job
+	 * was updated.
+	 */
+	private double lastTime = 0.0;
 
 	@Override
 	public ResultEvent<DESEvent> onSimulationStarted(final SimulationStarted evt) {
@@ -51,7 +56,7 @@ public class FCFSResource implements IResource {
 		// request is finished.
 		// new ProcessingFinished(delay) -> next
 		// new UserFinished(now)
-		return ResultEvent.empty();
+		return ResultEvent.of();
 	}
 
 	@Override
@@ -64,8 +69,8 @@ public class FCFSResource implements IResource {
 		// TODO:: Demand should come from the clients currently all set to one.
 		final Job newJob = evt.getEntity();
 
-		running_processes.put(newJob, newJob.getDemand());
 		processQ.add(newJob);
+		runningProcesses.put(newJob, newJob.getDemand());
 
 		// add demand to the resource
 		// new ProcessingStarted
@@ -87,24 +92,14 @@ public class FCFSResource implements IResource {
 
 		final Job job = evt.getEntity();
 
-		assert MathTools.equalsDouble(0, running_processes.get(job)) : "Remaining demand (" + running_processes.get(job)
-				+ ") not zero!";
+		assert MathTools.equalsDouble(0, runningProcesses.get(job)) : "Remaining demand (" + runningProcesses.get(job)
+		        + ") not zero!";
 
-		running_processes.remove(job);
+		runningProcesses.remove(job);
 		processQ.remove(job);
-//	    fireStateChange(processQ.size(), 0); -> for this another type of events might be introduced
-//	    fireDemandCompleted(first); -> UserFinished
 
 		final RequestFinished userFinished = new RequestFinished(job.getRequest());
 
-//	       LoggingWrapper.log("Demand of Process " + first + " finished.");
-//	       scheduleNextEvent();
-//	       first.activate();
-
-		// we could create a tuple of next processing finished and also that a user
-		// request is finished.
-		// new ProcessingFinished(delay) -> next
-		// new UserFinished(now)
 		return ResultEvent.of(getNextEvent(), userFinished);
 	}
 
@@ -119,29 +114,37 @@ public class FCFSResource implements IResource {
 		// processingFinished.removeEvent(); -> no need to remove events that have been
 		// scheduled to the engine
 		if (first != null) {
-			final double time = running_processes.get(first);
+			final double time = runningProcesses.get(first);
 			return new JobFinished(first, time);
 		}
 		return null;
 	}
 
+	/*
+	 * From SimuLizar
+	 */
+	/**
+	 * Updates the processed demands for the first job (as this is FCFS). Each
+	 * passed time is considered to be one unit of work.
+	 * 
+	 * @param simulationTime The current time of the simulation.
+	 */
 	private void toNow(final double simulationTime) {
 		final double now = simulationTime;
-		final double passed_time = now - last_time;
-		if (MathTools.less(0, passed_time)) {
+		final double passedTime = now - this.lastTime;
+		if (MathTools.less(0, passedTime)) {
 			final Job first = processQ.peek();
 			if (first != null) {
-				double demand = running_processes.get(first);
-				demand -= passed_time;
+				double demand = runningProcesses.get(first) - passedTime;
 
-				// avoid trouble caused by rounding issues
+				/* avoid trouble caused by rounding issues */
 				demand = MathTools.equalsDouble(demand, 0) ? 0.0 : demand;
-
 				assert demand >= 0 : "Remaining demand (" + demand + ") smaller than zero!";
 
-				running_processes.put(first, demand);
+				/* Update remained time. */
+				runningProcesses.put(first, demand);
 			}
 		}
-		last_time = now;
+		this.lastTime = now;
 	}
 }

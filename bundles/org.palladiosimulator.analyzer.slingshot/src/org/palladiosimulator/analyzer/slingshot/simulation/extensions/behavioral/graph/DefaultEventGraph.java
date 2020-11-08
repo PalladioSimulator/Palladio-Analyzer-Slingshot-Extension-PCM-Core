@@ -7,7 +7,7 @@ import com.google.common.graph.MutableGraph;
 
 public class DefaultEventGraph implements EventGraph {
 
-	private final MutableGraph<String> graph;
+	private final MutableGraph<EventNode<?>> graph;
 
 	public DefaultEventGraph() {
 		this.graph = GraphBuilder.directed()
@@ -16,7 +16,7 @@ public class DefaultEventGraph implements EventGraph {
 	}
 
 	@Override
-	public void addNode(final String node) {
+	public void addNode(final EventNode<?> node) {
 		this.graph.addNode(node);
 	}
 
@@ -33,7 +33,7 @@ public class DefaultEventGraph implements EventGraph {
 	}
 
 	@Override
-	public Iterable<String> getNodes() {
+	public Iterable<EventNode<?>> getNodes() {
 		return this.graph.nodes();
 	}
 

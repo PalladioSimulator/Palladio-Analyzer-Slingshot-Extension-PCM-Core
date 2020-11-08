@@ -6,7 +6,7 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.FCFSResource;
-import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.IResource;
+import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.IResourceHandler;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.ProcessorSharingResource;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobInitiated;
@@ -29,22 +29,12 @@ import com.google.common.eventbus.Subscribe;
 @OnEvent(when = JobInitiated.class, then = {}, cardinality = EventCardinality.MANY)
 public class ResourceSimulation implements SimulationBehaviorExtension {
 
-	IResource myFCFSResource = new FCFSResource();
-	IResource myPSResource = new ProcessorSharingResource("test", UUID.randomUUID().toString(), 2L);
+	IResourceHandler myFCFSResource = new FCFSResource();
+	IResourceHandler myPSResource = new ProcessorSharingResource("test", UUID.randomUUID().toString(), 2L);
 
 	private final Logger LOGGER = Logger.getLogger(ResourceSimulation.class);
 
 	private final Allocation allocation;
-
-	// all these should belong to a registry
-	// TODO:: the Resource Container ID is container in the Request and its base is
-	// the PCM spec.
-	// so the extension creating the Request and putting as an event in the bus
-	// processes also the resource env to translate
-	// between the service request and the actual resource.
-
-	// maps (ResourceContainer ID, ResourceType ID) -> SimActiveResource
-	// private Map<String, SimActiveResource> containerToResourceMap;
 
 	@Inject
 	public ResourceSimulation(final Allocation allocation) {

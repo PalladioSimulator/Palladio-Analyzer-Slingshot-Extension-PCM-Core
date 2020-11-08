@@ -1,8 +1,9 @@
 package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
@@ -15,6 +16,8 @@ import org.palladiosimulator.analyzer.slingshot.simulation.core.events.Simulatio
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
 
+import com.google.common.base.Preconditions;
+
 import de.uka.ipd.sdq.probfunction.math.util.MathTools;
 
 /**
@@ -24,34 +27,69 @@ import de.uka.ipd.sdq.probfunction.math.util.MathTools;
  * @author Floriment Klinaku
  *
  */
-public class ProcessorSharingResource implements IResource {
+public class ProcessorSharingResource implements IResourceHandler {
 
 	private final Logger LOGGER = Logger.getLogger(ProcessorSharingResource.class);
 
 	/**
 	 * The minimum amount of time used for scheduling an event
 	 */
-	static double JIFFY = 1e-9;
+	private final static double JIFFY = 1e-9;
 
 	// state
-//	private final ProcessingFinishedEvent processingFinished; -> To be delted
-	private final Hashtable<Job, Double> running_processes = new Hashtable<Job, Double>();
-	private double last_time;
-	/** Keeps track of the current number of processes assigned to each core. */
+	/**
+	 * The map mapping each job to the number of units it has acquired or worked.
+	 * Unlike {@link Job#getDemand()}, this number can change throughout the
+	 * simulation.
+	 */
+	private final Map<Job, Double> runningProcesses = new HashMap<>();
+
+	/**
+	 * Used in the method {@link #toNow(double)} to calculate the time when a job
+	 * was updated.
+	 */
+	private double lastTime = 0.0;
+
+	/**
+	 * Keeps track of the current number of processes assigned to each core.
+	 */
 	private final List<Integer> numberProcessesOnCore;
+
+	/** @see #getCapacity */
 	private final long capacity;
 
-	UUID currentState;
+	/**
+	 * Mutable UUID that indicates that identifies the state of this instance. That
+	 * is, if the state changes, then this id will be reset.
+	 */
+	private UUID currentState;
 
+	/**
+	 * Instantiates a new resource that adheres to the processor sharing scheduling
+	 * strategy (a.k.a. "Round Robin").
+	 * 
+	 * @param name     The name of the resource it has.
+	 * @param id       The id of the resource. Two resources are considered equal if
+	 *                 they have the same id.
+	 * @param capacity The number resources it has.
+	 */
 	public ProcessorSharingResource(final String name, final String id, final long capacity) {
+		Preconditions.checkArgument(capacity >= 0, "The capacity must be a positive number or 0.");
+
 		this.capacity = capacity;
 		this.numberProcessesOnCore = new ArrayList<Integer>((int) getCapacity());
 		for (int i = 0; i < getCapacity(); i++) {
 			numberProcessesOnCore.add(0);
 		}
+
 		currentState = UUID.randomUUID();
 	}
 
+	/**
+	 * The number of cores.
+	 * 
+	 * @return the number of cores.
+	 */
 	public long getCapacity() {
 		return capacity;
 	}
@@ -65,7 +103,6 @@ public class ProcessorSharingResource implements IResource {
 	public ResultEvent<DESEvent> onJobInitiated(final JobInitiated evt) {
 		toNow(evt.time());
 
-		// TODO:: this needs to come from evt, UserStarted evt.
 		final Job newJob = evt.getEntity();
 
 		double demand = newJob.getDemand();
@@ -77,7 +114,7 @@ public class ProcessorSharingResource implements IResource {
 
 		LOGGER.info("PS: " + newJob + " demands " + demand);
 
-		running_processes.put(newJob, demand);
+		runningProcesses.put(newJob, demand);
 //		TODO:: Check reportCoreUsage
 //		reportCoreUsage();
 		final JobProgressed jobProgressed = scheduleNextEvent();
@@ -103,7 +140,7 @@ public class ProcessorSharingResource implements IResource {
 
 		final Job shortestJob = evt.getEntity();
 
-		running_processes.remove(shortestJob);
+		runningProcesses.remove(shortestJob);
 
 		reportCoreUsage();
 
@@ -114,55 +151,72 @@ public class ProcessorSharingResource implements IResource {
 		return ResultEvent.of(jobFinishedEvt, scheduleNextEvent());
 	}
 
+	/**
+	 * Returns a new event for the currently shortest job.
+	 * 
+	 * @return
+	 */
 	private JobProgressed scheduleNextEvent() {
 		// potentially this shortestjob will finish at the remainingTime.
 		// in case a new job arrives that is shorter than this will be scheduled earlier
 		// then we will have JobProgressed at time t,
 		// JobProgressed at time t+delta should be invalidated somehow.
 
+		/* The return value */
+		JobProgressed nextEvent = null;
+
 		currentState = UUID.randomUUID();
 
 		Job shortestJob = null;
-		for (final Job job : running_processes.keySet()) {
-			if (shortestJob == null || running_processes.get(shortestJob) > running_processes.get(job)) {
+		for (final Job job : runningProcesses.keySet()) {
+			if (shortestJob == null || runningProcesses.get(shortestJob) > runningProcesses.get(job)) {
 				shortestJob = job;
 			}
 		}
 
-//		processingFinished.removeEvent(); -> no need in the new world
 		if (shortestJob != null) {
-			double remainingTime = running_processes.get(shortestJob) * getProcessingDelayFactorPerJob();
+			double remainingTime = runningProcesses.get(shortestJob) * getProcessingDelayFactorPerJob();
 
 			// avoid trouble caused by rounding issues
-			remainingTime = remainingTime < JIFFY ? 0.0 : remainingTime;
+			remainingTime = MathTools.less(remainingTime, JIFFY) ? 0.0 : remainingTime;
 
 			assert remainingTime >= 0 : "Remaining time (" + remainingTime + ") smaller than zero!";
 
-//			processingFinished.schedule(shortest, remainingTime);
-
-			return new JobProgressed(shortestJob, remainingTime, currentState);
+			nextEvent = new JobProgressed(shortestJob, remainingTime, currentState);
 		}
 
-		return null;
+		return nextEvent;
 	}
 
+	/**
+	 * Updates the simulation time of {@link lastTime} to {@code simulationTime} and
+	 * also updates for each job the remaining time that still has to be processed.
+	 * 
+	 * @param simulationTime The current simulation time.
+	 */
 	private void toNow(final double simulationTime) {
 		final double now = simulationTime;
-		final double passed_time = now - last_time;
+		final double passedTime = now - this.lastTime;
 
-		final double processedDemandPerJob = passed_time / getProcessingDelayFactorPerJob();
+		final double processedDemandPerJob = passedTime / getProcessingDelayFactorPerJob();
 
-		if (MathTools.less(0, passed_time)) {
-			for (final Entry<Job, Double> e : running_processes.entrySet()) {
+		if (MathTools.less(0, passedTime)) {
+			for (final Entry<Job, Double> e : runningProcesses.entrySet()) {
 				final double rem = e.getValue() - processedDemandPerJob;
 				e.setValue(rem);
 			}
 		}
-		last_time = now;
+
+		this.lastTime = now;
 	}
 
+	/**
+	 * Returns the delay factor per job.
+	 * 
+	 * @return delay factor per job.
+	 */
 	private double getProcessingDelayFactorPerJob() {
-		final double speed = (double) running_processes.size() / (double) getCapacity();
+		final double speed = (double) runningProcesses.size() / (double) getCapacity();
 		return speed < 1.0 ? 1.0 : speed;
 	}
 

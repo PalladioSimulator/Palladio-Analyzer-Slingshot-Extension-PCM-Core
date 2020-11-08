@@ -2,19 +2,19 @@ package org.palladiosimulator.analyzer.slingshot.simulation.extensions.behaviora
 
 public final class EventEdge {
 
-	private final String parentEvent;
-	private final String childEvent;
+	private final EventNode parentEvent;
+	private final EventNode childEvent;
 
-	public EventEdge(final String parent, final String child) {
+	public EventEdge(final EventNode parent, final EventNode child) {
 		this.parentEvent = parent;
 		this.childEvent = child;
 	}
 
-	public String getParentEvent() {
+	public EventNode getParentEvent() {
 		return parentEvent;
 	}
 
-	public String getChildEvent() {
+	public EventNode getChildEvent() {
 		return childEvent;
 	}
 

@@ -4,8 +4,10 @@ Bundle-Name: Service
 Bundle-SymbolicName: com.google.auto.service
 Bundle-Version: 1.0.0
 Bundle-ClassPath: auto-service-annotations-1.0-rc7.jar,
- auto-service-1.0-rc7.jar
+ auto-service-1.0-rc7.jar,
+ auto-common-0.11.jar
 Export-Package: com.google.auto.service,
  com.google.auto.service.processor
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: com.google.auto.service
+Require-Bundle: com.google.guava;bundle-version="27.1.0"

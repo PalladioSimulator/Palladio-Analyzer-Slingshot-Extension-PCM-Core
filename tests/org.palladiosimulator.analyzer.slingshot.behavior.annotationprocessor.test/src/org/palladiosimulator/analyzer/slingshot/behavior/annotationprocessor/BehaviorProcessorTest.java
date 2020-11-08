@@ -16,6 +16,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.palladiosimulator.analyzer.slingshot.annotationprocessor.test.utils.AbstractAnnotationTester;
+import org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.onevent.OnEventProcessor;
 
 public class BehaviorProcessorTest extends AbstractAnnotationTester {
 
