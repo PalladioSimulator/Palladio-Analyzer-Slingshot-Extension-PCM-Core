@@ -1,4 +1,4 @@
-package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities;
+package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.resources;
 
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobInitiated;

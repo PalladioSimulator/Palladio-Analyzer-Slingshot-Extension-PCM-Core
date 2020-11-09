@@ -5,9 +5,9 @@ import java.util.UUID;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.FCFSResource;
-import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.IResourceHandler;
-import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.ProcessorSharingResource;
+import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.resources.IResourceHandler;
+import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.resources.active.FCFSResource;
+import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.resources.active.ProcessorSharingResource;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobProgressed;

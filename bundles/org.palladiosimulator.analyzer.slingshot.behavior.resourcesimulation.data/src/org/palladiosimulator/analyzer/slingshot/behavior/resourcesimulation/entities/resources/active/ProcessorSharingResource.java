@@ -1,4 +1,4 @@
-package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities;
+package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.resources.active;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,6 +8,8 @@ import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
+import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.Job;
+import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.resources.IResourceHandler;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobProgressed;
@@ -27,7 +29,7 @@ import de.uka.ipd.sdq.probfunction.math.util.MathTools;
  * @author Floriment Klinaku
  *
  */
-public class ProcessorSharingResource implements IResourceHandler {
+public class ProcessorSharingResource implements IResourceHandler, IActiveResource {
 
 	private final Logger LOGGER = Logger.getLogger(ProcessorSharingResource.class);
 

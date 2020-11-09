@@ -1,4 +1,4 @@
-package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities;
+package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.resources.active;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.Job;
+import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.resources.IResourceHandler;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobProgressed;
@@ -26,7 +28,7 @@ import de.uka.ipd.sdq.probfunction.math.util.MathTools;
  * 
  * @author Floriment Klinaku
  */
-public class FCFSResource implements IResourceHandler {
+public class FCFSResource implements IResourceHandler, IActiveResource {
 	private final Logger LOGGER = Logger.getLogger(FCFSResource.class);
 
 	/**
