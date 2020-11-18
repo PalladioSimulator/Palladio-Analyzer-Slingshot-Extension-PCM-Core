@@ -13,7 +13,6 @@ import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.enti
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobProgressed;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.RequestFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
@@ -121,12 +120,16 @@ public class ProcessorSharingResource implements IResourceHandler, IActiveResour
 //		reportCoreUsage();
 		final JobProgressed jobProgressed = scheduleNextEvent();
 
-		return ResultEvent.of(jobProgressed);
+		if (jobProgressed != null) {
+			return ResultEvent.of(jobProgressed);
+		} else {
+			return ResultEvent.of();
+		}
 	}
 
 	@Override
 	public ResultEvent<DESEvent> onJobFinished(final JobFinished evt) {
-		return ResultEvent.of(new RequestFinished(evt.getEntity().getRequest()));
+		return ResultEvent.of(); // TODO: new RequestFinished(evt.getEntity().getRequest()));
 	}
 
 	@Override
@@ -149,8 +152,13 @@ public class ProcessorSharingResource implements IResourceHandler, IActiveResour
 		LOGGER.info("Job finished " + evt.getExpectedResourceState());
 
 		final JobFinished jobFinishedEvt = new JobFinished(shortestJob, 0);
+		final JobProgressed jobProgressed = scheduleNextEvent();
 
-		return ResultEvent.of(jobFinishedEvt, scheduleNextEvent());
+		if (jobProgressed == null) {
+			return ResultEvent.of(jobFinishedEvt);
+		} else {
+			return ResultEvent.of(jobFinishedEvt, scheduleNextEvent());
+		}
 	}
 
 	/**

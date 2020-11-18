@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.EventPrettyLogPrinter;
 
+import com.google.common.base.Throwables;
 import com.google.common.eventbus.EventBus;
 
 import umontreal.ssj.simevents.Event;
@@ -29,7 +30,13 @@ public class SimulationEngineSSJ implements SimulationEngine {
 	}
 
 	public SimulationEngineSSJ() {
-		this.eventBus = new EventBus();
+		this.eventBus = new EventBus((exception, context) -> {
+		    /* 
+		     * The default exception handler 'consumes' the exception and just logs
+		     * it, but the calculation does not stop. Instead, rethrow it. 
+		     */
+		    Throwables.propagate(Throwables.getRootCause(exception));
+		});
 		this.simulator = new Simulator();
 	}
 
@@ -69,7 +76,7 @@ public class SimulationEngineSSJ implements SimulationEngine {
 			@Override
 			public void actions() {
 				LOGGER.info(EventPrettyLogPrinter.prettyPrint(event,
-						"Executed evt routine from FEL and published to event bus", "SSJ Simulation Engine"));
+				        "Executed evt routine from FEL and published to event bus", "SSJ Simulation Engine"));
 				LOGGER.info("Current time is:" + simulator.time());
 
 				// set time of the execution

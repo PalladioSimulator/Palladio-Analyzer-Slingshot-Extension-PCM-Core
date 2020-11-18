@@ -3,6 +3,7 @@ package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.ent
 import java.util.UUID;
 
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.Request;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.ResourceDemandRequest;
 
 import com.google.common.base.Preconditions;
 
@@ -19,7 +20,7 @@ public class Job {
 	private final Job rootProcess;
 	private final boolean finished;
 	private double demand;
-	private final Request request;
+	private final ResourceDemandRequest request;
 
 	/**
 	 * General constructor instantiating a job. {@code priority} and {@code demand}
@@ -34,7 +35,7 @@ public class Job {
 	 * @see #Job(int, double, Request)
 	 */
 	public Job(final int priority, final Job rootProcess, final boolean finished, final double demand,
-	        final Request request) {
+	        final ResourceDemandRequest request) {
 		super();
 		this.priority = priority;
 		this.rootProcess = rootProcess;
@@ -55,7 +56,7 @@ public class Job {
 	 * @param request  The request object requesting this job.
 	 * @see #Job(int, Job, boolean, double, Request)
 	 */
-	public Job(final int priority, final double demand, final Request request) {
+	public Job(final int priority, final double demand, final ResourceDemandRequest request) {
 		this(priority, null, false, demand, request);
 	}
 
@@ -126,7 +127,7 @@ public class Job {
 	 * 
 	 * @return Non-null request for this job.
 	 */
-	public Request getRequest() {
+	public ResourceDemandRequest getRequest() {
 		return request;
 	}
 

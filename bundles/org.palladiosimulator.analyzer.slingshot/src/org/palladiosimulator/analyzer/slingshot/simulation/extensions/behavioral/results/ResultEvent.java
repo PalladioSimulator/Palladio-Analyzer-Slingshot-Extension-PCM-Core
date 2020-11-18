@@ -69,14 +69,21 @@ public class ResultEvent<T extends DESEvent> {
 
 	/**
 	 * Directly creates a ResultEvent from a set of events. Null values will be
-	 * disregarded when instantiating.
+	 * disregarded when instantiating. Calling this method will {@code null} values
+	 * will have the same effect as if calling it with an empty set.
 	 * 
 	 * @param events the set of events. Null values will be disregarded if contained
 	 *               in the set.
 	 * @return a new instance of ResultEvent.
 	 */
 	public static <T extends DESEvent> ResultEvent<T> ofAll(final Set<T> events) {
-		return new ResultEvent<T>(events);
+		final Set<T> actualEvents;
+		if (events == null) {
+			actualEvents = Set.of();
+		} else {
+			actualEvents = events;
+		}
+		return new ResultEvent<T>(actualEvents);
 	}
 
 	/**

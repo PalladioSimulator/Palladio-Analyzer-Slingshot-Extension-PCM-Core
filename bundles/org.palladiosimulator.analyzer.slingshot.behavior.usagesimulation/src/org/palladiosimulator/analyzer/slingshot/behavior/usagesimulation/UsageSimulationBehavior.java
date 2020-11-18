@@ -15,7 +15,6 @@ import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserS
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserWokeUp;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.interpreters.UsageScenarioInterpreter;
 import org.palladiosimulator.analyzer.slingshot.repositories.UsageModelRepository;
-import org.palladiosimulator.analyzer.slingshot.repositories.impl.UsageModelRepositoryImpl;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
@@ -32,28 +31,28 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 
 @OnEvent(when = SimulationStarted.class, then = { UserRequestInitiated.class, UserFinished.class, UserStarted.class,
-        UserSlept.class, UserWokeUp.class }, cardinality = EventCardinality.SINGLE)
+        UserSlept.class, UserWokeUp.class }, cardinality = EventCardinality.MANY)
 //@OnEvent(eventType = UserStarted.class, outputEventType = UserFinished.class, cardinality = EventCardinality.SINGLE)
 @OnEvent(when = UserFinished.class, then = DESEvent.class, cardinality = EventCardinality.MANY)
 @OnEvent(when = UserWokeUp.class, then = DESEvent.class, cardinality = EventCardinality.MANY)
 @OnEvent(when = UserRequestFinished.class, then = DESEvent.class, cardinality = EventCardinality.MANY)
-public class UsageSimulationImpl implements SimulationBehaviorExtension {
+public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 
-	private final Logger LOGGER = Logger.getLogger(UsageSimulationImpl.class);
+	private final Logger LOGGER = Logger.getLogger(UsageSimulationBehavior.class);
 
 	private UsageInterpretationContext usageInterpretationContext;
 	private final UsageModelRepository usageModelRepository;
 	private final UsageModel usageModel;
 
 	@Inject
-	public UsageSimulationImpl(final UsageModel usageModel) {
+	public UsageSimulationBehavior(final UsageModel usageModel, final UsageModelRepository repository) {
 		this.usageModel = usageModel;
-		this.usageModelRepository = new UsageModelRepositoryImpl();
+		this.usageModelRepository = repository;
 	}
 
 	@Override
 	public void init() {
-		loadModel(usageModel);
+		this.loadModel(usageModel);
 		usageInterpretationContext = new UsageInterpretationContext(
 		        usageModelRepository.findAllUsageScenarios().get(0));
 		LOGGER.info("Usage Simulation Extension Started");

@@ -2,41 +2,54 @@ package org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation;
 
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.Request;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.UserInterpretationContext;
+import org.palladiosimulator.pcm.seff.AbstractAction;
 
 public class RequestInterpretationContext {
 
-	private final UserInterpretationContext userInterpretationContext;
+	private UserInterpretationContext userInterpretationContext;
+	private RequestInterpretationContext parent;
+	private Request request;
+	private AbstractAction seffAction;
+
+	public RequestInterpretationContext(final UserInterpretationContext userInterpretationContext,
+	        final RequestInterpretationContext parent) {
+		this.userInterpretationContext = userInterpretationContext;
+		this.parent = parent;
+	}
+
+	public RequestInterpretationContext() {
+	}
+
 	public UserInterpretationContext getUserInterpretationContext() {
 		return userInterpretationContext;
 	}
 
-	private final RequestInterpretationContext parent;
-	
-	public RequestInterpretationContext() {
-		super();
-		parent = null;
-		userInterpretationContext = null;
-	}
-	
-	public RequestInterpretationContext(final RequestInterpretationContext parent) {
-		super();
-		this.parent = parent;
-		userInterpretationContext = null;
-	}
-	
-	public RequestInterpretationContext(final UserInterpretationContext userInterpretationContext) {
-		super();
-		this.parent = new RequestInterpretationContext();
+	public void setUserInterpretationContext(final UserInterpretationContext userInterpretationContext) {
 		this.userInterpretationContext = userInterpretationContext;
-	}
-
-	public Request getRequest() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	public RequestInterpretationContext getParent() {
 		return parent;
+	}
+
+	public void setParent(final RequestInterpretationContext parent) {
+		this.parent = parent;
+	}
+
+	public Request getRequest() {
+		return request;
+	}
+
+	public void setRequest(final Request request) {
+		this.request = request;
+	}
+
+	public AbstractAction getSeffAction() {
+		return seffAction;
+	}
+
+	public void setSeffAction(final AbstractAction seffAction) {
+		this.seffAction = seffAction;
 	}
 
 }

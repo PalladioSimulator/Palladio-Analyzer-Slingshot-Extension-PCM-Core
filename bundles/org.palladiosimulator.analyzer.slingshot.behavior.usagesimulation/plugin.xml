@@ -3,7 +3,7 @@
 <plugin>
    <extension
          point="org.palladiosimulator.analyzer.slingshot.extensionpoint.behavior">
-      <behavior-provider baseClass="org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.UsageSimulationImpl" />
+      <behavior-provider baseClass="org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.UsageSimulationBehavior" />
    </extension>
 
 </plugin>

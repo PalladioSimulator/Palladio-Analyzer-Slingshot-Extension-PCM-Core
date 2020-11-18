@@ -4,6 +4,9 @@
    <extension
          point="org.palladiosimulator.analyzer.slingshot.extensionpoint.behavior">
       
-      <behavior-provider baseClass="org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.SystemSimulationImpl" />
+      <behavior-provider baseClass="org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.SystemSimulationBehavior" />
+      <behavior-provider
+            baseClass="org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.SeffSimulationBehavior">
+      </behavior-provider>
    </extension>
 </plugin>

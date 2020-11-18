@@ -6,22 +6,38 @@ import org.palladiosimulator.pcm.repository.Signature;
 
 /**
  * 
- * A Request is an immutable data structure holding the owner of the request and the target of the request
+ * A Request is an immutable data structure holding the owner of the request and
+ * the target of the request
  * 
  * @author Floriment Klinaku
  *
  */
 public class Request {
-	
-	private String id; 
-	
+
+	private String id;
+
 	// owner of the request
 	private User user;
-	
+
 	// target of the request
 	private ProvidedRole providedRole;
 	private Signature signature;
-	
+
+	public Request() {
+
+	}
+
+	public Request(final User user, final ProvidedRole providedRole, final Signature signature) {
+		super();
+		this.user = user;
+		this.providedRole = providedRole;
+		this.signature = signature;
+	}
+
+	public String getId() {
+		return id;
+	}
+
 	public User getUser() {
 		return user;
 	}
@@ -46,25 +62,4 @@ public class Request {
 		this.signature = signature;
 	}
 
-	public Request() {
-		
-	}
-	
-	public Request(final User user, final ProvidedRole providedRole, final Signature signature) {
-		super();
-		this.user = user;
-		this.providedRole = providedRole;
-		this.signature = signature;
-	}
-
-	public String getId() {
-		return id;
-	}
-	// handler of the request
-	
-	
-	// context of the request e.g. variables
-		
-	// request children for external calls maybe;
-	
 }

@@ -19,22 +19,20 @@ public class EventContractChecker {
 	 * is specified with {@link EventCardinality.SINGLE} or vice versa. If the
 	 * resulting event does not contain any immediate event at all, then it will
 	 * return a successful contract result.
+	 * 
+	 * If the contract is specified as {@link EventCardinality.MANY}, then both a
+	 * single or multiple events are allowed.
 	 */
 	public static ContractResult checkCardinality(final ResultEvent<DESEvent> outputEvent,
-			final OnEvent onEventContract) {
+	        final OnEvent onEventContract) {
 
 		final String genericErrorMessage = "Extension Method Is Not Returning the Cardinality According to Contract, Returned:";
 		ContractResult result = ContractResult.success();
 
-		if (outputEvent.isOne()) {
-			if (onEventContract.cardinality() != EventCardinality.SINGLE) {
+		if (outputEvent.areMany()) {
+			if (onEventContract.cardinality() != EventCardinality.MANY) {
 				result = ContractResult.fail(
-						genericErrorMessage + " Single Event, Contract: " + onEventContract.cardinality().toString());
-			}
-		} else if (outputEvent.areMany()) {
-			if (!onEventContract.cardinality().equals(EventCardinality.MANY)) {
-				result = ContractResult.fail(
-						genericErrorMessage + " Many Events, Contract: " + onEventContract.cardinality().toString());
+				        genericErrorMessage + " Many Events, Contract: " + onEventContract.cardinality().toString());
 			}
 		}
 
@@ -64,7 +62,7 @@ public class EventContractChecker {
 
 			if (!eventTypeFound) {
 				result = ContractResult.fail(String.format("Event type is not specified in the contract: '%s'",
-						event.getClass().getSimpleName()));
+				        event.getClass().getSimpleName()));
 				break;
 			}
 		}

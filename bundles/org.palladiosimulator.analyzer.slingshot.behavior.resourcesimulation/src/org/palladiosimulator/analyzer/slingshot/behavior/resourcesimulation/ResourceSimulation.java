@@ -26,9 +26,14 @@ import com.google.common.eventbus.Subscribe;
 @OnEvent(when = SimulationStarted.class, then = DESEvent.class, cardinality = EventCardinality.MANY)
 @OnEvent(when = JobProgressed.class, then = DESEvent.class, cardinality = EventCardinality.MANY)
 @OnEvent(when = JobFinished.class, then = DESEvent.class, cardinality = EventCardinality.MANY)
-@OnEvent(when = JobInitiated.class, then = {}, cardinality = EventCardinality.MANY)
+@OnEvent(when = JobInitiated.class, then = DESEvent.class, cardinality = EventCardinality.MANY)
 public class ResourceSimulation implements SimulationBehaviorExtension {
 
+	/* 
+	 * TODO: Use the allocation and resource environment model to get the list
+	 * 	     of actual resources specified. When simulating, iterate over each
+	 * 		 resource (or specify for each resource a certain ID per environment)
+	 */
 	IResourceHandler myFCFSResource = new FCFSResource();
 	IResourceHandler myPSResource = new ProcessorSharingResource("test", UUID.randomUUID().toString(), 2L);
 
@@ -61,10 +66,12 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 		return myPSResource.onSimulationStarted(evt);
 	}
 
-	// the event-driven variant of doProcessing: work arrives for processing
+	/**
+	 * This event handler initiates a resource with a request for a certain resource
+	 * job.
+	 */
 	@Subscribe
 	public ResultEvent<DESEvent> onJobInitiated(final JobInitiated evt) {
-
 		return myPSResource.onJobInitiated(evt);
 	}
 

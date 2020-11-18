@@ -100,7 +100,7 @@ public class FCFSResource implements IResourceHandler, IActiveResource {
 		runningProcesses.remove(job);
 		processQ.remove(job);
 
-		final RequestFinished userFinished = new RequestFinished(job.getRequest());
+		final RequestFinished userFinished = null; // TODO: new RequestFinished(job.getRequest());
 
 		return ResultEvent.of(getNextEvent(), userFinished);
 	}
