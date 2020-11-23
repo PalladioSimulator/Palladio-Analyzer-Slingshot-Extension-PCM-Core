@@ -1,6 +1,6 @@
 package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events;
 
-import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.Job;
+import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.jobs.Job;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntityChangedEvent;
 
 public class JobScheduled extends AbstractEntityChangedEvent<Job> {

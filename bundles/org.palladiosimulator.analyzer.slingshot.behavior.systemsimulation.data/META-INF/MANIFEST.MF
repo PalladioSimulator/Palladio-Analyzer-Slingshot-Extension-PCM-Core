@@ -6,7 +6,9 @@ Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation.data
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities;version="1.0.0",
- org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events;version="1.0.0"
+ org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events;version="1.0.0",
+ org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.seffspecificevents
 Require-Bundle: org.palladiosimulator.analyzer.slingshot;bundle-version="1.0.0",
  org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.data;bundle-version="1.0.0",
- org.palladiosimulator.pcm
+ org.palladiosimulator.pcm,
+ de.uka.ipd.sdq.simucomframework.variables

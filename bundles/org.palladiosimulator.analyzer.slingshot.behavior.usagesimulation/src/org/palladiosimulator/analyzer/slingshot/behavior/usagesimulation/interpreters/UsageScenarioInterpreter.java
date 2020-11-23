@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.UserInterpretationContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.User;
@@ -14,6 +15,7 @@ import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserS
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserStarted;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserWokeUp;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
+import org.palladiosimulator.pcm.parameter.VariableUsage;
 import org.palladiosimulator.pcm.repository.OperationProvidedRole;
 import org.palladiosimulator.pcm.repository.OperationSignature;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
@@ -60,8 +62,9 @@ public class UsageScenarioInterpreter<T> extends UsagemodelSwitch<T> {
 	public T caseEntryLevelSystemCall(final EntryLevelSystemCall object) {
 		final OperationProvidedRole opProvidedRole = EcoreUtil.copy(object.getProvidedRole_EntryLevelSystemCall());
 		final OperationSignature signature = EcoreUtil.copy(object.getOperationSignature__EntryLevelSystemCall());
-
-		final UserRequest userRequest = new UserRequest(user, opProvidedRole, signature);
+		final EList<VariableUsage> inputParameterUsages = object.getInputParameterUsages_EntryLevelSystemCall();
+		LOGGER.debug("opProvidedRole: " + (opProvidedRole.getProvidingEntity_ProvidedRole() == null));
+		final UserRequest userRequest = new UserRequest(user, opProvidedRole, signature, inputParameterUsages);
 		final UserRequestInitiated uRequestInitiated = new UserRequestInitiated(userRequest, userContext, 0);
 		sideEffectEvents.add(uRequestInitiated);
 		return super.caseEntryLevelSystemCall(object);

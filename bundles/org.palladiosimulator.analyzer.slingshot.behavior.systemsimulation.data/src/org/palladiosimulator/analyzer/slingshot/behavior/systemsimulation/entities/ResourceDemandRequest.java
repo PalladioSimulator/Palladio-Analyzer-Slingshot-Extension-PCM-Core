@@ -1,6 +1,8 @@
 package org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities;
 
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.User;
 import org.palladiosimulator.pcm.core.PCMRandomVariable;
+import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.resourcetype.ProcessingResourceType;
 import org.palladiosimulator.pcm.seff.seff_performance.ParametricResourceDemand;
 
@@ -10,7 +12,7 @@ import org.palladiosimulator.pcm.seff.seff_performance.ParametricResourceDemand;
  * 
  * @author Julijan Katic
  */
-public final class ResourceDemandRequest {
+public final class ResourceDemandRequest extends SeffContextHolderEntity {
 
 	/** The random variable specifying the demand of the resource. */
 	private final ParametricResourceDemand parameter;
@@ -20,9 +22,11 @@ public final class ResourceDemandRequest {
 
 	private final PCMRandomVariable demand;
 
-	public ResourceDemandRequest(final ParametricResourceDemand parameter,
+	public ResourceDemandRequest(final AssemblyContext assemblyContext, final User user,
+	        final ParametricResourceDemand parameter,
 	        final ProcessingResourceType requiredResource,
 	        final PCMRandomVariable specification) {
+		super(assemblyContext, user);
 		this.parameter = parameter;
 		this.requiredResource = requiredResource;
 		this.demand = specification;

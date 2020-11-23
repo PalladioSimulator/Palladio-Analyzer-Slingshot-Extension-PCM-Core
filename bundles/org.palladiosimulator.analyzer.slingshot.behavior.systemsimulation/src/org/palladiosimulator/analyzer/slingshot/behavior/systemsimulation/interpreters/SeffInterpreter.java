@@ -6,11 +6,20 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EObject;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.GeneralEntryRequest;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.ResourceDemandRequest;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.SeffInterpretationEntity;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.ResourceDemandRequestInitiated;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SeffInterpretationRequested;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.RequestFinished;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.RequestInitiated;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.seffspecificevents.ResourceDemandRequestInitiated;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.seffspecificevents.SeffInterpretationRequested;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.User;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
+import org.palladiosimulator.pcm.core.composition.AssemblyContext;
+import org.palladiosimulator.pcm.parameter.VariableUsage;
+import org.palladiosimulator.pcm.repository.OperationRequiredRole;
+import org.palladiosimulator.pcm.repository.OperationSignature;
 import org.palladiosimulator.pcm.seff.AcquireAction;
 import org.palladiosimulator.pcm.seff.BranchAction;
 import org.palladiosimulator.pcm.seff.CollectionIteratorAction;
@@ -36,12 +45,20 @@ import org.palladiosimulator.pcm.seff.util.SeffSwitch;
  */
 public class SeffInterpreter extends SeffSwitch<Set<DESEvent>> {
 
-	private final Logger LOGGER = Logger.getLogger(SeffInterpreter.class);
+	private static final Logger LOGGER = Logger.getLogger(SeffInterpreter.class);
+
+	private final User userContext;
+	private final AssemblyContext assemblyContext;
+
+	public SeffInterpreter(final AssemblyContext context, final User userContext) {
+		this.userContext = userContext;
+		this.assemblyContext = context;
+	}
 
 	@Override
 	public Set<DESEvent> caseStopAction(final StopAction object) {
 		LOGGER.debug("Seff stopped.");
-		return Set.of(); // Maybe a SeffInterpretationFinished? TODO
+		return Set.of(new RequestFinished(userContext));
 	}
 
 	@Override
@@ -53,8 +70,8 @@ public class SeffInterpreter extends SeffSwitch<Set<DESEvent>> {
 	@Override
 	public Set<DESEvent> caseStartAction(final StartAction object) {
 		LOGGER.debug("Found starting action of SEFF");
-		return Set.of(
-		        new SeffInterpretationRequested(new SeffInterpretationEntity(object.getSuccessor_AbstractAction()), 0));
+		return Set.of(SeffInterpretationRequested.createWithEntity(assemblyContext, userContext,
+		        object.getSuccessor_AbstractAction()));
 	}
 
 	@Override
@@ -77,8 +94,14 @@ public class SeffInterpreter extends SeffSwitch<Set<DESEvent>> {
 
 	@Override
 	public Set<DESEvent> caseExternalCallAction(final ExternalCallAction externalCall) {
-		// TODO Auto-generated method stub
-		return Set.of();
+		final OperationRequiredRole requiredRole = externalCall.getRole_ExternalService();
+		final OperationSignature calledServiceSignature = externalCall.getCalledService_ExternalService();
+		final EList<VariableUsage> inputVariableUsages = externalCall.getInputVariableUsages__CallAction();
+
+		final GeneralEntryRequest request = new GeneralEntryRequest(userContext, requiredRole, calledServiceSignature,
+		        inputVariableUsages);
+
+		return Set.of(new RequestInitiated(request, 0));
 	}
 
 	@Override
@@ -107,7 +130,7 @@ public class SeffInterpreter extends SeffSwitch<Set<DESEvent>> {
 
 		for (final ParametricResourceDemand demand : resourceDemandAction) {
 			LOGGER.debug("Demand found with: " + demand);
-			final ResourceDemandRequest request = new ResourceDemandRequest(demand,
+			final ResourceDemandRequest request = new ResourceDemandRequest(assemblyContext, userContext, demand,
 			        demand.getRequiredResource_ParametricResourceDemand(),
 			        demand.getSpecification_ParametericResourceDemand());
 			final ResourceDemandRequestInitiated requestEvent = new ResourceDemandRequestInitiated(request, 0);
@@ -115,10 +138,21 @@ public class SeffInterpreter extends SeffSwitch<Set<DESEvent>> {
 		}
 
 		if (internalAction.getSuccessor_AbstractAction() != null) {
-			events.add(SeffInterpretationRequested.withAction(internalAction.getSuccessor_AbstractAction()));
+			events.add(
+			        SeffInterpretationRequested.createWithEntity(assemblyContext, userContext,
+			                internalAction.getSuccessor_AbstractAction()));
 		}
 
 		return Collections.unmodifiableSet(events);
+	}
+
+	@Override
+	public Set<DESEvent> doSwitch(final EClass eClass, final EObject eObject) {
+		Set<DESEvent> result = super.doSwitch(eClass, eObject);
+		if (result == null) {
+			result = Set.of();
+		}
+		return result;
 	}
 
 }

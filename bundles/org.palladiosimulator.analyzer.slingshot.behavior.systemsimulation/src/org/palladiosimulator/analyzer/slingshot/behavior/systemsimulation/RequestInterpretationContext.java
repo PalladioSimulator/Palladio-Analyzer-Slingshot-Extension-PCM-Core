@@ -1,6 +1,6 @@
 package org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation;
 
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.Request;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.GeneralEntryRequest;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.UserInterpretationContext;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 
@@ -8,7 +8,7 @@ public class RequestInterpretationContext {
 
 	private UserInterpretationContext userInterpretationContext;
 	private RequestInterpretationContext parent;
-	private Request request;
+	private GeneralEntryRequest request;
 	private AbstractAction seffAction;
 
 	public RequestInterpretationContext(final UserInterpretationContext userInterpretationContext,
@@ -36,11 +36,11 @@ public class RequestInterpretationContext {
 		this.parent = parent;
 	}
 
-	public Request getRequest() {
+	public GeneralEntryRequest getRequest() {
 		return request;
 	}
 
-	public void setRequest(final Request request) {
+	public void setRequest(final GeneralEntryRequest request) {
 		this.request = request;
 	}
 

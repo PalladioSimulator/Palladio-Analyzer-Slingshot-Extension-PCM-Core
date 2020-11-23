@@ -3,11 +3,12 @@ package org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.Job;
+import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.ActiveResourceRequestContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.ActiveResourceRequested;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobInitiated;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.ResourceDemandRequestInitiated;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SeffInterpretationEvent;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SeffInterpretationRequested;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.seffspecificevents.ResourceDemandRequestInitiated;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.seffspecificevents.SeffInterpretationEvent;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.seffspecificevents.SeffInterpretationRequested;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.interpreters.SeffInterpreter;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
@@ -17,6 +18,8 @@ import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral
 
 import com.google.common.eventbus.Subscribe;
 
+import de.uka.ipd.sdq.simucomframework.variables.StackContext;
+
 /**
  * This behavior module both interprets and generates events specifically for
  * SEFFs.
@@ -24,14 +27,15 @@ import com.google.common.eventbus.Subscribe;
  * @author Julijan Katic
  */
 @OnEvent(when = SeffInterpretationRequested.class, then = SeffInterpretationEvent.class, cardinality = EventCardinality.MANY)
-@OnEvent(when = ResourceDemandRequestInitiated.class, then = JobInitiated.class, cardinality = EventCardinality.SINGLE)
+@OnEvent(when = ResourceDemandRequestInitiated.class, then = ActiveResourceRequested.class, cardinality = EventCardinality.SINGLE)
 public class SeffSimulationBehavior implements SimulationBehaviorExtension {
 
 	private final Logger LOGGER = Logger.getLogger(SeffSimulationBehavior.class);
 
 	@Subscribe
 	public ResultEvent<?> onSeffInterpretationStarted(final SeffInterpretationRequested event) {
-		final SeffInterpreter seffInterpreter = new SeffInterpreter();
+		final SeffInterpreter seffInterpreter = new SeffInterpreter(event.getEntity().getAssemblyContext(),
+		        event.getEntity().getUser());
 		final Set<DESEvent> events = seffInterpreter.doSwitch(event.getEntity().getCurrentAction());
 		return ResultEvent.of(events);
 	}
@@ -43,12 +47,11 @@ public class SeffSimulationBehavior implements SimulationBehaviorExtension {
 	 */
 	@Subscribe
 	public ResultEvent<?> onResourceDemandRequestInitiated(final ResourceDemandRequestInitiated event) {
-//		Double demand = StackContext.evaluateStatic(event.getEntity().getDemand().getSpecification(),
-//		        Double.class);
-		final double demand = 10; // TODO: Evaluate Stochastic Expressions using stacks
-		final Job job = new Job(0, demand, event.getEntity());
+		final Double resourceDemand = StackContext.evaluateStatic(event.getEntity().getDemand().getSpecification(),
+		        Double.class, event.getEntity().getUser().getStack().currentStackFrame());
+		final ActiveResourceRequestContext activeResourceRequestContext = new ActiveResourceRequestContext(
+		        event.getEntity().getRequiredResource(), event.getEntity().getAssemblyContext(), resourceDemand);
 
-		final JobInitiated jobInitiatedEvent = new JobInitiated(job, event.getDelay());
-		return ResultEvent.of(jobInitiatedEvent);
+		return ResultEvent.of(new ActiveResourceRequested(activeResourceRequestContext, 0));
 	}
 }

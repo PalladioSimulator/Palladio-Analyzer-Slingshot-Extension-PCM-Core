@@ -24,6 +24,8 @@ import javax.tools.Diagnostic.Kind;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.annotationprocessor.util.exceptions.IllegalAnnotationArgumentException;
 import org.palladiosimulator.analyzer.slingshot.annotationprocessor.util.exceptions.ProcessException;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
@@ -38,12 +40,46 @@ import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral
 
 import com.google.auto.service.AutoService;
 
+/**
+ * This processor processes all {@link OnEvent} and {@link OnEvent.OnEvents}
+ * annotations in such a way that a compile-time EventGraph can be exported and
+ * that all compile-time validations are done.
+ * 
+ * It validates the following constraints on {@link OnEvent}:
+ * <ul>
+ * <li>It checks that for each EventHandler there is a corresponding contract on
+ * the class definition.
+ * <li>Also, it checks that for each contract there is a corresponding event
+ * handler.
+ * <li>It checks whether the input event ({@link OnEvent#when()}) is exactly
+ * {@link DESEvent} which is prohibited.
+ * <li>It checks whether the output events list ({@link OnEvent#then()}) has
+ * {@link DESEvent} contained which is not recommended.
+ * </ul>
+ * 
+ * This processor also allows the following options:
+ * <ul>
+ * <li>{@code export}: String -- Where to export the graph file. Default value
+ * is "EventGraph.dot".
+ * <li>{@code noexport}: Boolean -- If there shouldn't be any graph exported.
+ * Default value is "false".
+ * </ul>
+ * 
+ * @author Julijan Katic
+ */
 @AutoService(Processor.class)
 public class OnEventProcessor extends AbstractProcessor {
+
+	private final Logger LOGGER = Logger.getLogger(OnEventProcessor.class);
 
 	private Messager messager;
 	private String fileOutput;
 	private boolean noGraphExportation = false;
+
+	public OnEventProcessor() {
+		BasicConfigurator.resetConfiguration();
+		BasicConfigurator.configure();
+	}
 
 	@Override
 	public Set<String> getSupportedAnnotationTypes() {
@@ -67,15 +103,18 @@ public class OnEventProcessor extends AbstractProcessor {
 		this.messager = processingEnv.getMessager();
 		this.fileOutput = processingEnv.getOptions().getOrDefault("export", "EventGraph.dot");
 		this.noGraphExportation = processingEnv.getOptions().getOrDefault("noexport", "false").equals("true");
+
+		LOGGER.debug("OnEventProcessor initialized");
 	}
 
 	@Override
 	public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
 		final EventGraph eventGraph = new DefaultEventGraph();
+		LOGGER.debug("Starting processing");
 
-		for (final Element element : roundEnv.getElementsAnnotatedWith(OnEvent.class)) {
+		for (final Element element : roundEnv.getElementsAnnotatedWith(OnEvent.OnEvents.class)) {
 			final TypeElement annotatedClassElement = (TypeElement) element;
-
+			LOGGER.debug("Found element: " + annotatedClassElement.getSimpleName().toString());
 			final OnEventsModel onEventsModel = new OnEventsModel(annotatedClassElement);
 			final List<ExecutableElement> methods = ElementFilter
 			        .methodsIn(annotatedClassElement.getEnclosedElements())
@@ -111,17 +150,32 @@ public class OnEventProcessor extends AbstractProcessor {
 		return false;
 	}
 
-	private void checkWhenValueIsNotDESEvent(final OnEventModel model) throws ProcessException {
+	/**
+	 * Helper method for checking if the input event of the contract is exactly
+	 * {@link DESEvent}. If so, it will throw the {@link ProcessException}.
+	 * 
+	 * @param model The model of the corresponding contract.
+	 * @throws IllegalAnnotationArgumentException If {@link OnEvent#when()} equals
+	 *                                            to {@code DESEvent.class}.
+	 */
+	private void checkWhenValueIsNotDESEvent(final OnEventModel model) throws IllegalAnnotationArgumentException {
 		if (model.getWhenElement().getQualifiedName().toString().equals(DESEvent.class.getName())) {
 			throw new IllegalAnnotationArgumentException(model.getAnnotatedClassElement(), model.getAnnotation(),
 			        "Contract must have a concrete event other than DESEvent.");
 		}
 	}
 
+	/**
+	 * Checks if the output events on the contract has a {@link DESEvent} contained.
+	 * If so, a warning will be displayed.
+	 * 
+	 * @param model The model of the corresponding contract.
+	 */
 	private void checkThenValueIsConcrete(final OnEventModel model) {
 		final boolean thenElementIsDESEvent = model.getThenElements().stream()
 		        .anyMatch(typeElement -> typeElement.getQualifiedName().toString().equals(DESEvent.class.getName()));
-
+		LOGGER.debug(
+		        "OnEventModel checking: " + model.getWhenElement().getQualifiedName() + " -- " + thenElementIsDESEvent);
 		if (thenElementIsDESEvent) {
 			messager.printMessage(Kind.WARNING,
 			        "Contract underspecified: The contract specifies that any event can be published.",
@@ -129,13 +183,22 @@ public class OnEventProcessor extends AbstractProcessor {
 		}
 	}
 
+	/**
+	 * Exports the event graph. If there is an {@link IOException}, a compiler
+	 * warning will be displayed. It will not export the graph if {@code noexport}
+	 * option is set to {@code true}. The file name is set to {@code export}'s
+	 * value.
+	 * 
+	 * @param eventGraph The graph containing all the events and edges to be
+	 *                   exported.
+	 */
 	private void exportGraph(final EventGraph eventGraph) {
 		if (!this.noGraphExportation) {
 			try {
 				final FileObject fileObject = processingEnv.getFiler().createResource(StandardLocation.SOURCE_OUTPUT,
 				        "",
 				        this.fileOutput);
-
+				LOGGER.debug("exporting graph");
 				eventGraph.exportGraph(new DotFileGraphExporter(fileObject.openWriter()));
 			} catch (final IOException e) {
 				messager.printMessage(Kind.WARNING,
@@ -144,6 +207,15 @@ public class OnEventProcessor extends AbstractProcessor {
 		}
 	}
 
+	/**
+	 * Adds edges and nodes (if there isn't already one) to the graph according to
+	 * the model. Each edge will go from the contract's {@code when} to one of
+	 * {@code then}'s element. At the end, there will be an edge to every element of
+	 * {@code then}.
+	 * 
+	 * @param eventGraph The graph onto which to add the nodes and edges.
+	 * @param model      The model of the contract to add to the graph.
+	 */
 	private void addToGraph(final EventGraph eventGraph, final OnEventModel model) {
 		final String when = model.getWhenElement().getSimpleName().toString();
 		final StringBasedEventNode whenEventNode = new StringBasedEventNode(when);
@@ -156,6 +228,18 @@ public class OnEventProcessor extends AbstractProcessor {
 		}
 	}
 
+	/**
+	 * Checks whether a method exists for a certain contract. A method
+	 * <em>exists</em> if it has a single parameter of that type specified in the
+	 * contract's {@code when} value, and the return type is {@code ResultEvent}
+	 * with any generic type. If such a method does not exist,
+	 * {@link ProcessException} will be thrown.
+	 * 
+	 * 
+	 * @param methods The methods of the class onto which the contract is specified.
+	 * @param model   The model of the corresponding contract.
+	 * @throws ProcessException if such a method does not exist.
+	 */
 	private void checkMethodExists(final List<ExecutableElement> methods, final OnEventModel model)
 	        throws ProcessException {
 
@@ -170,6 +254,18 @@ public class OnEventProcessor extends AbstractProcessor {
 		        "The method for this contract does not exist.");
 	}
 
+	/**
+	 * Checks for each event handler if it has a corresponding contract specified.
+	 * The contract has to have the {@code when} value to be set to the type of the
+	 * parameter of the method. It also checks if the event handler has a correct
+	 * parameter type. If such a contract does not exist, then
+	 * {@link ProcessException} will be thrown.
+	 * 
+	 * @param element The event handler with the single parameter.
+	 * @param models  The
+	 * @return
+	 * @throws ProcessException
+	 */
 	private OnEventModel checkContractExists(final ExecutableElement element, final OnEventsModel models)
 	        throws ProcessException {
 		assert element.getParameters().size() == 1;
@@ -177,7 +273,12 @@ public class OnEventProcessor extends AbstractProcessor {
 		final TypeElement parameterType = checkParameterCorrectType(element);
 
 		final Optional<OnEventModel> optionalModel = models.getModels().stream()
-		        .filter(model -> parameterType.getQualifiedName().equals(model.getWhenElement().getQualifiedName()))
+		        .filter(model -> {
+			        final String parameterTypeName = parameterType.getQualifiedName().toString();
+			        final String modelTypeName = model.getWhenElement().getQualifiedName().toString();
+			        LOGGER.debug("parameterType: " + parameterTypeName + " --- modelType: " + modelTypeName);
+			        return parameterTypeName.equals(modelTypeName);
+		        })
 		        .findFirst();
 
 		return optionalModel.orElseThrow(() -> new ProcessException(element, String.format(
@@ -185,6 +286,15 @@ public class OnEventProcessor extends AbstractProcessor {
 		        parameterType.getQualifiedName().toString())));
 	}
 
+	/**
+	 * Checks whether the event handler has a correct parameter type. The type is
+	 * correct if it is a subtype of {@link DESEvent}. It also returns the type for
+	 * further computation.
+	 * 
+	 * @param element The method to check.
+	 * @return The actual type of the method if it is a subtype of {@link DESEvent}.
+	 * @throws ProcessException if it is not a subtype of {@link DESEvent}.
+	 */
 	private TypeElement checkParameterCorrectType(final ExecutableElement element) throws ProcessException {
 		assert element.getParameters().size() == 1;
 
@@ -203,6 +313,14 @@ public class OnEventProcessor extends AbstractProcessor {
 		return typeElement;
 	}
 
+	/**
+	 * Checks that the event handler has a single parameter and the correct return
+	 * type. The correct return type is {@link ResultEvent}.
+	 * 
+	 * @param method The method to check.
+	 * @throws ProcessException if it has more than one parameter or a different
+	 *                          return type.
+	 */
 	private void checkMethod(final ExecutableElement method) throws ProcessException {
 		if (!checkMethodParameter(method) || !checkMethodReturnType(method)) {
 			throw new ProcessException(method,
@@ -210,10 +328,22 @@ public class OnEventProcessor extends AbstractProcessor {
 		}
 	}
 
+	/**
+	 * Returns whether the method has a single parameter.
+	 * 
+	 * @param method The method to check.
+	 * @return true iff it has a single parameter.
+	 */
 	private boolean checkMethodParameter(final ExecutableElement method) {
 		return method.getParameters().size() == 1;
 	}
 
+	/**
+	 * Returns whether the method has a return type of {@link ResultEvent}.
+	 * 
+	 * @param method The method to check.
+	 * @return true iff it has the correct return type.
+	 */
 	private boolean checkMethodReturnType(final ExecutableElement method) {
 		final TypeMirror returnMirror = method.getReturnType();
 

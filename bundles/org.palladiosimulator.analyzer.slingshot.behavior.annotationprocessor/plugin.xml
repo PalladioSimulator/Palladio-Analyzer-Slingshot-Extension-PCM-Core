@@ -8,6 +8,14 @@
          <java6processor
                class="org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.onevent.OnEventProcessor">
          </java6processor>
+         <java6processor
+               class="org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.eventcontract.EventContractProcessor">
+         </java6processor>
+         <!--
+         <java6processor
+               class="org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.behaviorextension.BehaviorExtensionProcessor">
+         </java6processor>
+         -->
       </java6processors>
    </extension>
 

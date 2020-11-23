@@ -4,13 +4,17 @@ Bundle-Name: Behavior AnnotationProcessor
 Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: org.palladiosimulator
+Bundle-Activator: org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.Activator
 Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.palladiosimulator.analyzer.slingshot,
  org.eclipse.jdt.apt.core;bundle-version="3.6.600",
  org.palladiosimulator.analyzer.slingshot.annotationprocessor.util,
  com.google.guava,
- com.google.auto.service
+ com.google.auto.service,
+ org.eclipse.core.runtime;bundle-version="3.18.0",
+ org.eclipse.osgi,
+ org.apache.log4j;bundle-version="1.2.15"
 Export-Package: org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.behaviorextension,
  org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.eventcontract,
  org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.onevent

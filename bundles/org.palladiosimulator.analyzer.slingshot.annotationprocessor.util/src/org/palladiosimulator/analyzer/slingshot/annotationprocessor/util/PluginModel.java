@@ -61,7 +61,7 @@ public class PluginModel {
 	public PluginModel(final String pluginFilePath, final Filer filer)
 	        throws ParserConfigurationException, SAXException, IOException {
 		Preconditions.checkNotNull(pluginFilePath, "The pluginFilePath must not be null.");
-		Preconditions.checkArgument(pluginFilePath.isEmpty(), "The pluginFilePath must not be empty.");
+		Preconditions.checkArgument(!pluginFilePath.isEmpty(), "The pluginFilePath must not be empty.");
 		Preconditions.checkNotNull(filer);
 
 		final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -75,7 +75,7 @@ public class PluginModel {
 			createXMLDeclarationsAndProcessingInstructions();
 		}
 
-		this.fileObject = filer.createResource(StandardLocation.SOURCE_PATH, "", pluginFilePath);
+		this.fileObject = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", pluginFilePath);
 	}
 
 	/**

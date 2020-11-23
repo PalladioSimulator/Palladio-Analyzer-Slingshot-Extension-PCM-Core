@@ -1,2 +1,3 @@
 <factorypath>
+    <factorypathentry kind="PLUGIN" id="org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor" enabled="true" runInBatchMode="false"/>
 </factorypath>

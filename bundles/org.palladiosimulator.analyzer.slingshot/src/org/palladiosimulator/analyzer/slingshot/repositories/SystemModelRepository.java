@@ -4,6 +4,7 @@ import org.palladiosimulator.analyzer.slingshot.repositories.impl.SystemModelRep
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.core.composition.ProvidedDelegationConnector;
 import org.palladiosimulator.pcm.repository.ProvidedRole;
+import org.palladiosimulator.pcm.repository.RequiredRole;
 import org.palladiosimulator.pcm.repository.Signature;
 import org.palladiosimulator.pcm.seff.ServiceEffectSpecification;
 import org.palladiosimulator.pcm.system.System;
@@ -28,4 +29,11 @@ public interface SystemModelRepository {
 
 	ServiceEffectSpecification getDelegatedComponentSeff(final ProvidedDelegationConnector connector,
 	        final Signature signature);
+
+	ServiceEffectSpecification findSeffFromRequiredRole(final RequiredRole requiredRole,
+	        final Signature signature);
+
+	ServiceEffectSpecification getSeffFromProvidedRole(ProvidedRole role, Signature signature);
+
+	AssemblyContext findAssemblyContextFromRequiredRole(RequiredRole requiredRole);
 }
