@@ -12,6 +12,7 @@ import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entiti
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.seffspecificevents.SeffInterpretationRequested;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.User;
 import org.palladiosimulator.analyzer.slingshot.common.utils.SimulatedStackHelper;
+import org.palladiosimulator.analyzer.slingshot.repositories.SystemModelRepository;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.core.composition.ComposedStructure;
 import org.palladiosimulator.pcm.core.composition.CompositionPackage;
@@ -37,17 +38,19 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SeffInterpretati
 	private final ProvidedRole providedRole;
 	private final Signature signature;
 	private final User user;
+	private final SystemModelRepository modelRepository;
 
 	public RepositoryInterpreter(final AssemblyContext context, final Signature signature,
-	        final ProvidedRole providedRole, final User user) {
+	        final ProvidedRole providedRole, final User user, final SystemModelRepository modelRepository) {
 		this.assemblyContext = context;
 		this.signature = signature;
 		this.providedRole = providedRole;
 		this.user = user;
+		this.modelRepository = modelRepository;
 	}
 
 	public RepositoryInterpreter(final Signature signature, final ProvidedRole providedRole, final User user) {
-		this(null, signature, providedRole, user);
+		this(null, signature, providedRole, user, null);
 	}
 
 	/**
@@ -107,11 +110,16 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SeffInterpretati
 	@Override
 	public Set<SeffInterpretationRequested> caseProvidedRole(final ProvidedRole providedRole) {
 		LOGGER.debug("Accessing provided role: " + providedRole.getId());
-		/*
-		 * TODO: Why is here a null pointer exception now? getProvidingEntity()
-		 * is always null, even if it is from a composed structure
-		 */
-		return this.doSwitch(providedRole.getProvidingEntity_ProvidedRole());
+
+		if (providedRole.getProvidingEntity_ProvidedRole() != null) {
+			return this.doSwitch(providedRole.getProvidingEntity_ProvidedRole());
+		}
+
+		LOGGER.debug("Does not provide the entity, find providing entity..");
+		final InterfaceProvidingEntity foundEntity = this.modelRepository.findProvidingEntity(providedRole);
+		providedRole.setProvidingEntity_ProvidedRole(foundEntity);
+
+		return this.doSwitch(foundEntity);
 	}
 
 	@Override
@@ -128,7 +136,8 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SeffInterpretati
 		final ProvidedDelegationConnector connectedProvidedDelegationConnector = getConnectedProvidedDelegationConnector();
 		final RepositoryInterpreter repositoryInterpreter = new RepositoryInterpreter(
 		        connectedProvidedDelegationConnector.getAssemblyContext_ProvidedDelegationConnector(), this.signature,
-		        connectedProvidedDelegationConnector.getInnerProvidedRole_ProvidedDelegationConnector(), this.user);
+		        connectedProvidedDelegationConnector.getInnerProvidedRole_ProvidedDelegationConnector(), this.user,
+		        this.modelRepository);
 		return repositoryInterpreter
 		        .doSwitch(connectedProvidedDelegationConnector.getInnerProvidedRole_ProvidedDelegationConnector());
 	}
@@ -144,7 +153,8 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SeffInterpretati
 		for (final Connector connector : ((ComposedStructure) implementingEntity).getConnectors__ComposedStructure()) {
 			if (connector.eClass() == CompositionPackage.eINSTANCE.getProvidedDelegationConnector()) {
 				final ProvidedDelegationConnector delegationConnector = (ProvidedDelegationConnector) connector;
-				if (delegationConnector.getOuterProvidedRole_ProvidedDelegationConnector().equals(providedRole)) {
+				if (delegationConnector.getOuterProvidedRole_ProvidedDelegationConnector().getId()
+				        .equals(providedRole.getId())) {
 					return delegationConnector;
 				}
 			}

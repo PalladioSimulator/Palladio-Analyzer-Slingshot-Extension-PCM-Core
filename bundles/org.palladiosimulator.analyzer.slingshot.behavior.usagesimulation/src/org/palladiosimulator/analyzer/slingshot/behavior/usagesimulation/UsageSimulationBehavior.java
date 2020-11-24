@@ -35,6 +35,10 @@ import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 
+import de.uka.ipd.sdq.probfunction.math.IProbabilityFunctionFactory;
+import de.uka.ipd.sdq.probfunction.math.impl.ProbabilityFunctionFactoryImpl;
+import de.uka.ipd.sdq.simucomframework.variables.cache.StoExCache;
+
 @OnEvent(when = SimulationStarted.class, then = { UserRequestInitiated.class, UserFinished.class, UserStarted.class,
         UserSlept.class, UserWokeUp.class }, cardinality = EventCardinality.MANY)
 //@OnEvent(eventType = UserStarted.class, outputEventType = UserFinished.class, cardinality = EventCardinality.SINGLE)
@@ -67,6 +71,11 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 	@Subscribe
 	public ResultEvent<DESEvent> onSimulationStart(final SimulationStarted evt) {
 		final Set<DESEvent> returnedEvents = new HashSet<>();
+
+		/* Initialize ProbFunction and StoExCache, otherwise StackContext won't work */
+		final IProbabilityFunctionFactory probabilityFunctionFactory = ProbabilityFunctionFactoryImpl.getInstance();
+		// probabilityFunctionFactory.setRandomGenerator();
+		StoExCache.initialiseStoExCache(probabilityFunctionFactory);
 
 		final UsageScenario usageScenario = usageInterpretationContext.getUsageScenario();
 		final AbstractUserAction firstAction = usageModelRepository.findFirstActionOf(usageScenario);

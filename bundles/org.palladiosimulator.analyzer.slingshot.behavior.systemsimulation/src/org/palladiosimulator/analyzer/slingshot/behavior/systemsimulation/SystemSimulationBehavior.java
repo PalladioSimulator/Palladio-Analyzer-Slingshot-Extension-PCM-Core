@@ -86,8 +86,11 @@ public class SystemSimulationBehavior implements SimulationBehaviorExtension {
 		final RepositoryInterpretationContext context = event.getEntity();
 
 		final RepositoryInterpreter interpreter = new RepositoryInterpreter(context.getAssemblyContext(),
-		        context.getSignature(), context.getProvidedRole(), context.getUser());
+		        context.getSignature(), context.getProvidedRole(), context.getUser(), this.systemRepository);
 		final Set<SeffInterpretationRequested> appearedEvents = interpreter.doSwitch(context.getProvidedRole());
+
+//		this.systemRepository.getSeffFromProvidedRole(role, signature)
+
 		return ResultEvent.of(appearedEvents);
 	}
 
@@ -98,7 +101,7 @@ public class SystemSimulationBehavior implements SimulationBehaviorExtension {
 		        .findAssemblyContextFromRequiredRole(entity.getRequiredRole());
 
 		final RepositoryInterpreter interpreter = new RepositoryInterpreter(assemblyContext, entity.getSignature(),
-		        null, entity.getUser());
+		        null, entity.getUser(), systemRepository);
 
 		/* Interpret the Component of the system. */
 		final Set<SeffInterpretationRequested> appearedEvents = interpreter

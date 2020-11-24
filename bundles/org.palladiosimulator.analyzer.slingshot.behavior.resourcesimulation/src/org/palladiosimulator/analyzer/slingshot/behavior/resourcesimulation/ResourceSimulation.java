@@ -29,8 +29,6 @@ import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
 
 import com.google.common.eventbus.Subscribe;
 
-import de.uka.ipd.sdq.simucomframework.resources.SchedulingStrategy;
-
 /**
  * The resource simulation behavior initializes all the available resources on
  * start and will listen to requests for the simulation.
@@ -106,10 +104,10 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 		JobContext<?> jobContext = this.jobContexts.get(spec);
 		if (jobContext == null) {
 			final String policyId = spec.getSchedulingPolicy().getId();
-			if (policyId.equals(SchedulingStrategy.PROCESSOR_SHARING)) {
+			if (policyId.equals("ProcessorSharing")) {
 				jobContext = new ProcessorSharingJobContext(spec.getNumberOfReplicas(), spec,
 				        spec.getResourceContainer_ProcessingResourceSpecification());
-			} else if (policyId.equals(SchedulingStrategy.FCFS)) {
+			} else if (policyId.equals("FCFS")) {
 				jobContext = new FCFSJobContext(spec.getNumberOfReplicas(), spec,
 				        spec.getResourceContainer_ProcessingResourceSpecification());
 			}

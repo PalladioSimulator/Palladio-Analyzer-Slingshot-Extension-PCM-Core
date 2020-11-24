@@ -31,7 +31,7 @@ public class ResourceEnvironmentAccessor {
 		assert resourceEnvironment.getResourceContainer_ResourceEnvironment().contains(container);
 
 		return container.getActiveResourceSpecifications_ResourceContainer().stream()
-		        .filter(spec -> type.getId().equals(spec.getId()))
+		        .filter(spec -> type.getId().equals(spec.getActiveResourceType_ActiveResourceSpecification().getId()))
 		        .findFirst();
 	}
 

@@ -9,6 +9,7 @@ import org.palladiosimulator.pcm.core.composition.AssemblyConnector;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.core.composition.Connector;
 import org.palladiosimulator.pcm.core.composition.ProvidedDelegationConnector;
+import org.palladiosimulator.pcm.core.entity.InterfaceProvidingEntity;
 import org.palladiosimulator.pcm.repository.BasicComponent;
 import org.palladiosimulator.pcm.repository.OperationProvidedRole;
 import org.palladiosimulator.pcm.repository.OperationSignature;
@@ -143,5 +144,19 @@ public class SystemModelRepositoryImpl implements SystemModelRepository {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public InterfaceProvidingEntity findProvidingEntity(final ProvidedRole providedRole) {
+		if (systemModel.getProvidedRoles_InterfaceProvidingEntity().stream().anyMatch(
+		        systemProvidedRole -> systemProvidedRole.getId().equals(providedRole.getId()))) {
+			return systemModel;
+		}
+		return systemModel.getAssemblyContexts__ComposedStructure().stream()
+		        .map(context -> context.getEncapsulatedComponent__AssemblyContext())
+		        .filter(component -> component.getProvidedRoles_InterfaceProvidingEntity().stream()
+		                .anyMatch(role -> role.getId().equals(providedRole.getId())))
+		        .findFirst()
+		        .get(); // TODO
 	}
 }
