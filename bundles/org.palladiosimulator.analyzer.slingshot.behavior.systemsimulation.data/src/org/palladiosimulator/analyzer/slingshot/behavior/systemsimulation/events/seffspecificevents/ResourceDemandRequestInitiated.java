@@ -4,8 +4,9 @@ import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entiti
 import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntityChangedEvent;
 
 /**
- * An event holding the {@link ResourceDemandRequest} entity specifying that the
- * entity has been initialized and is ready for handling.
+ * An event holding the {@link ResourceDemandRequest} entity specifying that a
+ * certain resource should is requested. This typically is fired by a
+ * InternalAction of a SEFF.
  * 
  * @author Julijan Katic
  */

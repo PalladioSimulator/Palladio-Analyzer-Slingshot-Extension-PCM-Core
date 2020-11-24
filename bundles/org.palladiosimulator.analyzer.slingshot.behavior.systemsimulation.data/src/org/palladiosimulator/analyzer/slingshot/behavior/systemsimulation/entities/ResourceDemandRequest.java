@@ -20,8 +20,20 @@ public final class ResourceDemandRequest extends SeffContextHolderEntity {
 	/** The resource to be demanded. */
 	private final ProcessingResourceType requiredResource;
 
+	/** The demand of the request as a random variable. */
 	private final PCMRandomVariable demand;
 
+	/**
+	 * Instantiates the resource demand request with the necessary information.
+	 * 
+	 * @param assemblyContext  The context for which the resource demand is meant.
+	 *                         (super)
+	 * @param user             The user requesting the resource demand. (super)
+	 * @param parameter        The parameter
+	 * @param requiredResource The resource type that is demanded.
+	 * @param specification    The demand of the resource.
+	 * @see SeffContextHolderEntity#SeffContextHolderEntity(AssemblyContext, User)
+	 */
 	public ResourceDemandRequest(final AssemblyContext assemblyContext, final User user,
 	        final ParametricResourceDemand parameter,
 	        final ProcessingResourceType requiredResource,

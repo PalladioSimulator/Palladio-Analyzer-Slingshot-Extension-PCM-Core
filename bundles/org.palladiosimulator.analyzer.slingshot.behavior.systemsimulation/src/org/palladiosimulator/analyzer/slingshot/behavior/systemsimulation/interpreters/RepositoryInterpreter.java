@@ -30,16 +30,52 @@ import org.palladiosimulator.pcm.seff.ServiceEffectSpecification;
 
 import de.uka.ipd.sdq.simucomframework.variables.stackframe.SimulatedStackframe;
 
+/**
+ * The repository interpreter interprets either a repository or the system model
+ * itself. It is based of a Switch which can be used to further iterate the
+ * system. The repository interpreter sometimes needs a system model repository
+ * (accessor) in order to get further information on the system, such as when a
+ * provided role must be accessed.
+ * <p>
+ * This kind of interpreter will always return a set of events (or an empty
+ * set). This interpreter is therefore made for behavior extensions in mind.
+ * 
+ * 
+ * @author Julijan Katic
+ */
 public class RepositoryInterpreter extends RepositorySwitch<Set<SeffInterpretationRequested>> {
 
 	private static final Logger LOGGER = Logger.getLogger(RepositoryInterpreter.class);
 
+	/** The special assembly context to interpret. */
 	private final AssemblyContext assemblyContext;
+
+	/** The provided role from which the interpretation started. */
 	private final ProvidedRole providedRole;
+
+	/** A signature of to find the right RDSeff. */
 	private final Signature signature;
+
+	/** The context onto which to push stack frames for RDSeffs. */
 	private final User user;
+
+	/** The model repository to get more information from the system model. */
 	private final SystemModelRepository modelRepository;
 
+	/**
+	 * Instantiates the interpreter with given information. Depending on the
+	 * interpretation, not every parameter must be set (every parameter CAN be
+	 * null!).
+	 * 
+	 * @param context         The special assembly context to interpret.
+	 * @param signature       A signature to find the right RDSeff.
+	 * @param providedRole    The provided role from which the interpretation
+	 *                        started.
+	 * @param user            The context onto which to push stack frames for
+	 *                        RDSeffs.
+	 * @param modelRepository The model repository to get more information from the
+	 *                        system model.
+	 */
 	public RepositoryInterpreter(final AssemblyContext context, final Signature signature,
 	        final ProvidedRole providedRole, final User user, final SystemModelRepository modelRepository) {
 		this.assemblyContext = context;
@@ -47,10 +83,6 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SeffInterpretati
 		this.providedRole = providedRole;
 		this.user = user;
 		this.modelRepository = modelRepository;
-	}
-
-	public RepositoryInterpreter(final Signature signature, final ProvidedRole providedRole, final User user) {
-		this(null, signature, providedRole, user, null);
 	}
 
 	/**
@@ -88,6 +120,15 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SeffInterpretati
 
 	}
 
+	/**
+	 * Helper method that returns the list of SEFFs that are meant for the
+	 * operationSignature.
+	 * 
+	 * @param serviceEffectSpecifications The (Ecore) list of all seffs.
+	 * @param operationSignature          The signature which a SEFF should
+	 *                                    describe.
+	 * @return List of seffs describing {@code operationSignature}.
+	 */
 	private List<ServiceEffectSpecification> getSeffsForCall(
 	        final EList<ServiceEffectSpecification> serviceEffectSpecifications,
 	        final Signature operationSignature) {
@@ -111,17 +152,27 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SeffInterpretati
 	public Set<SeffInterpretationRequested> caseProvidedRole(final ProvidedRole providedRole) {
 		LOGGER.debug("Accessing provided role: " + providedRole.getId());
 
-		if (providedRole.getProvidingEntity_ProvidedRole() != null) {
-			return this.doSwitch(providedRole.getProvidingEntity_ProvidedRole());
+		/* Sometime the providing entity is not defined and therefore must be
+		 * found by the system model repository to find the right entity. 
+		 */
+		if (providedRole.getProvidingEntity_ProvidedRole() == null) {
+			LOGGER.debug("ProvidedRole does not have the information about its providing entity, find it...");
+			final InterfaceProvidingEntity foundEntity = this.modelRepository.findProvidingEntity(providedRole);
+			providedRole.setProvidingEntity_ProvidedRole(foundEntity);
 		}
 
-		LOGGER.debug("Does not provide the entity, find providing entity..");
-		final InterfaceProvidingEntity foundEntity = this.modelRepository.findProvidingEntity(providedRole);
-		providedRole.setProvidingEntity_ProvidedRole(foundEntity);
-
-		return this.doSwitch(foundEntity);
+		return this.doSwitch(providedRole.getProvidingEntity_ProvidedRole());
 	}
 
+	/**
+	 * The ComposedProvidingRequiringEntity is a special entity (which is typically
+	 * the system itself). It often has inner assembly contexts which is connected
+	 * to this entity with a delegation connector.
+	 * 
+	 * If such assembly context exists, then the (provided) role of that assembly
+	 * context will be interpreted.
+	 * 
+	 */
 	@Override
 	public Set<SeffInterpretationRequested> caseComposedProvidingRequiringEntity(
 	        final ComposedProvidingRequiringEntity entity) {

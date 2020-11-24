@@ -9,20 +9,38 @@ import org.palladiosimulator.pcm.repository.ProvidedRole;
 import org.palladiosimulator.pcm.repository.Signature;
 
 /**
- * This entity is used for having a context for the resource interpreter.
+ * This entity is used for having a context for the resource interpreter. It can
+ * contain all the necessary information for the interpreter so that the
+ * interpretation can be successful. It is, however, important to know that
+ * sometimes not all or every information is needed.
  * 
  * @author Julijan Katic
  */
 public class RepositoryInterpretationContext extends UserContextEntityHolder {
 
+	/**
+	 * A provided role to either be interpreted or to be used as an information to
+	 * find an entity
+	 */
 	private ProvidedRole providedRole;
+
+	/** A signature when it is needed to find a service. */
 	private Signature signature;
+
+	/** The assembly context from which to find another entity connected to this. */
 	private AssemblyContext assemblyContext;
+
+	/** The list of variable input parameters. */
 	private EList<VariableUsage> inputParameters;
 
+	/**
+	 * Instantiates the context holder with a user.
+	 * 
+	 * @param user The user context, typically the context that requested the
+	 *             interpretation.
+	 */
 	public RepositoryInterpretationContext(final User user) {
 		super(user);
-		// TODO Auto-generated constructor stub
 	}
 
 	public ProvidedRole getProvidedRole() {

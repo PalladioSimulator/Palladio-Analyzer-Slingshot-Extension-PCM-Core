@@ -38,7 +38,10 @@ import org.palladiosimulator.pcm.seff.util.SeffSwitch;
  * The interpreter uses a certain {@code Switch} (like the Visitor Pattern) to
  * iterate through the elements in the Seff model and interpret certain model
  * elements.
- * 
+ * <p>
+ * The Seff is typically bound to an assembly context and a certain user that
+ * has the call stack.
+ * <p>
  * It generates new events and returns them on each visit.
  * 
  * @author Julijan Katic
@@ -47,14 +50,32 @@ public class SeffInterpreter extends SeffSwitch<Set<DESEvent>> {
 
 	private static final Logger LOGGER = Logger.getLogger(SeffInterpreter.class);
 
+	/** The user context containing the stack. */
 	private final User userContext;
+
+	/** The assembly context onto which the RDSeff is bound. */
 	private final AssemblyContext assemblyContext;
 
+	/**
+	 * Instantiates the SeffInterpreter with the needed information of user context
+	 * and assembly context entity. These information are needed as the seff always
+	 * works on a certain call stack.
+	 * 
+	 * @param context     The AssemblyContext onto which the Seff specification is
+	 *                    bound.
+	 * @param userContext The user containing the stack.
+	 */
 	public SeffInterpreter(final AssemblyContext context, final User userContext) {
 		this.userContext = userContext;
 		this.assemblyContext = context;
 	}
 
+	/**
+	 * When a StopAction occures, then no further interpretation of this event is
+	 * needed and thus the request has been successfully interpreted.
+	 * 
+	 * @return Set with a single {@link RequestFinished} event.
+	 */
 	@Override
 	public Set<DESEvent> caseStopAction(final StopAction object) {
 		LOGGER.debug("Seff stopped.");
@@ -67,6 +88,12 @@ public class SeffInterpreter extends SeffSwitch<Set<DESEvent>> {
 		return super.caseBranchAction(object);
 	}
 
+	/**
+	 * Always returns {@link SeffInterpretationRequested} with the successor object
+	 * be interpreted next.
+	 * 
+	 * @return Set of single {@link SeffInterpretationRequested}.
+	 */
 	@Override
 	public Set<DESEvent> caseStartAction(final StartAction object) {
 		LOGGER.debug("Found starting action of SEFF");
@@ -92,6 +119,14 @@ public class SeffInterpreter extends SeffSwitch<Set<DESEvent>> {
 		return super.caseForkAction(object);
 	}
 
+	/**
+	 * An external call action requires to find the next SEFF specification onto
+	 * which the spec is called; hence, this method will return a
+	 * {@link RequestInitiated} event to request a new searching and interpretation
+	 * of the SEFF.
+	 * 
+	 * @return Set with a single element {@link RequestInitiated}.
+	 */
 	@Override
 	public Set<DESEvent> caseExternalCallAction(final ExternalCallAction externalCall) {
 		final OperationRequiredRole requiredRole = externalCall.getRole_ExternalService();
@@ -122,6 +157,11 @@ public class SeffInterpreter extends SeffSwitch<Set<DESEvent>> {
 		return super.caseSetVariableAction(object);
 	}
 
+	/**
+	 * An internal action demands certain resources and hence, a
+	 * {@link ResourceDemandRequestInitiated} will be returned for each demand
+	 * specified.
+	 */
 	@Override
 	public Set<DESEvent> caseInternalAction(final InternalAction internalAction) {
 		LOGGER.debug("Found internal action");

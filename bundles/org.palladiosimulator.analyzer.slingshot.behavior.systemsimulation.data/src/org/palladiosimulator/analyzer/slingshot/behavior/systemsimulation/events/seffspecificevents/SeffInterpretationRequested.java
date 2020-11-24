@@ -6,6 +6,12 @@ import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntity
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 
+/**
+ * Notifies the interpreter that an interpretation should be done in a SEFF. See
+ * the entity for more details.
+ * 
+ * @author Julijan Katic
+ */
 public class SeffInterpretationRequested extends AbstractEntityChangedEvent<SeffInterpretationEntity>
         implements SeffInterpretationEvent {
 

@@ -89,8 +89,6 @@ public class SystemSimulationBehavior implements SimulationBehaviorExtension {
 		        context.getSignature(), context.getProvidedRole(), context.getUser(), this.systemRepository);
 		final Set<SeffInterpretationRequested> appearedEvents = interpreter.doSwitch(context.getProvidedRole());
 
-//		this.systemRepository.getSeffFromProvidedRole(role, signature)
-
 		return ResultEvent.of(appearedEvents);
 	}
 

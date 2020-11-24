@@ -1,7 +1,10 @@
 package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation;
 
+import static org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventCardinality.SINGLE;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -15,12 +18,10 @@ import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.even
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.ActiveResourceRequested;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobInitiated;
-import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobProgressed;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.repository.ResourceEnvironmentAccessor;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
-import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventCardinality;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.OnEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
 import org.palladiosimulator.pcm.allocation.Allocation;
@@ -36,9 +37,8 @@ import com.google.common.eventbus.Subscribe;
  * @author Julijan Katic
  */
 @OnEvent(when = SimulationStarted.class, then = {})
-@OnEvent(when = JobProgressed.class, then = DESEvent.class, cardinality = EventCardinality.MANY)
-@OnEvent(when = JobFinished.class, then = DESEvent.class, cardinality = EventCardinality.MANY)
-@OnEvent(when = JobInitiated.class, then = DESEvent.class, cardinality = EventCardinality.MANY)
+@OnEvent(when = ActiveResourceRequested.class, then = { JobInitiated.class,
+        ActiveResourceFinished.class }, cardinality = SINGLE)
 public class ResourceSimulation implements SimulationBehaviorExtension {
 
 	private final Logger LOGGER = Logger.getLogger(ResourceSimulation.class);
@@ -46,6 +46,10 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 	private final Allocation allocation;
 	private final ResourceEnvironmentAccessor resourceEnvironmentAccessor;
 
+	/**
+	 * Holds the context for each specification, as each processor works
+	 * differently.
+	 */
 	private final Map<ProcessingResourceSpecification, JobContext<?>> jobContexts = new HashMap<>();
 
 	@Inject
@@ -55,7 +59,8 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 	}
 
 	/**
-	 * Initializes the resources from the resource environment model.
+	 * Initializes the resources from the resource environment model. Will always
+	 * return no events.
 	 */
 	@Subscribe
 	public ResultEvent<DESEvent> onSimulationStarted(final SimulationStarted evt) {
@@ -65,6 +70,10 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 	/**
 	 * Handles the request of a new job by looking at the resource environment,
 	 * finding the right resource container and starting the processing of the job.
+	 * <p>
+	 * If the right resource container and specification can be found, and if the
+	 * scheduling policy exists, then a {@link JobInitiated} event will be returned.
+	 * Otherwise, {@link ActiveResourceFinished} will be directly returned.
 	 */
 	@Subscribe
 	public ResultEvent<DESEvent> onActiveResourceRequested(final ActiveResourceRequested activeResourceRequested) {
@@ -74,19 +83,25 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 		final ProcessingResourceSpecification prs = this.resourceEnvironmentAccessor
 		        .findResourceSpecification(resourceContainer, jobRequested.getResourceType()).get();
 
-		final JobContext<?> jobContext = this.getJobContext(prs);
-		final Job job = new Job(jobRequested.getDemand(), prs.getActiveResourceType_ActiveResourceSpecification(),
-		        jobRequested);
+		final Optional<JobContext<?>> jobContextOptional = this.getJobContext(prs);
 
-		return ResultEvent.of(new JobInitiated(jobContext, job, 0));
+		if (jobContextOptional.isPresent()) {
+			final JobContext<?> jobContext = jobContextOptional.get();
+			final Job job = new Job(jobRequested.getDemand(), prs.getActiveResourceType_ActiveResourceSpecification(),
+			        jobRequested);
+
+			return ResultEvent.of(new JobInitiated(jobContext, job, 0));
+		} else {
+			return ResultEvent.of(new ActiveResourceFinished(jobRequested, 0));
+		}
+
 	}
 
 	/**
 	 * This event handler will give a global response event that the certain request
 	 * is finished.
 	 * 
-	 * @param evt
-	 * @return
+	 * @return Set containing {@link ActiveResourceFinished}.
 	 */
 	@Subscribe
 	public ResultEvent<DESEvent> onJobFinished(final JobFinished evt) {
@@ -97,10 +112,13 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 	 * Returns the corresponding JobContext instance for the right active resource.
 	 * 
 	 * @param spec The specification containing the scheduling policy.
-	 * @return A non-null instance of the job context for the according Scheduling
-	 *         Policy.
+	 * @return An instance of the job context for the right Scheduling Policy if
+	 *         such a scheduling policy exists. Otherwise empty optional.
 	 */
-	private JobContext<?> getJobContext(final ProcessingResourceSpecification spec) {
+	private Optional<JobContext<?>> getJobContext(final ProcessingResourceSpecification spec) {
+		/*
+		 * TODO: Find a better way of initializing such contexts.
+		 */
 		JobContext<?> jobContext = this.jobContexts.get(spec);
 		if (jobContext == null) {
 			final String policyId = spec.getSchedulingPolicy().getId();
@@ -113,6 +131,10 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 			}
 		}
 
-		return jobContext;
+		if (jobContext != null) {
+			this.jobContexts.put(spec, jobContext);
+		}
+
+		return Optional.ofNullable(jobContext);
 	}
 }

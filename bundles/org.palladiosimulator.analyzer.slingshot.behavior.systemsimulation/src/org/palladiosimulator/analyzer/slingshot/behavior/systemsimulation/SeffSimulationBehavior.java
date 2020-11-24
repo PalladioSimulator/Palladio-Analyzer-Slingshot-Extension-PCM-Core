@@ -32,6 +32,11 @@ public class SeffSimulationBehavior implements SimulationBehaviorExtension {
 
 	private final Logger LOGGER = Logger.getLogger(SeffSimulationBehavior.class);
 
+	/**
+	 * This listens to the event that requests of a interpretation of a SEFF. This
+	 * will return the events resulting from the interpretation which is specified
+	 * in {@link SeffInterpreter}.
+	 */
 	@Subscribe
 	public ResultEvent<?> onSeffInterpretationStarted(final SeffInterpretationRequested event) {
 		final SeffInterpreter seffInterpreter = new SeffInterpreter(event.getEntity().getAssemblyContext(),

@@ -4,7 +4,7 @@ import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 
 /**
  * An interface to give an upper bound specifically for seff interpretation
- * events. It does not extend {@link DESEvent} in any functionality.
+ * events. It does not extend {@link DESEvent} with any new functionality.
  * 
  * @author Julijan Katic
  */
