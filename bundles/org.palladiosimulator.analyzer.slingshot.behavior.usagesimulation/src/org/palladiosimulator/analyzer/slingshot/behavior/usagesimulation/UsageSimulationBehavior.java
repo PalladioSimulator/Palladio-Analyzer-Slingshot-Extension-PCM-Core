@@ -25,6 +25,7 @@ import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventCardinality;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.OnEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
+import org.palladiosimulator.pcm.core.PCMRandomVariable;
 import org.palladiosimulator.pcm.parameter.VariableUsage;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.ClosedWorkload;
@@ -37,11 +38,16 @@ import com.google.inject.Inject;
 
 import de.uka.ipd.sdq.probfunction.math.IProbabilityFunctionFactory;
 import de.uka.ipd.sdq.probfunction.math.impl.ProbabilityFunctionFactoryImpl;
+import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 import de.uka.ipd.sdq.simucomframework.variables.cache.StoExCache;
 
+/**
+ * This behavior handles the events for the usage simulation.
+ * 
+ * @author Julijan Katic
+ */
 @OnEvent(when = SimulationStarted.class, then = { UserRequestInitiated.class, UserFinished.class, UserStarted.class,
         UserSlept.class, UserWokeUp.class }, cardinality = EventCardinality.MANY)
-//@OnEvent(eventType = UserStarted.class, outputEventType = UserFinished.class, cardinality = EventCardinality.SINGLE)
 @OnEvent(when = UserFinished.class, then = DESEvent.class, cardinality = EventCardinality.MANY)
 @OnEvent(when = UserWokeUp.class, then = DESEvent.class, cardinality = EventCardinality.MANY)
 @OnEvent(when = UserRequestFinished.class, then = DESEvent.class, cardinality = EventCardinality.MANY)
@@ -74,16 +80,20 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 
 		/* Initialize ProbFunction and StoExCache, otherwise StackContext won't work */
 		final IProbabilityFunctionFactory probabilityFunctionFactory = ProbabilityFunctionFactoryImpl.getInstance();
-		// probabilityFunctionFactory.setRandomGenerator();
 		StoExCache.initialiseStoExCache(probabilityFunctionFactory);
 
 		final UsageScenario usageScenario = usageInterpretationContext.getUsageScenario();
 		final AbstractUserAction firstAction = usageModelRepository.findFirstActionOf(usageScenario);
 
+		/*
+		 * Depending on the user workload, a certain allocation should be done.
+		 */
 		if (usageInterpretationContext.isClosedWorkload()) {
 			final ClosedWorkload workloadSpec = (ClosedWorkload) usageInterpretationContext.getWorkload();
+			final PCMRandomVariable thinkTimeRV = workloadSpec.getThinkTime_ClosedWorkload();
 
 			for (int i = 0; i < workloadSpec.getPopulation(); i++) {
+				/* TODO: Implement thinktime */
 				final UsageScenarioInterpreter<Object> interpreter = new UsageScenarioInterpreter<>(new User(),
 				        new UserInterpretationContext(usageScenario, firstAction));
 				interpreter.continueInterpretation();
@@ -92,7 +102,15 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 
 		} else if (usageInterpretationContext.isOpenWorkload()) {
 			final OpenWorkload workloadSpec = (OpenWorkload) usageInterpretationContext.getWorkload();
-			// TODO: Open Workload
+			final PCMRandomVariable interArrivalRV = workloadSpec.getInterArrivalTime_OpenWorkload();
+			final int interArrival = StackContext.evaluateStatic(interArrivalRV.getSpecification(), Integer.class);
+
+			for (int i = 0; i < interArrival; i++) {
+				final UsageScenarioInterpreter<Object> interpreter = new UsageScenarioInterpreter<>(new User(),
+				        new UserInterpretationContext(usageScenario, firstAction));
+				interpreter.continueInterpretation();
+				returnedEvents.addAll(interpreter.getSideEffectEvents());
+			}
 		}
 
 		return ResultEvent.ofAll(returnedEvents);

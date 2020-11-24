@@ -33,14 +33,31 @@ import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 /*
  * TODO: Find better way to incorporate Events with Switch interpreters.
  */
+/**
+ * The usage scenario interpreter interprets a single usage scenario. In order
+ * for it to work, it needs the user instance and the user context.
+ * 
+ * @author Julijan Katic
+ */
 public class UsageScenarioInterpreter<T> extends UsagemodelSwitch<T> {
 
 	private final Logger LOGGER = Logger.getLogger(UsageScenarioInterpreter.class);
 
+	/** The set of events that occurred during interpretation. */
 	private final Set<DESEvent> sideEffectEvents;
+
+	/** The context from which the user needs to be interpreted. */
 	private final UserInterpretationContext userContext;
+
+	/** The user itself. */
 	private final User user;
 
+	/**
+	 * Instantiates the UsageScenarioInterpreter.
+	 * 
+	 * @param user        The user using the system.
+	 * @param userContext The context of the user holding further information.
+	 */
 	public UsageScenarioInterpreter(final User user, final UserInterpretationContext userContext) {
 		super();
 
@@ -105,6 +122,9 @@ public class UsageScenarioInterpreter<T> extends UsagemodelSwitch<T> {
 		return super.caseAbstractUserAction(object);
 	}
 
+	/**
+	 * Interpret every action of the user scenario.
+	 */
 	@Override
 	public T caseScenarioBehaviour(final ScenarioBehaviour object) {
 		// interpret start user action
