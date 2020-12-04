@@ -17,7 +17,8 @@ import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.UserEntryRequested;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.seffspecificevents.SeffInterpretationRequested;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.interpreters.RepositoryInterpreter;
-import org.palladiosimulator.analyzer.slingshot.repositories.SystemModelRepository;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.repository.SystemModelRepository;
+import org.palladiosimulator.analyzer.slingshot.common.utils.SimulatedStackHelper;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.OnEvent;
@@ -66,6 +67,9 @@ public class SystemSimulationBehavior implements SimulationBehaviorExtension {
 	@Subscribe
 	public ResultEvent<DESEvent> onUserEnterRequest(final UserEntryRequested userEntryRequested) {
 		final UserEntryRequest entryRequest = userEntryRequested.getEntity();
+
+		SimulatedStackHelper.createAndPushNewStackFrame(entryRequest.getUser().getStack(), entryRequest.getVariableUsages(),
+		        entryRequest.getUser().getStack().currentStackFrame());
 
 		final RepositoryInterpretationContext repositoryContext = new RepositoryInterpretationContext(
 		        entryRequest.getUser());

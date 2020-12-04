@@ -39,7 +39,7 @@ public class ModelLoadingJob implements IBlackboardInteractingJob<Blackboard<Obj
 	public void execute(final IProgressMonitor monitor) throws JobFailedException, UserCanceledException {
 		LOGGER.info("*************** Loading Modules / Model Containers *****************");
 
-		final ModelModule moduleContainer = ModelModule.getInstance();
+		final ModelModule moduleContainer = new ModelModule();
 
 		moduleContainer.getModelContainer().addModule(new AbstractModule() {
 			@Override

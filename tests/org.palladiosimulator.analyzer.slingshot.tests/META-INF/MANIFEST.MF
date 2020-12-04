@@ -14,3 +14,9 @@ Require-Bundle: org.junit;bundle-version="4.12.0",
  net.bytebuddy.byte-buddy;bundle-version="1.9.0",
  org.objenesis;bundle-version="2.6.0",
  org.palladiosimulator.analyzer.slingshot.module.models;bundle-version="1.0.0"
+Export-Package: org.palladiosimulator.analyzer.slingshot.helper,
+ org.palladiosimulator.analyzer.slingshot.repositories.impl,
+ org.palladiosimulator.analyzer.slingshot.simulation.core,
+ org.palladiosimulator.analyzer.slingshot.simulation.core.events,
+ org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral
+Import-Package: org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.repositories

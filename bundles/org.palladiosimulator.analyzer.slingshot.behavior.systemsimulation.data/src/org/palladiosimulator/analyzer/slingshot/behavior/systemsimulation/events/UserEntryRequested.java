@@ -5,6 +5,8 @@ import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntity
 
 /**
  * Notifies the system that a user wants to call a system's provided service.
+ * This typically comes from the outside, especially when a user makes a
+ * EntrySystemCall action.
  * 
  * @author Julijan Katic
  */

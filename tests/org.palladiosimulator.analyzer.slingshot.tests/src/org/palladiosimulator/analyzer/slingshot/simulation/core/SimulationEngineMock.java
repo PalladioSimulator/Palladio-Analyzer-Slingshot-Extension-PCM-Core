@@ -33,11 +33,6 @@ public class SimulationEngineMock implements SimulationEngine {
 	}
 
 	@Override
-	public EventBus getEventDispatcher() {
-		return eventBus;
-	}
-
-	@Override
 	public void scheduleEvent(final DESEvent event) {
 		futureEventList.add(event);
 		LOGGER.info(EventPrettyLogPrinter.prettyPrint(event, "Received Event and added to FEL", "Simulation Engine"));
@@ -63,7 +58,7 @@ public class SimulationEngineMock implements SimulationEngine {
 		}
 
 		LOGGER.info(
-				"********** SimulationEngineMock.start ---  finished due to empty FEL or Stopping Condition*********");
+		        "********** SimulationEngineMock.start ---  finished due to empty FEL or Stopping Condition*********");
 	}
 
 	@Override
@@ -82,6 +77,11 @@ public class SimulationEngineMock implements SimulationEngine {
 	@Override
 	public boolean hasScheduledEvents() {
 		return !futureEventList.isEmpty();
+	}
+
+	@Override
+	public void registerEventListener(final Object eventListener) {
+		this.eventBus.register(eventListener);
 	}
 
 }

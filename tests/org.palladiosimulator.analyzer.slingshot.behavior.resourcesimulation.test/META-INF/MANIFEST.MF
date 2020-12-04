@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ResourceSimulationTest
+Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.test
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: org.palladiosimulator
+Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.test
+Bundle-RequiredExecutionEnvironment: JavaSE-11

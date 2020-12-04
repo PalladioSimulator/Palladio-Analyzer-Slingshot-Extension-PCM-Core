@@ -14,5 +14,6 @@ Require-Bundle: org.palladiosimulator.analyzer.slingshot;bundle-version="1.0.0",
  de.uka.ipd.sdq.simucomframework.variables;bundle-version="4.3.0",
  de.uka.ipd.sdq.simucomframework,
  de.uka.ipd.sdq.probfunction.math,
- org.palladiosimulator.analyzer.slingshot.common.utils
+ org.palladiosimulator.analyzer.slingshot.common.utils,
+ com.google.guava;bundle-version="27.1.0"
 Import-Package: com.google.common.eventbus;version="21.0.0"

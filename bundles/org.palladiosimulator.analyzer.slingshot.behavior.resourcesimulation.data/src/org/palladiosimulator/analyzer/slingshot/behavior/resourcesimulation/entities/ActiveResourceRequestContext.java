@@ -45,10 +45,20 @@ public class ActiveResourceRequestContext {
 		return demand;
 	}
 
+	/**
+	 * Returns whether the resource is a processing resource.
+	 * 
+	 * @return true iff the resource is a {@code ProcessingResourceType}.
+	 */
 	public boolean isProcessingResource() {
 		return this.resourceType instanceof ProcessingResourceType;
 	}
 
+	/**
+	 * Returns whether the resource is a communication resource.
+	 * 
+	 * @return true iff the resource is a {@code CommunicationLinkResource}.
+	 */
 	public boolean isCommunicationLinkResourceType() {
 		return this.resourceType instanceof CommunicationLinkResourceType;
 	}

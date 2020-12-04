@@ -8,15 +8,19 @@ import org.palladiosimulator.analyzer.slingshot.util.extensionpoint.ExtensionIns
 
 import com.google.inject.Injector;
 
-public class BehaviorContainer implements ExtensionInstancesContainer<SimulationBehaviorExtension> {
-
-	private static BehaviorContainer INSTANCE = null;
+/**
+ * This class is the container for the {@code SimulationBehaviorExtension}s. It
+ * is responsible for injecting the modules and loading all necessary providers.
+ * 
+ * @author Julijan Katic
+ */
+public final class BehaviorContainer implements ExtensionInstancesContainer<SimulationBehaviorExtension> {
 
 	private final SimulationBehaviorExtensionLoader loader;
 	private List<Class<? extends SimulationBehaviorExtension>> clazzExtensions = null;
 	private final List<SimulationBehaviorExtension> extensions;
 
-	private BehaviorContainer() {
+	public BehaviorContainer() {
 		this.loader = new SimulationBehaviorExtensionLoader();
 		this.extensions = new ArrayList<>();
 	}
@@ -36,11 +40,4 @@ public class BehaviorContainer implements ExtensionInstancesContainer<Simulation
 		return Collections.unmodifiableList(extensions);
 	}
 
-	public static BehaviorContainer getInstance() {
-		if (INSTANCE == null) {
-			INSTANCE = new BehaviorContainer();
-		}
-
-		return INSTANCE;
-	}
 }

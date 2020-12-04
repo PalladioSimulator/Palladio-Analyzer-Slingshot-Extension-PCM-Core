@@ -25,32 +25,18 @@ public class SimulationJob implements IBlackboardInteractingJob<Blackboard<Objec
 
 	private Blackboard<Object> blackboard;
 
-	// private final Path usageModelPath;
-	// private final Path allocationModelPath;
-	// private final PCMFileLoader pcmFileLoader;
-
 	private ModelModule modelModule;
 
-//	public SimulationJob(final PCMFileLoader pcmFileLoader, final Path usageModelPath, final Path allocationModelPath) {
-//		this.usageModelPath = usageModelPath;
-//		this.pcmFileLoader = pcmFileLoader;
-//		this.allocationModelPath = allocationModelPath;
-//	}
+	private Simulation simulation;
 
 	@Override
 	public void execute(final IProgressMonitor monitor) throws JobFailedException, UserCanceledException {
 		LOGGER.info("**** SimulationJob.execute ****");
 
-		// final UsageModel usageModel = PCMFileLoader.load(usageModelPath);
-		// final Allocation allocation = PCMFileLoader.load(allocationModelPath);
-		// final SimulationModel model =
-		// SimulationFactory.createSimulizarSimulationModel(usageModel, allocation);
-		Simulation simulation;
 		modelModule = (ModelModule) blackboard.getPartition("MODULE");
 
 		try {
 			simulation = SimulationFactory.createSimulation();
-			// simulation.init(model);
 			simulation.init(modelModule);
 			simulation.startSimulation();
 		} catch (final Exception e) {
@@ -62,11 +48,7 @@ public class SimulationJob implements IBlackboardInteractingJob<Blackboard<Objec
 
 	@Override
 	public void cleanup(final IProgressMonitor monitor) throws CleanupFailedException {
-		/**
-		 * 
-		 * nothing to do here
-		 * 
-		 */
+		simulation.stopSimulation();
 	}
 
 	@Override

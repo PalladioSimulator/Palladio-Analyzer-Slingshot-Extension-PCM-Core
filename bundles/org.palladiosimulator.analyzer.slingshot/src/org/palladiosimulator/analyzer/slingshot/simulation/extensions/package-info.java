@@ -11,12 +11,5 @@
  * part.
  * </p>
  * 
- * <p>
- * <strong>Model</strong>. TODO: The model extension point. This extension point
- * will give possibilities to define further models that are needed for the
- * simulation. Right now, only the usage model and allocation model are
- * supported (See {@link SimulationModel}).
- * </p>
- * 
  */
 package org.palladiosimulator.analyzer.slingshot.simulation.extensions;

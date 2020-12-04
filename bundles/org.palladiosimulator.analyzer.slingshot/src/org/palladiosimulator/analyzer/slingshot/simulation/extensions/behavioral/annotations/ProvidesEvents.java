@@ -20,6 +20,6 @@ import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 public @interface ProvidesEvents {
 
 	/** The classes that are allowed to be passed onto the set. */
-	public Class<? extends DESEvent>[] value();
+	Class<? extends DESEvent>[] value();
 
 }

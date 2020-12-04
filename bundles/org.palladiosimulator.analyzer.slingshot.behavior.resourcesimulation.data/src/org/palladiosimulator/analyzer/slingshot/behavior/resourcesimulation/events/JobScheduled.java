@@ -3,6 +3,11 @@ package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.eve
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.jobs.Job;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntityChangedEvent;
 
+/**
+ * Specifies that the job has been scheduled for work.
+ * 
+ * @author Julijan Katic
+ */
 public class JobScheduled extends AbstractEntityChangedEvent<Job> {
 
 	public JobScheduled(final Job entity, final double delay) {

@@ -12,3 +12,4 @@ Require-Bundle: org.apache.log4j,
  org.palladiosimulator.pcm,
  de.uka.ipd.sdq.stoex.analyser;bundle-version="4.3.0"
 Export-Package: org.palladiosimulator.analyzer.slingshot.common.utils
+Import-Package: com.google.common.base

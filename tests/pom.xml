@@ -16,20 +16,9 @@
         <module>org.palladiosimulator.analyzer.slingshot.module.model.test</module>
         <module>org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.test</module>
 		<module>com.google.testing.compile</module>
-	</modules>
-    
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.eclipse.tycho</groupId>
-                <artifactId>tycho-compiler-plugin</artifactId>
-                <configuration>
-                    <annotationProcessors>
-                        <annotationProcessor></annotationProcessor>
-                    </annotationProcessors>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+        <module>org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.test</module>
+        <module>org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.test</module>
+        <module>org.palladiosimulator.analyzer.slingshot.behavior.behaviorsimulation.test</module>
+  </modules>
 	
 </project>

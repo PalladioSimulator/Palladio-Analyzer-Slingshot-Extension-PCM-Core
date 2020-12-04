@@ -43,7 +43,7 @@ public class SimulationBehaviorExtensionTest {
 		engine = new SimulationEngineMock();
 		simulation = new SimulationDriver(engine, new SimpleContainer());
 
-		final ModelModule modelModule = ModelModule.getInstance();
+		final ModelModule modelModule = new ModelModule();
 
 		modelModule.getModelContainer().addModule(new LambdaModule(actualEventClazzes -> {
 			final List<Class<?>> expectedEvents = List.of(SimulationStarted.class, SampleEventA.class,

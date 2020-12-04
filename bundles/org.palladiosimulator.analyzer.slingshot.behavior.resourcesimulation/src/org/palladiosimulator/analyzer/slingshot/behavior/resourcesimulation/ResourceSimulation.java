@@ -19,6 +19,7 @@ import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.even
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.repository.ResourceEnvironmentAccessor;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
@@ -39,6 +40,8 @@ import com.google.common.eventbus.Subscribe;
 @OnEvent(when = SimulationStarted.class, then = {})
 @OnEvent(when = ActiveResourceRequested.class, then = { JobInitiated.class,
         ActiveResourceFinished.class }, cardinality = SINGLE)
+@OnEvent(when = SimulationFinished.class, then = {})
+@OnEvent(when = JobFinished.class, then = ActiveResourceFinished.class, cardinality = SINGLE)
 public class ResourceSimulation implements SimulationBehaviorExtension {
 
 	private final Logger LOGGER = Logger.getLogger(ResourceSimulation.class);
@@ -136,5 +139,16 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 		}
 
 		return Optional.ofNullable(jobContext);
+	}
+
+	/**
+	 * Clears the contexts as soon as the simulation has finished.
+	 * 
+	 * @return an empty set.
+	 */
+	@Subscribe
+	public ResultEvent<?> onSimulationFinished(final SimulationFinished simulationFinished) {
+		jobContexts.clear();
+		return ResultEvent.empty();
 	}
 }

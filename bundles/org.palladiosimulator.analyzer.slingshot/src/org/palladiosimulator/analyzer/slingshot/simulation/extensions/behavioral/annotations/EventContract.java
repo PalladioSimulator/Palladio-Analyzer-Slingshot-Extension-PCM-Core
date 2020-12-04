@@ -39,6 +39,6 @@ public @interface EventContract {
 	/**
 	 * The number specifying that the events can be published infinitely many times.
 	 */
-	public static final int PUBLISH_INFINITY = 0;
+	int PUBLISH_INFINITY = 0;
 
 }

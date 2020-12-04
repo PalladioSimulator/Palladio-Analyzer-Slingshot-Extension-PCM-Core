@@ -13,11 +13,9 @@ import org.palladiosimulator.pcm.usagemodel.UsageModel;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
 public class UsageModelTestHelper extends AbstractModelTestHelper {
-	
-	
+
 	public static UsageModel createUsageModelFromFile(final Path filePath) {
-		final PCMFileLoader loader = new PCMFileLoader();
-		final UsageModel usageModel = loader.load(filePath);
+		final UsageModel usageModel = PCMFileLoader.load(filePath);
 		return usageModel;
 	}
 

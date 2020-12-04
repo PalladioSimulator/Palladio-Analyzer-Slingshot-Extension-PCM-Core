@@ -52,7 +52,20 @@ public interface SimulationEngine {
 	boolean hasScheduledEvents();
 
 	/**
-	 * Returns the event bus.
+	 * Registers the event listener object.
+	 * 
+	 * @param eventListener The object containing different event listeners.
 	 */
-	EventBus getEventDispatcher();
+	void registerEventListener(Object eventListener);
+
+	/**
+	 * Sets the exception handler for this engine. Everytime an exception is thrown
+	 * while processing an event, the handler will be called. If the handler returns
+	 * a {@code null} event, then no event will be posted. Otherwise the event
+	 * returned will be posted.
+	 * 
+	 * @param handler An exception handler for this engine.
+	 */
+	default void loadEventExceptionHandler(final SimulationEventExceptionHandler handler) {
+	}
 }

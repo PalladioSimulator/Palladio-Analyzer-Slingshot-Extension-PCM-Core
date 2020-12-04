@@ -9,7 +9,7 @@ package org.palladiosimulator.analyzer.slingshot.simulation.extensions.behaviora
  * 
  * @author Julijan Katic
  */
-public class ContractResult {
+public final class ContractResult {
 
 	/** The default message when the contract was successful. */
 	public static final String DEFAULT_SUCCESS_MESSAGE = "Contract Check Successful";

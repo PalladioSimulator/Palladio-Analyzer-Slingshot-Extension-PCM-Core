@@ -24,21 +24,21 @@
          unpack="false"/>
 
    <plugin
-         id="org.palladiosimulator.analyzer.slingshot.behavior.usagemodel"
+         id="org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.palladiosimulator.analyzer.slingshot.behaviour.resourcesimulation"
+         id="org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation"
+         id="org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation"
          download-size="0"
          install-size="0"
          version="0.0.0"

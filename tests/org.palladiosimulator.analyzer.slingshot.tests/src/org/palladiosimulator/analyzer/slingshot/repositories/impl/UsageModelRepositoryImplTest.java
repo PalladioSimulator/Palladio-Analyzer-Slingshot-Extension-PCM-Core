@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.repositories.UsageModelRepositoryImpl;
 import org.palladiosimulator.analyzer.slingshot.helper.TestHelperConstants;
 import org.palladiosimulator.analyzer.slingshot.helper.UsageModelTestHelper;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;

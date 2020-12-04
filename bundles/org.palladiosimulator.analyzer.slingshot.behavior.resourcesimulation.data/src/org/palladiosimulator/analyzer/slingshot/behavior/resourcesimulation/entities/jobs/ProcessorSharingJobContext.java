@@ -38,7 +38,7 @@ public class ProcessorSharingJobContext extends JobContext<SortedSet<Job>> {
 		}
 
 		this.updateSimulationTime(simulationTime);
-		return this.getRunningProcesses().first();
+		return this.getNextPlannedEvent();
 	}
 
 	@Override
@@ -47,6 +47,9 @@ public class ProcessorSharingJobContext extends JobContext<SortedSet<Job>> {
 	}
 
 	public Job getNextPlannedEvent() {
+		if (this.getRunningProcesses().isEmpty()) {
+			return null;
+		}
 		return this.getRunningProcesses().first();
 	}
 

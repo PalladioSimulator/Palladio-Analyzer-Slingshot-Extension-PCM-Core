@@ -18,6 +18,8 @@ import javassist.util.proxy.MethodHandler;
  */
 public class ExtensionMethodHandlerWithInterceptors implements MethodHandler, MethodInterceptor {
 
+	private static final Logger LOGGER = Logger.getLogger(ExtensionMethodHandlerWithInterceptors.class);
+
 	/**
 	 * an ordered list of interceptors where for each preIntercept will be invoked
 	 * before the intercepted method and postIntercept after the execution of the
@@ -25,18 +27,16 @@ public class ExtensionMethodHandlerWithInterceptors implements MethodHandler, Me
 	 */
 	private final List<Interceptor> myInterceptors;
 
-	private final Logger LOGGER = Logger.getLogger(ExtensionMethodHandlerWithInterceptors.class);
-
 	public ExtensionMethodHandlerWithInterceptors(final List<Interceptor> interceptors) {
 		myInterceptors = interceptors;
 	}
 
 	@Override
 	public Object invoke(final Object extension, final Method method, final Method proceed, final Object[] args)
-			throws Throwable {
+	        throws Throwable {
 
 		LOGGER.info(String.format("+++ Intercepting the extension method: %s#%s +++",
-				extension.getClass().getSimpleName(), method.getName()));
+		        extension.getClass().getSimpleName(), method.getName()));
 
 		for (final Interceptor interceptor : myInterceptors) {
 			interceptor.preIntercept(extension, method, args);

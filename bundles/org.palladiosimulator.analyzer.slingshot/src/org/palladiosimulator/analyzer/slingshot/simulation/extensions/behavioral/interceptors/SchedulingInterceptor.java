@@ -16,9 +16,9 @@ import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral
  */
 public class SchedulingInterceptor extends AbstractInterceptor {
 
-	private final SimulationScheduling scheduling;
+	private static final Logger LOGGER = Logger.getLogger(SchedulingInterceptor.class);
 
-	private final Logger LOGGER = Logger.getLogger(SchedulingInterceptor.class);
+	private final SimulationScheduling scheduling;
 
 	public SchedulingInterceptor(final SimulationScheduling scheduling) {
 		this.scheduling = scheduling;

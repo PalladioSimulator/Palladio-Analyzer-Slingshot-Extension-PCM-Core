@@ -55,39 +55,8 @@ public class FCFSResource implements IResourceHandler, SimulationBehaviorExtensi
 		final Job newJob = evt.getAddedJob();
 		jobContext.addJob(newJob);
 
-		// add demand to the resource
-		// new ProcessingStarted
-		// it is the the one that arrived now
-//		if (jobContext.getCurrentJobCount() == 1) {
-//			LOGGER.info("[User Arrival]: Single user -> we need to schedule the getNextEvent");
-//			return ResultEvent.of(new JobProgressed(jobContext, 0), new JobFinished(newJob, newJob.getDemand()));
-//		} else {
-//			LOGGER.info("[User Arrival]: Multiple users exist -> wait in queue");
-//			return ResultEvent.of(new JobProgressed(jobContext, 0));
-//		}
-
 		return ResultEvent.of(new JobProgressed(jobContext, 0));
 	}
-
-//	@Override
-//	public ResultEvent<DESEvent> onJobFinished(final JobFinished evt) {
-//		// the state of the resource has not changed until this point in time.
-//		toNow(evt.time());
-//		LOGGER.info(String.format("[Processing Finished]: User requests finished at '%f'", evt.time()));
-//
-//		final Job job = evt.getEntity();
-//
-//		assert MathTools.equalsDouble(0, runningProcesses.get(job)) : "Remaining demand (" + runningProcesses.get(job)
-//		        + ") not zero!";
-//
-//		runningProcesses.remove(job);
-//		processQ.remove(job);
-//
-//		// final RequestFinished userFinished = null; // TODO: new
-//		// RequestFinished(job.getRequest());
-//
-//		return ResultEvent.of(getNextEvent());
-//	}
 
 	/**
 	 * This event handler will look at the current job (in FCFS) and directly return
@@ -110,12 +79,19 @@ public class FCFSResource implements IResourceHandler, SimulationBehaviorExtensi
 		}
 
 		if (jobContext.hasJobsLeft()) {
-			events.add(new JobProgressed(jobContext, 0, evt.getExpectedResourceState()));
+			events.add(new JobProgressed(jobContext, 0));
 		}
 
 		return ResultEvent.of(events);
 	}
 
+	/**
+	 * Helper method that checks whether the job event is meant for the FCFS
+	 * resource.
+	 * 
+	 * @param jobEvent The event containing the job context.
+	 * @return true iff the event is meant for the FCFS resource.
+	 */
 	private boolean isMeantForFCFS(final AbstractJobEvent jobEvent) {
 		return jobEvent.getEntity() instanceof FCFSJobContext;
 	}

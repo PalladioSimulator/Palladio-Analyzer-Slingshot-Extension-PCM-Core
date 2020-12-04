@@ -14,27 +14,20 @@ public class ModelModule {
 	public static final String EXTENSION_POINT_ID = "org.palladiosimulator.analyzer.slingshot.extensionpoint.model";
 	public static final String EXECUTABLE_TAG = "baseClass";
 
-	private static ModelModule INSTANCE = null;
+	private Injector injector;
+	private final ModelLoader modelLoader;
+	private final ModelContainer modelContainer;
 
-	private /*@ spec_public nullable @*/ Injector injector;
-	private /*@ spec_public @*/ final ModelLoader modelLoader;
-	private /*@ spec_public @*/ final ModelContainer modelContainer;
-
-	private ModelModule() {
+	public ModelModule() {
 		modelLoader = new ModelLoader();
 		modelContainer = new ModelContainer();
 	}
 
-	/*@
-	  @     requires injector == null;
-	  @     assignable injector;
-	  @     ensures injector != null;
-	  @     ensures \result == injector;
-	  @ also
-	  @     requires injector != null;
-	  @     assignable \nothing;
-	  @     ensures \result == injector;
-	  @*/
+	/**
+	 * Returns the Guice injector with defined modules.
+	 * 
+	 * @return The injector.
+	 */
 	public Injector getInjector() {
 		if (injector == null) {
 			modelContainer.addModules(modelLoader.getAllProviders());
@@ -43,22 +36,17 @@ public class ModelModule {
 		return injector;
 	}
 
+	/**
+	 * Returns the container that is holding all the extension instances.
+	 * 
+	 * @return The container with extension instances.
+	 */
 	public ModelContainer getModelContainer() {
 		return modelContainer;
 	}
 
-	/*@ requires true;
-	  @ assignable \nothing;
-	  @ ensures \result == (injector != null);
-	  @*/
-	public /*@ pure @*/ boolean isInitialized() {
+	public boolean isInitialized() {
 		return this.injector != null;
 	}
 
-	public static ModelModule getInstance() {
-		if (INSTANCE == null) {
-			INSTANCE = new ModelModule();
-		}
-		return INSTANCE;
-	}
 }

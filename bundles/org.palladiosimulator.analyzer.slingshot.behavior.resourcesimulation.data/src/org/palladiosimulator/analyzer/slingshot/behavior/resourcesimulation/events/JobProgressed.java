@@ -1,25 +1,18 @@
 package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events;
 
-import java.util.UUID;
-
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.jobs.JobContext;
 
+/**
+ * Specifies that the job or the context containing jobs has somehow progressed.
+ * This means that a job could be finished, but there are still other jobs left
+ * to be handled.
+ * 
+ * @author Julijan Katic
+ */
 public class JobProgressed extends AbstractJobEvent {
 
-	private final UUID expectedResourceState;
-
-	public JobProgressed(final JobContext<?> entity, final double delay, final UUID expectedResourceState) {
-		super(entity, delay);
-		this.expectedResourceState = expectedResourceState;
-		// TODO Auto-generated constructor stub
-	}
-
 	public JobProgressed(final JobContext<?> entity, final double delay) {
-		this(entity, delay, UUID.randomUUID());
-	}
-
-	public UUID getExpectedResourceState() {
-		return expectedResourceState;
+		super(entity, delay);
 	}
 
 }

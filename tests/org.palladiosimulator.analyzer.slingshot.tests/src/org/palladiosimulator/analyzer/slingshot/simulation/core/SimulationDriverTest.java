@@ -5,15 +5,17 @@ import java.nio.file.Paths;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.MockitoRule;
 import org.palladiosimulator.analyzer.slingshot.helper.TestHelperConstants;
 import org.palladiosimulator.analyzer.slingshot.module.models.ModelModule;
 import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngine;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
-
-import com.google.common.eventbus.EventBus;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SimulationDriverTest {
@@ -23,14 +25,16 @@ public class SimulationDriverTest {
 
 	private SimulationDriver driver;
 
+	@Mock
 	private SimulationEngine simEngine;
-
-	private EventBus simEngineEventBus;
 
 	@Mock
 	private SimulationBehaviorExtension simulationBehaviorExtension;
 	@Mock
 	private SimulationBehaviorExtension simulationBehaviorExtensionB;
+
+	@Rule
+	private final MockitoRule mockitoRule = MockitoJUnit.rule();
 
 	/**
 	 * This injector contains simple modules just for testing purposes.
@@ -39,48 +43,19 @@ public class SimulationDriverTest {
 
 	@BeforeClass
 	public void setUpInjector() {
-		modelModule = ModelModule.getInstance();
+		modelModule = new ModelModule();
 	}
 
 	@Before
 	public void setUp() {
-		// core
-		simEngine = new SimulationEngineMock();
-		simEngineEventBus = simEngine.getEventDispatcher();
-
-		// currently the tests consider no extensions (This is also just a unit test,
-		// and not integration)
+//		simEngine = new SimulationEngineMock();
 	}
 
-//	@Test
-//	public void testInitializeSingleBehaviorExtensionWorks() throws Exception {
-//		final List<DecoratedSimulationBehaviorProvider> decoratedSimulationBehaviorProviders = new ArrayList<DecoratedSimulationBehaviorProvider>();
-//		decoratedSimulationBehaviorProviders.add(simulationBehaviorExtensionProviderA);
-//
-//		driver = new SimulationDriver(simEngine, decoratedSimulationBehaviorProviders);
-//
-//		final UsageModel usageModel = UsageModelTestHelper.createUsageModelFromFile(testModelPath);
-//
-//		when(simulationBehaviorExtensionProviderA.decorateSimulationBehaviorWithInterceptors(any(), modelModule))
-//		        .thenReturn(simulationBehaviorExtension);
-//
-//	}
-//
-//	@Test
-//	public void testInitializeMultipleBehaviorExtensionsWorks() throws Exception {
-//		final List<DecoratedSimulationBehaviorProvider> decoratedSimulationBehaviorProviders = new ArrayList<DecoratedSimulationBehaviorProvider>();
-//		decoratedSimulationBehaviorProviders.add(simulationBehaviorExtensionProviderA);
-//		decoratedSimulationBehaviorProviders.add(simulationBehaviorExtensionProviderB);
-//
-//		driver = new SimulationDriver(simEngine, decoratedSimulationBehaviorProviders);
-//
-//		final UsageModel usageModel = UsageModelTestHelper.createUsageModelFromFile(testModelPath);
-//
-//		when(simulationBehaviorExtensionProviderA.decorateSimulationBehaviorWithInterceptors(any(), modelModule))
-//		        .thenReturn(simulationBehaviorExtension);
-//		when(simulationBehaviorExtensionProviderB.decorateSimulationBehaviorWithInterceptors(any(), modelModule))
-//		        .thenReturn(simulationBehaviorExtensionB);
-//
-//	}
+	@Test
+	public void testSimulationDriverInitialization() throws Exception {
+		final SimulationDriver simulationDriver = new SimulationDriver(simEngine);
 
+		simulationDriver.init(modelModule);
+
+	}
 }

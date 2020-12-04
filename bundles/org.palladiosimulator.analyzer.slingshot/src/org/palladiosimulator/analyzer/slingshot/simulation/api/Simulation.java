@@ -28,4 +28,9 @@ public interface Simulation {
 	 */
 	void init(final ModelModule modelInjector) throws Exception;
 
+	/**
+	 * Stops the simulation as soon as possible.
+	 */
+	void stopSimulation();
+
 }

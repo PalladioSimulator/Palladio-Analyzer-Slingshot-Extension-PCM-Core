@@ -24,6 +24,11 @@ public abstract class UserContextEntityHolder {
 		this.user = Preconditions.checkNotNull(user, "The user reference must not be null.");
 	}
 
+	/**
+	 * Returns the user of this context holder.
+	 * 
+	 * @return the user.
+	 */
 	public User getUser() {
 		return user;
 	}

@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.EventPrettyLogPrinter;
 
-import com.google.common.base.Throwables;
+import com.google.common.base.Preconditions;
 import com.google.common.eventbus.EventBus;
 
 import umontreal.ssj.simevents.Event;
@@ -18,33 +18,55 @@ import umontreal.ssj.simevents.Simulator;
  */
 public class SimulationEngineSSJ implements SimulationEngine {
 
-	private final Logger LOGGER = Logger.getLogger(SimulationEngineSSJ.class);
+	private static final Logger LOGGER = Logger.getLogger(SimulationEngineSSJ.class);
 
 	private final EventBus eventBus;
 
 	private final Simulator simulator;
 
-	@Override
-	public EventBus getEventDispatcher() {
-		return eventBus;
+	/**
+	 * An exception handler for subscribed event handlers. This is needed as
+	 * exceptions thrown by event handlers will remain in the event bus context.
+	 */
+	private SimulationEventExceptionHandler exceptionHandler;
+
+	/**
+	 * Instantiates this class without an exception handler for the eventbus.
+	 */
+	public SimulationEngineSSJ() {
+		this(null);
 	}
 
-	public SimulationEngineSSJ() {
+	/**
+	 * Instantiates a class with a given exception handler for the eventbus. This
+	 * exception handler can be {@code null}. If the exception handler is
+	 * {@code null}, the default behavior will be logging the exception in the
+	 * console. Nevertheless, the exception will not reach the main call stack, but
+	 * will remain in the event bus context, and must be handled there.
+	 * 
+	 * @param exceptionHandler The exception handler for the event bus.
+	 */
+	public SimulationEngineSSJ(final SimulationEventExceptionHandler exceptionHandler) {
+		this.loadEventExceptionHandler(exceptionHandler);
+
+		/* Creates the event bus with the exception handler. */
 		this.eventBus = new EventBus((exception, context) -> {
-		    /* 
-		     * The default exception handler 'consumes' the exception and just logs
-		     * it, but the calculation does not stop. Instead, rethrow it. 
-		     */
-		    Throwables.propagate(Throwables.getRootCause(exception));
+			if (this.exceptionHandler != null) {
+				final DESEvent returnedEvent = this.exceptionHandler.onException(exception,
+				        (DESEvent) context.getEvent());
+				if (returnedEvent != null) {
+					context.getEventBus().post(returnedEvent);
+				}
+			} else {
+				LOGGER.error(exception);
+			}
 		});
 		this.simulator = new Simulator();
 	}
 
 	@Override
 	public void scheduleEvent(final DESEvent event) {
-		// this code should go in the right place
 		scheduleEvent(event, event.getDelay());
-
 	}
 
 	@Override
@@ -88,6 +110,17 @@ public class SimulationEngineSSJ implements SimulationEngine {
 		};
 		myev.schedule(delay);
 
+	}
+
+	@Override
+	public void loadEventExceptionHandler(final SimulationEventExceptionHandler handler) {
+		this.exceptionHandler = handler;
+	}
+
+	@Override
+	public void registerEventListener(final Object eventListener) {
+		Preconditions.checkNotNull(eventListener, "Event-listeners must not be null!");
+		this.eventBus.register(eventListener);
 	}
 
 }

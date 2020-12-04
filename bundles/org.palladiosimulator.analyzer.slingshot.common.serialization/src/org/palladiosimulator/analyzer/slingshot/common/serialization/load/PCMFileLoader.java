@@ -3,6 +3,7 @@ package org.palladiosimulator.analyzer.slingshot.common.serialization.load;
 import java.nio.file.Path;
 
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -13,10 +14,14 @@ public class PCMFileLoader {
 		EMFResourceSetInitializerHelper.initEMF();
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <T> T load(final Path filePath) {
-		final ResourceSet resourceSet = new ResourceSetImpl();
 		final URI uri = createSuitedURI(filePath);
+		return load(uri);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T extends EObject> T load(final URI uri) {
+		final ResourceSet resourceSet = new ResourceSetImpl();
 		final Resource modelResource = resourceSet.getResource(uri, true);
 		return (T) modelResource.getContents().get(0);
 	}

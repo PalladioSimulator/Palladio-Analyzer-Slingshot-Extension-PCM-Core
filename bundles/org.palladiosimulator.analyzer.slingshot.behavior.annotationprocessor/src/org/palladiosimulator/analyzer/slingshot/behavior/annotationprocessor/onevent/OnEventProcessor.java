@@ -29,13 +29,13 @@ import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.annotationprocessor.util.exceptions.IllegalAnnotationArgumentException;
 import org.palladiosimulator.analyzer.slingshot.annotationprocessor.util.exceptions.ProcessException;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.events.graph.DefaultEventGraph;
+import org.palladiosimulator.analyzer.slingshot.simulation.events.graph.EventEdge;
+import org.palladiosimulator.analyzer.slingshot.simulation.events.graph.EventGraph;
+import org.palladiosimulator.analyzer.slingshot.simulation.events.graph.StringBasedEventNode;
+import org.palladiosimulator.analyzer.slingshot.simulation.events.graph.exportation.DotFileGraphExporter;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventMethod;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.OnEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.graph.DefaultEventGraph;
-import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.graph.DotFileGraphExporter;
-import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.graph.EventEdge;
-import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.graph.EventGraph;
-import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.graph.StringBasedEventNode;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
 
 import com.google.auto.service.AutoService;

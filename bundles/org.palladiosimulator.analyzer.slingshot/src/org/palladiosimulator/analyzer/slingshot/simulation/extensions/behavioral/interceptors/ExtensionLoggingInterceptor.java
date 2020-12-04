@@ -1,4 +1,5 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.interceptors;
+
 import java.lang.reflect.Method;
 
 import org.apache.log4j.Logger;
@@ -11,27 +12,22 @@ import org.apache.log4j.Logger;
  */
 public class ExtensionLoggingInterceptor extends AbstractInterceptor {
 
-	
-	private final Logger LOGGER = Logger.getLogger(ExtensionLoggingInterceptor.class);
+	private static final Logger LOGGER = Logger.getLogger(ExtensionLoggingInterceptor.class);
 
 	public ExtensionLoggingInterceptor() {
-		
+
 	}
 
 	@Override
 	public void preIntercept(final Object extension, final Method m, final Object[] args) {
-		
-		LOGGER.info("Pre-intercept of the method: "+m.getName());
 
-		
+		LOGGER.info("Pre-intercept of the method: " + m.getName());
+
 	}
-	
+
 	@Override
-	public void postIntercept(final Object extension, final Method m, final Object[] args,final Object result) {
+	public void postIntercept(final Object extension, final Method m, final Object[] args, final Object result) {
 		LOGGER.info("Post-intercept of the method: " + m.getName());
 	}
-
-
-	
 
 }
