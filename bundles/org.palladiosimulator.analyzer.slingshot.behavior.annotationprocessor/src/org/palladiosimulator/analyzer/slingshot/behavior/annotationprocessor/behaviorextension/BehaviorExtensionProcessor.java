@@ -7,7 +7,6 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
@@ -25,8 +24,6 @@ import org.palladiosimulator.analyzer.slingshot.simulation.extensions.annotation
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
 import org.xml.sax.SAXException;
 
-import com.google.auto.service.AutoService;
-
 /**
  * This annotation processor handles all the {@link BehaviorExtension}
  * annotations. It generates / manipulates the {@code plugin.xml} in such a way
@@ -35,7 +32,6 @@ import com.google.auto.service.AutoService;
  * 
  * @author Julijan Katic
  */
-@AutoService(Processor.class)
 public class BehaviorExtensionProcessor extends AbstractProcessor {
 
 	private static final String GENERIC_EXTENSION_POINT_ID = SlingshotCorePlugin.BEHAVIOR_EXTENSION_POINT_ID;

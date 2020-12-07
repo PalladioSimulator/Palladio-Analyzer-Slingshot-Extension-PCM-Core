@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
@@ -21,8 +20,6 @@ import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventContract;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.OnEvent;
 
-import com.google.auto.service.AutoService;
-
 /**
  * This processor is responsible for the {@link EventContract} annotations. This
  * additionally validates the {@link OnEvent} contracts in such a way that the
@@ -30,7 +27,6 @@ import com.google.auto.service.AutoService;
  * 
  * @author Julijan Katic
  */
-@AutoService(Processor.class)
 public class EventContractProcessor extends AbstractProcessor {
 
 	private Messager messager;

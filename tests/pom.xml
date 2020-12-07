@@ -3,7 +3,7 @@
 		
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.palladiosimulator</groupId>
+		<groupId>org.palladiosimulator.analyzer.slingshot</groupId>
 		<artifactId>parent</artifactId>	
 		<version>0.1.0-SNAPSHOT</version>
 	</parent>
@@ -11,14 +11,12 @@
 	<packaging>pom</packaging>
 	
 	<modules>
-		<module>org.palladiosimulator.analyzer.slingshot.tests</module>
-		<module>org.palladiosimulator.analyzer.slingshot.annotationprocessor.test.utils</module>
-        <module>org.palladiosimulator.analyzer.slingshot.module.model.test</module>
+        <module>org.palladiosimulator.analyzer.slingshot.annotationprocessor.test.utils</module>
         <module>org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.test</module>
-		<module>com.google.testing.compile</module>
-        <module>org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.test</module>
+        <module>org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.test</module>
         <module>org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.test</module>
-        <module>org.palladiosimulator.analyzer.slingshot.behavior.behaviorsimulation.test</module>
-  </modules>
+        <module>org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.test</module>
+        <module>org.palladiosimulator.analyzer.slingshot.module.model.test</module>
+    </modules>
 	
 </project>

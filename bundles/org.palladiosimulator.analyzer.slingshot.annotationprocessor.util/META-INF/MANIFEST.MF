@@ -4,7 +4,7 @@ Bundle-Name: Annotation Processor Util
 Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.annotationprocessor.util
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.annotationprocessor.util
-Bundle-RequiredExecutionEnvironment: JavaSE-12
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: org.palladiosimulator.analyzer.slingshot.annotationprocessor.util,
  org.palladiosimulator.analyzer.slingshot.annotationprocessor.util.exceptions
 Import-Package: com.google.common.base

@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
@@ -38,8 +37,6 @@ import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.OnEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
 
-import com.google.auto.service.AutoService;
-
 /**
  * This processor processes all {@link OnEvent} and {@link OnEvent.OnEvents}
  * annotations in such a way that a compile-time EventGraph can be exported and
@@ -67,7 +64,6 @@ import com.google.auto.service.AutoService;
  * 
  * @author Julijan Katic
  */
-@AutoService(Processor.class)
 public class OnEventProcessor extends AbstractProcessor {
 
 	private final Logger LOGGER = Logger.getLogger(OnEventProcessor.class);

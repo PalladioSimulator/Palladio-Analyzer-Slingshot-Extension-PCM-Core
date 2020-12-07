@@ -13,11 +13,11 @@ Require-Bundle: org.palladiosimulator.pcm;bundle-version="4.1.0",
  de.uka.ipd.sdq.probfunction.math,
  de.uka.ipd.sdq.simucomframework.variables,
  org.eclipse.e4.core.di;bundle-version="1.7.600",
- javassist,
  org.palladiosimulator.analyzer.slingshot.util.extensionpoint,
  com.google.inject.guice;visibility:=reexport,
  org.palladiosimulator.analyzer.slingshot.module.models;visibility:=reexport,
- com.google.guava
+ com.google.guava,
+ javassist;bundle-version="3.27.0"
 Export-Package: org.palladiosimulator.analyzer.slingshot.simulation,
  org.palladiosimulator.analyzer.slingshot.simulation.api,
  org.palladiosimulator.analyzer.slingshot.simulation.core.entities,
