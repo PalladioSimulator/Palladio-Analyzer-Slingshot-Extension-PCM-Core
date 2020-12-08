@@ -1,5 +1,6 @@
 package org.palladiosimulator.analyzer.slingshot.ui.workflow.launcher.tabs;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -14,8 +15,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.palladiosimulator.analyzer.slingshot.common.constants.model.ModelFileTypeConstants;
+import org.palladiosimulator.analyzer.slingshot.ui.workflow.launcher.configurer.AllocationModelField;
 import org.palladiosimulator.analyzer.slingshot.ui.workflow.launcher.configurer.RequiredModelConfiguration;
-import org.palladiosimulator.analyzer.slingshot.ui.workflow.launcher.utils.ModelConfigurerRegister;
+import org.palladiosimulator.analyzer.slingshot.ui.workflow.launcher.configurer.UsageModelField;
 
 import de.uka.ipd.sdq.workflow.launchconfig.ImageRegistryHelper;
 import de.uka.ipd.sdq.workflow.launchconfig.LaunchConfigPlugin;
@@ -75,11 +77,11 @@ public class SimulationArchitectureModelsTab extends AbstractLaunchConfiguration
 			}
 		};
 
-		final ModelConfigurerRegister register = new ModelConfigurerRegister();
-		this.configurers = register.getAllProviders();
-
-		// this.configurers.add(new RequiredAllocationTextForm());
-		// this.configurers.add(new RequiredUsageModelTextForm());
+		// final ModelConfigurerRegister register = new ModelConfigurerRegister();
+		// this.configurers = register.getAllProviders();
+		this.configurers = new ArrayList<>();
+		this.configurers.add(new AllocationModelField());
+		this.configurers.add(new UsageModelField());
 
 	}
 
