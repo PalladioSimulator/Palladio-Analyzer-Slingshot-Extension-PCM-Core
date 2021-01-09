@@ -9,6 +9,8 @@ import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.OnEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
 
+import com.google.common.eventbus.Subscribe;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -29,6 +31,7 @@ public class GeneralSimulationConfigurationBehavior implements SimulationBehavio
 	 * 
 	 * @return an empty set.
 	 */
+	@Subscribe
 	public ResultEvent<?> onSimulationStarted(final SimulationStarted simulationStarted) {
 		/* Initialize ProbFunction and StoExCache, otherwise StackContext won't work */
 		final IProbabilityFunctionFactory probabilityFunctionFactory = ProbabilityFunctionFactoryImpl.getInstance();
