@@ -2,7 +2,6 @@ package org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities;
 
 import javax.annotation.processing.Generated;
 
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.UserInterpretationContext;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.Start;
 

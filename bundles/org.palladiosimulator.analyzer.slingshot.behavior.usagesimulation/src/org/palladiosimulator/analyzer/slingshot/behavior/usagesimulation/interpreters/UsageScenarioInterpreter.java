@@ -7,9 +7,13 @@ import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.UserInterpretationContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.ClosedWorkloadUserInterpretationContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.OpenWorkloadUserInterpretationContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.UserInterpretationContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.UserLoopContextHolder;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.UserRequest;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.InterArrivalUserInitiated;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserEntryRequested;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserInterpretationProgressed;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserLoopInitiated;
@@ -96,7 +100,7 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 	 * {@link UserRequestInitiated} event with the appropriate {@link UserRequest}
 	 * entity.
 	 * 
-	 * @return set with {@link UserRequestInitiated} event.
+	 * @return set with {@link UserEntryRequested} event.
 	 */
 	@Override
 	public Set<DESEvent> caseEntryLevelSystemCall(final EntryLevelSystemCall object) {
@@ -106,10 +110,18 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 		final OperationSignature signature = EcoreUtil.copy(object.getOperationSignature__EntryLevelSystemCall());
 		final EList<VariableUsage> inputParameterUsages = object.getInputParameterUsages_EntryLevelSystemCall();
 
-		final UserRequest userRequest = new UserRequest(userContext.getUser(), opProvidedRole, signature, inputParameterUsages);
-		final UserRequestInitiated uRequestInitiated = new UserRequestInitiated(userRequest,
-		        userContext.update().withCurrentAction(object.getSuccessor()).build(), 0);
-		return Set.of(uRequestInitiated);
+		final UserRequest userRequest = UserRequest.builder()
+				.withUser(userContext.getUser())
+				.withOperationProvidedRole(opProvidedRole)
+				.withOperationSignature(signature)
+				.withVariableUsages(inputParameterUsages)
+				.build();
+		
+		final UserEntryRequested userEntryRequest = new UserEntryRequested(userRequest, userContext.update()
+				.withCurrentAction(object.getSuccessor())
+				.build(), 0);
+		
+		return Set.of(userEntryRequest);
 	}
 
 	/**
@@ -127,12 +139,23 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 	 * Interprets the Start action and immediately returns the set with
 	 * {@link UserStarted} event.
 	 * 
-	 * @return set with {@link UserStarted} event.
+	 * @return set with {@link UserStarted} event, and if it is an open workload user, then
+	 *         also a {@link InterArrivalUserInitiated} event to start a new user after a
+	 *         specified interArrivalTime.
 	 */
 	@Override
 	public Set<DESEvent> caseStart(final Start object) {
-		return Set.of(new UserStarted(userContext.update().withCurrentAction(object.getSuccessor()).build(),
-		        this.userContext.getThinkTime()));
+		if (this.userContext instanceof ClosedWorkloadUserInterpretationContext) {
+			final double thinkTime = ((ClosedWorkloadUserInterpretationContext) this.userContext).getThinkTime().calculateRV();
+			return Set.of(new UserStarted(userContext.updateAction(object.getSuccessor()), thinkTime));
+		} else if (this.userContext instanceof OpenWorkloadUserInterpretationContext) {
+			final double interArrivalTime = ((OpenWorkloadUserInterpretationContext) this.userContext).getInterArrivalTime().calculateRV();
+			return Set.of(new UserStarted(userContext.updateAction(object.getSuccessor())),
+					      new InterArrivalUserInitiated(interArrivalTime));
+		} else {
+			LOGGER.info("The user is neither a closed workload nor open workload user");
+			throw new IllegalStateException("The user must be a open workload or closed workload user");
+		}
 	}
 
 	/**
@@ -155,7 +178,7 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 		final Set<DESEvent> events = new HashSet<>(
 		        this.doSwitch(branchTransition.getBranchedBehaviour_BranchTransition()));
 		events.add(new UserInterpretationProgressed(userContext.update().withCurrentAction(branch.getSuccessor()).build(),
-		        userContext.getThinkTime()));
+		        0));
 
 		return events;
 	}

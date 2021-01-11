@@ -1,9 +1,7 @@
-package org.palladiosimulator.analyzer.slingshot.behavior.usagemodel;
+package org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities;
 
 import javax.annotation.processing.Generated;
 
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.User;
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.UserLoopContextHolder;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
@@ -13,7 +11,7 @@ import org.palladiosimulator.pcm.usagemodel.UsageScenario;
  * 
  * @author Julijan Katic
  */
-public class UserInterpretationContext {
+public abstract class UserInterpretationContext {
 
 	/** The scenario to interpret. */
 	private final UsageScenario scenario;
@@ -23,7 +21,6 @@ public class UserInterpretationContext {
 
 	/** The user of the interpretation. */
 	private final User user;
-	private final double thinkTime;
 
 	private final UserLoopContextHolder loopContext;
 	private final int currentUsageRun;
@@ -31,26 +28,13 @@ public class UserInterpretationContext {
 	private final UserInterpretationContext parentContext;
 
 	@Generated("SparkTools")
-	private UserInterpretationContext(final Builder builder) {
+	protected UserInterpretationContext(final BaseBuilder<?, ?> builder) {
 		this.scenario = builder.scenario;
 		this.currentAction = builder.currentAction;
 		this.user = builder.user;
-		this.thinkTime = builder.thinkTime;
 		this.loopContext = builder.loopContext;
 		this.currentUsageRun = builder.currentUsageRun;
 		this.parentContext = builder.parentContext;
-	}
-
-	public UserInterpretationContext(final UsageScenario scenario, final AbstractUserAction currentAction) {
-		this(scenario, currentAction, 0);
-	}
-
-	public UserInterpretationContext(final UsageScenario scenario, final AbstractUserAction currentAction,
-	        final double thinkTime) {
-		this(builder().withScenario(scenario)
-		        .withCurrentAction(currentAction)
-		        .withThinkTime(thinkTime)
-		        .withUser(new User()));
 	}
 
 	public UsageScenario getScenario() {
@@ -63,10 +47,6 @@ public class UserInterpretationContext {
 
 	public User getUser() {
 		return user;
-	}
-
-	public double getThinkTime() {
-		return thinkTime;
 	}
 
 	public UserInterpretationContext incrementLoopProgression() {
@@ -92,81 +72,81 @@ public class UserInterpretationContext {
 	public UserInterpretationContext incrementUsageRun() {
 		return this.update().withCurrentUsageRun(currentUsageRun + 1).build();
 	}
+	
+	public UserInterpretationContext updateAction(final AbstractUserAction abstractAction) {
+		return this.update()
+				.withCurrentAction(abstractAction)
+				.build();
+	}
 
-	public Builder update() {
-		return builder().withCurrentAction(currentAction)
+	public abstract <T extends UserInterpretationContext, B extends BaseBuilder<T, B>> B update();
+	
+	/**
+	 * Helper method to create an update builder. The {@link #update()} should use this method for
+	 * to connect the updatable parameters from this parent class.
+	 * 
+	 * @param <T> The type extending this class. Used to inform which sub-class is built.
+	 * @param <B> The type extending the abstract builder class {@link BaseBuilder} for this. Used to indicate which concrete builder class is used.
+	 * @param builder The actual concrete builder.
+	 * @return The same builder where each parameter of this class is connected to the builder.
+	 */
+	protected final <T extends UserInterpretationContext, B extends BaseBuilder<T, B>> B updateWithBuilder(final B builder) {
+		return builder.withCurrentAction(currentAction)
 		        .withCurrentUsageRun(currentUsageRun)
 		        .withLoopContext(loopContext)
 		        .withScenario(scenario)
-		        .withThinkTime(thinkTime)
 		        .withUser(user)
 		        .withParentContext(parentContext);
-	}
-
-	/**
-	 * Creates builder to build {@link UserInterpretationContext}.
-	 * 
-	 * @return created builder
-	 */
-	@Generated("SparkTools")
-	public static Builder builder() {
-		return new Builder();
 	}
 
 	/**
 	 * Builder to build {@link UserInterpretationContext}.
 	 */
 	@Generated("SparkTools")
-	public static final class Builder {
+	protected static abstract class BaseBuilder<T extends UserInterpretationContext, B extends BaseBuilder<T, B>> {
 		private UsageScenario scenario;
 		private AbstractUserAction currentAction;
 		private User user;
-		private double thinkTime;
 		private UserLoopContextHolder loopContext;
 		private int currentUsageRun;
 		private UserInterpretationContext parentContext;
 
-		private Builder() {
-		}
-
-		public Builder withScenario(final UsageScenario scenario) {
+		public B withScenario(final UsageScenario scenario) {
 			this.scenario = scenario;
-			return this;
+			return actualBuilder();
 		}
 
-		public Builder withCurrentAction(final AbstractUserAction currentAction) {
+		public B withCurrentAction(final AbstractUserAction currentAction) {
 			this.currentAction = currentAction;
-			return this;
+			return actualBuilder();
 		}
 
-		public Builder withUser(final User user) {
+		public B withUser(final User user) {
 			this.user = user;
-			return this;
+			return actualBuilder();
 		}
 
-		public Builder withThinkTime(final double thinkTime) {
-			this.thinkTime = thinkTime;
-			return this;
-		}
-
-		public Builder withLoopContext(final UserLoopContextHolder loopContext) {
+		public B withLoopContext(final UserLoopContextHolder loopContext) {
 			this.loopContext = loopContext;
-			return this;
+			return actualBuilder();
 		}
 
-		public Builder withCurrentUsageRun(final int currentUsageRun) {
+		public B withCurrentUsageRun(final int currentUsageRun) {
 			this.currentUsageRun = currentUsageRun;
-			return this;
+			return actualBuilder();
 		}
 
-		public Builder withParentContext(final UserInterpretationContext parentContext) {
+		public B withParentContext(final UserInterpretationContext parentContext) {
 			this.parentContext = parentContext;
-			return this;
+			return actualBuilder();
+		}
+		
+		@SuppressWarnings("unchecked")
+		protected B actualBuilder() {
+			return (B) this;
 		}
 
-		public UserInterpretationContext build() {
-			return new UserInterpretationContext(this);
-		}
+		public abstract T build();
 	}
 
 }

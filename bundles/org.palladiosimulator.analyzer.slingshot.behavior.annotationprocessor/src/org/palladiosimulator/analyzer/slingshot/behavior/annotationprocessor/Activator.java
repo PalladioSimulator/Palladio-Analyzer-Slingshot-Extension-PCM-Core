@@ -21,7 +21,7 @@ public class Activator extends Plugin {
 	@Override
 	public void stop(final BundleContext context) throws Exception {
 		plugin = null;
-		super.start(context);
+		super.stop(context);
 	}
 
 	public static Activator getDefault() {

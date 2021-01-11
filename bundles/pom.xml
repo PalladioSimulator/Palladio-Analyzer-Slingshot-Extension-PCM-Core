@@ -29,6 +29,7 @@
         <module>org.palladiosimulator.analyzer.slingshot.annotationprocessor.util</module>
         <module>org.palladiosimulator.analyzer.slingshot.module.models</module>
         <module>org.palladiosimulator.analyzer.slingshot.util.extensionpoint</module>
+        <module>org.palladiosimulator.analyzer.slingshot.behavior.generalsimulationconfiguration</module>
         <module>com.google.inject.guice</module>
         <module>javassist</module>
         <module>com.google.auto.service</module>
@@ -41,29 +42,4 @@
 		</dependency>
 	</dependencies>
 	
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.2.0</version>
-				<configuration>
-					<show>private</show>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
-	
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.2.0</version>
-				<configuration>
-					<show>public</show>
-				</configuration>
-			</plugin>
-		</plugins>
-	</reporting>
 </project>
