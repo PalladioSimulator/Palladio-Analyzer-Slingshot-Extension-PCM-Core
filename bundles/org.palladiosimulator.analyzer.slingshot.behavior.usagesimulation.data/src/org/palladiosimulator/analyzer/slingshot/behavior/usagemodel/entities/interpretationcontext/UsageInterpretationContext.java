@@ -1,4 +1,4 @@
-package org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities;
+package org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext;
 
 import com.google.common.collect.ImmutableList;
 import javax.annotation.processing.Generated;

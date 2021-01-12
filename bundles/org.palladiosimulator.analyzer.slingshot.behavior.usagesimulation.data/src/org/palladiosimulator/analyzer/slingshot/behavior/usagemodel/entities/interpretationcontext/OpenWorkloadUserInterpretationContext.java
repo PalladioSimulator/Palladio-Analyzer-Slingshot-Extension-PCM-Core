@@ -1,4 +1,6 @@
-package org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities;
+package org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext;
+
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.InterArrivalTime;
 
 /**
  * This class is a context for OpenWorkload users.

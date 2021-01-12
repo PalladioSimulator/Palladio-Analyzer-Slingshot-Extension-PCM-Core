@@ -1,4 +1,4 @@
-package org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities;
+package org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext;
 
 import org.palladiosimulator.pcm.usagemodel.ClosedWorkload;
 import org.palladiosimulator.pcm.usagemodel.OpenWorkload;
@@ -17,6 +17,7 @@ public class UsageScenarioInterpretationContext {
 	
 	/** The corresponding usage scenario to be interpreted. */
 	private final UsageScenario scenario;
+	
 
 	@Generated("SparkTools")
 	private UsageScenarioInterpretationContext(Builder builder) {
@@ -48,7 +49,8 @@ public class UsageScenarioInterpretationContext {
 	public UsageScenario getScenario() {
 		return scenario;
 	}
-
+	
+	
 	/**
 	 * Creates builder to build {@link UsageScenarioInterpretationContext}.
 	 * @return created builder

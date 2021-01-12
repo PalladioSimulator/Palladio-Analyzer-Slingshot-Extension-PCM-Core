@@ -1,6 +1,8 @@
-package org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities;
+package org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext;
 
 import javax.annotation.processing.Generated;
+
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.ThinkTime;
 
 /**
  * The interpretation context for <strong>Closed</strong> workload users.

@@ -7,12 +7,15 @@ import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.ClosedWorkloadUserInterpretationContext;
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.OpenWorkloadUserInterpretationContext;
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.UserInterpretationContext;
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.UserLoopContextHolder;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.UserRequest;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.ClosedWorkloadUserInterpretationContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.OpenWorkloadUserInterpretationContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UserBranchInterpretationContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UserInterpretationContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UserLoopInterpretationContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.scenariobehavior.GeneralScenarioBehaviorContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.InterArrivalUserInitiated;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserBranchInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserEntryRequested;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserInterpretationProgressed;
@@ -67,7 +70,7 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 	/**
 	 * This will handle the loop action by evaluating the number of loops that
 	 * should happen and returning a set of {@link UserLoopInitiated} event. The
-	 * UserInterpretationContext will receive a {@link UserLoopContextHolder} which
+	 * UserInterpretationContext will receive a {@link UserLoopInterpretationContext} which
 	 * gives knowledge about the current loop count and the number of loops needed.
 	 * 
 	 * @return set of {@link UserLoopInitiated} event.
@@ -77,22 +80,22 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 		final int numberOfLoops = StackContext.evaluateStatic(loop.getLoopIteration_Loop().getSpecification(), Integer.class);
 		LOGGER.debug("Interpret loop. Maximum loop number: " + numberOfLoops);
 		final ScenarioBehaviour bodyBehavior = loop.getBodyBehaviour_Loop();
-		final Start loopStartAction = (Start) bodyBehavior.getActions_ScenarioBehaviour().get(0);
-
-		final UserLoopContextHolder loopContext = UserLoopContextHolder.builder()
-		        .withNumberOfLoops(numberOfLoops)
-		        .withProgression(0)
-		        .withLoopStartAction(loopStartAction)
-		        .withAfterLoopAction(loop.getSuccessor())
-		        .build();
-
-		final UserInterpretationContext childInterpretationContext = userContext.update()
-		        .withCurrentAction(loopStartAction)
-		        .withLoopContext(loopContext)
-		        .withParentContext(userContext)
-		        .build();
-
-		return Set.of(new UserLoopInitiated(childInterpretationContext));
+		
+		final AbstractUserAction firstLoopAction = bodyBehavior.getActions_ScenarioBehaviour().get(0);
+		assert firstLoopAction instanceof Start;
+		
+		final UserLoopInterpretationContext loopInterpretationContext = UserLoopInterpretationContext.builder()
+				.withMaximalLoopCount(numberOfLoops)
+				.withUserInterpretationContext(
+						userContext.update()
+						.withCurrentAction(firstLoopAction)
+						.withParentContext(userContext)
+						.build())
+				.withUserLoopScenarioBehavior(new GeneralScenarioBehaviorContext(bodyBehavior, this.userContext.getScenarioContext(), loop.getSuccessor()))
+				.build();
+		
+		final UserLoopInitiated userLoopInitiated = new UserLoopInitiated(loopInterpretationContext);
+		return Set.of(userLoopInitiated);
 	}
 
 	/**
@@ -175,12 +178,26 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 		final BranchTransition branchTransition = transitionDeterminer
 		        .determineBranchTransition(branch.getBranchTransitions_Branch());
 
-		final Set<DESEvent> events = new HashSet<>(
-		        this.doSwitch(branchTransition.getBranchedBehaviour_BranchTransition()));
-		events.add(new UserInterpretationProgressed(userContext.update().withCurrentAction(branch.getSuccessor()).build(),
-		        0));
+//		final Set<DESEvent> events = new HashSet<>(
+//		        this.doSwitch(branchTransition.getBranchedBehaviour_BranchTransition()));
+//		events.add(new UserInterpretationProgressed(userContext.update().withCurrentAction(branch.getSuccessor()).build(),
+//		        0));
 
-		return events;
+		final AbstractUserAction firstBranchAction = branchTransition.getBranch_BranchTransition()
+				.getScenarioBehaviour_AbstractUserAction()
+				.getActions_ScenarioBehaviour()
+				.get(0);
+		assert firstBranchAction instanceof Start;
+		
+		final UserBranchInterpretationContext branchInterpretationContext = UserBranchInterpretationContext.builder()
+				.withStartAction((Start) firstBranchAction)
+				.withUserBranchScenarioBehavior(new GeneralScenarioBehaviorContext(branchTransition.getBranchedBehaviour_BranchTransition(), this.userContext.getScenarioContext(), branch.getSuccessor()))
+				.withUserInterpretationContext(this.userContext)
+				.build();
+		
+		final UserBranchInitiated userBranchInitiated = new UserBranchInitiated(branchInterpretationContext);
+		
+		return Set.of(userBranchInitiated);
 	}
 
 	/**
