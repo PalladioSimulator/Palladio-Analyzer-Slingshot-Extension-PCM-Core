@@ -2,7 +2,7 @@ package org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events;
 
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UserInterpretationContext;
 
-public class UserStarted extends AbstractUserChangedEvent {
+public final class UserStarted extends AbstractUserChangedEvent {
 
 	public UserStarted(final UserInterpretationContext context, final double delay) {
 		super(context, delay);

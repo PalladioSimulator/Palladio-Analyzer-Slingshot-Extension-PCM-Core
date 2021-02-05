@@ -4,7 +4,7 @@ import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.int
 import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntityChangedEvent;
 
 
-public class UserLoopInitiated extends AbstractEntityChangedEvent<UserLoopInterpretationContext> {
+public final class UserLoopInitiated extends AbstractEntityChangedEvent<UserLoopInterpretationContext> {
 
 	public UserLoopInitiated(final UserLoopInterpretationContext entity) {
 		super(entity, 0);

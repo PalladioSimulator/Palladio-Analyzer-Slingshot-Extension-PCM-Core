@@ -10,8 +10,7 @@ import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntity
  * 
  * @author Julijan Katic
  */
-public abstract class AbstractUserChangedEvent extends AbstractEntityChangedEvent<UserInterpretationContext>
-        implements UsageInterpretationEvent {
+public abstract class AbstractUserChangedEvent extends AbstractEntityChangedEvent<UserInterpretationContext> {
 
 	public AbstractUserChangedEvent(final UserInterpretationContext entity, final double delay) {
 		super(entity, delay);

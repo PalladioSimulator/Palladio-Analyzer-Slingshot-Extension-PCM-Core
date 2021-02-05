@@ -4,7 +4,7 @@ import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.Use
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UserInterpretationContext;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntityChangedEvent;
 
-public class UserRequestFinished extends AbstractEntityChangedEvent<UserRequest> {
+public final class UserRequestFinished extends AbstractEntityChangedEvent<UserRequest> {
 
 	private final UserInterpretationContext userContext;
 	

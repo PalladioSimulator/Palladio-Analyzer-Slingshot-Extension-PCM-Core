@@ -12,7 +12,7 @@ import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntity
  * @author Julijan Katic
  * @version 1.0
  */
-public class UserEntryRequested extends AbstractEntityChangedEvent<UserRequest> {
+public final class UserEntryRequested extends AbstractEntityChangedEvent<UserRequest> {
 	
 	private final UserInterpretationContext userInterpretationContext;
 
