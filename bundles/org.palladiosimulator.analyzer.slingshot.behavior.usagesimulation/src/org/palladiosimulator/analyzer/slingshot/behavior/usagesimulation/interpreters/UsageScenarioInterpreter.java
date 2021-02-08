@@ -148,17 +148,19 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 	 */
 	@Override
 	public Set<DESEvent> caseStart(final Start object) {
+		final Set<DESEvent> resultSet;
 		if (this.userContext instanceof ClosedWorkloadUserInterpretationContext) {
 			final double thinkTime = ((ClosedWorkloadUserInterpretationContext) this.userContext).getThinkTime().calculateRV();
-			return Set.of(new UserStarted(userContext.updateAction(object.getSuccessor()), thinkTime));
+			resultSet = Set.of(new UserStarted(userContext.updateAction(object.getSuccessor()), thinkTime));
 		} else if (this.userContext instanceof OpenWorkloadUserInterpretationContext) {
 			final double interArrivalTime = ((OpenWorkloadUserInterpretationContext) this.userContext).getInterArrivalTime().calculateRV();
-			return Set.of(new UserStarted(userContext.updateAction(object.getSuccessor())),
-					      new InterArrivalUserInitiated(interArrivalTime));
+			resultSet = Set.of(new UserStarted(userContext.updateAction(object.getSuccessor())),
+					      	   new InterArrivalUserInitiated(interArrivalTime));
 		} else {
 			LOGGER.info("The user is neither a closed workload nor open workload user");
 			throw new IllegalStateException("The user must be a open workload or closed workload user");
 		}
+		return resultSet;
 	}
 
 	/**
@@ -177,11 +179,6 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 		        this.userContext.getUser().getStack().currentStackFrame());
 		final BranchTransition branchTransition = transitionDeterminer
 		        .determineBranchTransition(branch.getBranchTransitions_Branch());
-
-//		final Set<DESEvent> events = new HashSet<>(
-//		        this.doSwitch(branchTransition.getBranchedBehaviour_BranchTransition()));
-//		events.add(new UserInterpretationProgressed(userContext.update().withCurrentAction(branch.getSuccessor()).build(),
-//		        0));
 
 		final AbstractUserAction firstBranchAction = branchTransition.getBranch_BranchTransition()
 				.getScenarioBehaviour_AbstractUserAction()
@@ -247,8 +244,9 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 	public Set<DESEvent> caseDelay(final Delay object) {
 		final double delay = StackContext.evaluateStatic(object.getTimeSpecification_Delay().getSpecification(),
 		        Double.class);
-		return Set.of(new UserSlept(userContext.update().withCurrentAction(object.getSuccessor()).build()),
-		        new UserWokeUp(userContext.update().withCurrentAction(object.getSuccessor()).build(), delay));
+		final UserInterpretationContext updatedUserContext = userContext.updateAction(object.getSuccessor());
+		return Set.of(new UserSlept(updatedUserContext),
+		        	  new UserWokeUp(updatedUserContext, delay));
 	}
 
 	/**
