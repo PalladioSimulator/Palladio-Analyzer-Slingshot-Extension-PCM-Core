@@ -6,7 +6,12 @@
 *.css
 *.js
 **/codemr/
+<<<<<<< HEAD
 **/.settings/
 **/.metadata/
 
 .DS_Store
+=======
+/.settings/
+/.metadata/
+>>>>>>> 3fba946 (Added documentation)
