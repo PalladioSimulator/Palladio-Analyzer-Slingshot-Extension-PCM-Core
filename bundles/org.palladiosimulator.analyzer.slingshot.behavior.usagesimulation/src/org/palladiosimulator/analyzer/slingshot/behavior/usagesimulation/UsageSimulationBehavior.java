@@ -4,13 +4,10 @@ import static org.palladiosimulator.analyzer.slingshot.simulation.extensions.beh
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
-import org.eclipse.emf.common.util.EList;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.UserEntryRequest;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.UserEntryRequested;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.InterArrivalTime;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.ThinkTime;
@@ -19,13 +16,11 @@ import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.int
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.OpenWorkloadUserInterpretationContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UsageInterpretationContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UsageScenarioInterpretationContext;
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UserBranchInterpretationContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UserInterpretationContext;
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UserLoopInterpretationContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.scenariobehavior.UsageScenarioBehaviorContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.InnerScenarioBehaviorInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.InterArrivalUserInitiated;
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserBranchInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserFinished;
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserLoopInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserRequestFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserSlept;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserStarted;
@@ -60,11 +55,11 @@ import com.google.inject.Inject;
  * @author Julijan Katic
  */
 @OnEvent(when = SimulationStarted.class, then = {UserStarted.class, InterArrivalUserInitiated.class}, cardinality = MANY)
-@OnEvent(when = UserStarted.class, then = {UserFinished.class, UserEntryRequested.class, UserSlept.class, UserWokeUp.class, UserLoopInitiated.class, UserBranchInitiated.class}, cardinality = MANY)
+@OnEvent(when = UserStarted.class, then = {UserFinished.class, UserEntryRequested.class, UserSlept.class, UserWokeUp.class, InnerScenarioBehaviorInitiated.class}, cardinality = MANY)
 @OnEvent(when = UserFinished.class, then = {UserStarted.class, InterArrivalUserInitiated.class}, cardinality = MANY)
-@OnEvent(when = UserWokeUp.class, then = {UserFinished.class, UserEntryRequested.class, UserSlept.class, UserWokeUp.class, UserLoopInitiated.class, UserBranchInitiated.class}, cardinality = MANY)
-@OnEvent(when = UserRequestFinished.class, then = {UserFinished.class, UserEntryRequested.class, UserSlept.class, UserWokeUp.class, UserLoopInitiated.class, UserBranchInitiated.class}, cardinality = MANY)
-@OnEvent(when = UserLoopInitiated.class, then = {UserStarted.class}, cardinality = MANY)
+@OnEvent(when = UserWokeUp.class, then = {UserFinished.class, UserEntryRequested.class, UserSlept.class, UserWokeUp.class, InnerScenarioBehaviorInitiated.class}, cardinality = MANY)
+@OnEvent(when = UserRequestFinished.class, then = {UserFinished.class, UserEntryRequested.class, UserSlept.class, UserWokeUp.class, InnerScenarioBehaviorInitiated.class}, cardinality = MANY)
+@OnEvent(when = InnerScenarioBehaviorInitiated.class, then = {UserStarted.class}, cardinality = MANY)
 public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 
 	private final Logger LOGGER = Logger.getLogger(UsageSimulationBehavior.class);
@@ -275,7 +270,20 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 		
 		if (context.getParentContext().isPresent()) {
 			/* We are inside another behavior, such as loop or branch */
-			checkLoopProgression(resultSet, context);
+			final UsageScenarioBehaviorContext scenarioBehaviorContext = context.getBehaviorContext();
+			final UserInterpretationContext newContext;
+			
+			if (scenarioBehaviorContext.mustRepeatScenario()) {
+				newContext = context.update()
+						.withCurrentAction(scenarioBehaviorContext.startScenario())
+						.build();
+			} else {
+				newContext = context.getParentContext().get()
+						.updateAction(scenarioBehaviorContext.getNextAction().get());
+			}
+
+			final UsageScenarioInterpreter interpreter = new UsageScenarioInterpreter(newContext);
+			resultSet.addAll(interpreter.doSwitch(newContext.getCurrentAction()));
 		} else {
 			finishUserInterpretation(resultSet, context);
 		}
@@ -295,75 +303,13 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 		this.startUsageSimulation(resultSet);
 	}
 
-	/**
-	 * Helper method to check whether the run is currently inside a loop and if it is the case, the
-	 * loop counter is decreased and restarted if the loop counter is not already 0.
-	 * 
-	 * @param resultSet The set of events that should be published afterwards.
-	 * @param context The context of the user.
-	 */
-	private void checkLoopProgression(final Set<DESEvent> resultSet, final UserInterpretationContext context) {
-		assert resultSet != null;
-		assert context != null && context.getParentContext().isPresent();
-		
-		if (context.getCurrentLoopInterpretationContext().isEmpty()) {
-			return;
-		}
-		
-		final UserLoopInterpretationContext userLoopInterpretationContext = context.getCurrentLoopInterpretationContext().get();
-		
-		final UsageScenarioInterpreter interpreter;
-		
-		/*
-		 * If the loop has finished, interpret the next action coming after the loop action itself.
-		 * Otherwise, interpret the first action within the loop scenario again.
-		 */
-		if (userLoopInterpretationContext.isLoopFinished()) {
-			 interpreter = new UsageScenarioInterpreter(context.getParentContext().get());
-			 final Optional<AbstractUserAction> afterLoopAction = userLoopInterpretationContext.getUserLoopScenarioBehavior().getNextAction();
-			 if (afterLoopAction.isPresent()) {
-				 resultSet.addAll(interpreter.doSwitch(afterLoopAction.get()));
-			 } else {
-				 LOGGER.info("There is no action after the loop");
-			 }
-		} else {
-			final UserInterpretationContext newContext = context.update()
-																.withUserLoopInterpretationContext(
-																		userLoopInterpretationContext.progress()
-																)
-																.build();
-			interpreter = new UsageScenarioInterpreter(newContext);
-			resultSet.addAll(interpreter.doSwitch(userLoopInterpretationContext.getStartAction()));
-		}
-	}
 	
-	/*
-	 * TODO: The following two operations are nearly the same. Consider using a single event for inner behaviors.
-	 */
-	/**
-	 * Handles the UserLoopInitiated event by interpreting the first action of the
-	 * inner scenario behavior.
-	 */
 	@Subscribe
-	public ResultEvent<DESEvent> onUserLoopInitiated(final UserLoopInitiated userLoopInitiated) {
-		final UserLoopInterpretationContext userLoopInterpretationContext = userLoopInitiated.getEntity();
-		final UsageScenarioInterpreter usageScenarioInterpreter = new UsageScenarioInterpreter(userLoopInterpretationContext.getUserInterpretationContext());
-		
-		final Set<DESEvent> appearedEvents = usageScenarioInterpreter.doSwitch(userLoopInterpretationContext.getUserInterpretationContext().getCurrentAction());
-		return ResultEvent.of(appearedEvents);
-	}
-	
-	/**
-	 * Handles the UserLoopInitiated event by interpreting the first action of the
-	 * inner scenario behavior.
-	 */
-	@Subscribe
-	public ResultEvent<DESEvent> onUserBranchInitiated(final UserBranchInitiated userLoopInitiated) {
-		final UserBranchInterpretationContext userBranchInterpretationContext = userLoopInitiated.getEntity();
-		final UsageScenarioInterpreter usageScenarioInterpreter = new UsageScenarioInterpreter(userBranchInterpretationContext.getUserInterpretationContext());
-		
-		final Set<DESEvent> appearedEvents = usageScenarioInterpreter.doSwitch(userBranchInterpretationContext.getUserInterpretationContext().getCurrentAction());
-		return ResultEvent.of(appearedEvents);
+	public ResultEvent<DESEvent> onInnerScenarioBehaviorInitiated(final InnerScenarioBehaviorInitiated innerScenarioBehaviorInitiated) {
+		final UserInterpretationContext userInterpretationContext = innerScenarioBehaviorInitiated.getEntity();
+		final UsageScenarioInterpreter usageScenarioInterpreter = new UsageScenarioInterpreter(userInterpretationContext);
+		final Set<DESEvent> events = usageScenarioInterpreter.doSwitch(userInterpretationContext.getCurrentAction());
+		return ResultEvent.of(events);
 	}
 
 	/**

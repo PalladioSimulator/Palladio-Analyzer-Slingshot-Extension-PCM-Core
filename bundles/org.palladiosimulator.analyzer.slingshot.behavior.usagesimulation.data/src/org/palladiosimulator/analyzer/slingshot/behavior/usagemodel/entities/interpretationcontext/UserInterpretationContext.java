@@ -5,9 +5,11 @@ import java.util.Optional;
 import javax.annotation.processing.Generated;
 
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.User;
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.scenariobehavior.GeneralScenarioBehaviorContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.scenariobehavior.UsageScenarioBehaviorContext;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
+
+import com.google.common.base.Preconditions;
 
 /**
  * The UserInterpretationContext represents the knowledge that the interpreter
@@ -20,7 +22,6 @@ public abstract class UserInterpretationContext {
 	/** The scenario to interpret. */
 	private final UsageScenario scenario;
 	
-	private final GeneralScenarioBehaviorContext scenarioContext;
 
 	/** The current action to be interpreted. */
 	private final AbstractUserAction currentAction;
@@ -34,29 +35,25 @@ public abstract class UserInterpretationContext {
 	/** The parent context */
 	private final Optional<UserInterpretationContext> parentContext;
 
-	private final Optional<UserLoopInterpretationContext> currentLoopInterpretationContext;
-	
-	private final Optional<UserBranchInterpretationContext> currentBranchInterpretationContext;
+	/** The behavior context indicating in which scenario we are. */
+	private final UsageScenarioBehaviorContext behaviorContext;
 	
 	@Generated("SparkTools")
 	protected UserInterpretationContext(final BaseBuilder<?, ?> builder) {
+		Preconditions.checkArgument(builder.usageScenarioBehaviorContext != null);
+		
 		this.scenario = builder.scenario;
 		this.currentAction = builder.currentAction;
 		this.user = builder.user;
 		this.currentUsageRun = builder.currentUsageRun;
-		this.parentContext = Optional.ofNullable(builder.parentContext);
-		this.currentLoopInterpretationContext = Optional.ofNullable(builder.currentLoopInterpretationContext);
-		this.currentBranchInterpretationContext = Optional.ofNullable(builder.currentBranchInterpretationContext);
-		this.scenarioContext = new GeneralScenarioBehaviorContext(scenario.getScenarioBehaviour_UsageScenario(), null, null);
+		this.parentContext = builder.parentContext;
+		this.behaviorContext = builder.usageScenarioBehaviorContext;
 	}
 
 	public UsageScenario getScenario() {
 		return scenario;
 	}
 	
-	public GeneralScenarioBehaviorContext getScenarioContext() {
-		return this.scenarioContext;
-	}
 
 	public AbstractUserAction getCurrentAction() {
 		return currentAction;
@@ -66,26 +63,12 @@ public abstract class UserInterpretationContext {
 		return user;
 	}
 
-	public UserInterpretationContext removeLoopContext() {
-		return this.update()
-				.withUserLoopInterpretationContext(null)
-				.build();
-	}
-
 	public int getCurrentUsageRun() {
 		return currentUsageRun;
 	}
 
 	public Optional<UserInterpretationContext> getParentContext() {
 		return parentContext;
-	}
-
-	public Optional<UserLoopInterpretationContext> getCurrentLoopInterpretationContext() {
-		return currentLoopInterpretationContext;
-	}
-
-	public Optional<UserBranchInterpretationContext> getCurrentBranchInterpretationContext() {
-		return currentBranchInterpretationContext;
 	}
 	
 	public UserInterpretationContext incrementUsageRun() {
@@ -112,10 +95,13 @@ public abstract class UserInterpretationContext {
 	protected final <T extends UserInterpretationContext, B extends BaseBuilder<T, B>> B updateWithBuilder(final B builder) {
 		return builder.withCurrentAction(this.currentAction)
 		        .withCurrentUsageRun(this.currentUsageRun)
-		        .withUserLoopInterpretationContext(this.currentLoopInterpretationContext.orElse(null))
 		        .withScenario(this.scenario)
 		        .withUser(this.user)
-		        .withParentContext(this.parentContext.orElse(null));
+		        .withParentContext(this.parentContext)
+		        .withUsageScenarioBehaviorContext(getBehaviorContext());
+	}
+	public UsageScenarioBehaviorContext getBehaviorContext() {
+		return behaviorContext;
 	}
 	/**
 	 * Builder to build {@link UserInterpretationContext}.
@@ -126,9 +112,8 @@ public abstract class UserInterpretationContext {
 		private AbstractUserAction currentAction;
 		private User user;
 		private int currentUsageRun;
-		private UserInterpretationContext parentContext;
-		private UserLoopInterpretationContext currentLoopInterpretationContext;
-		private UserBranchInterpretationContext currentBranchInterpretationContext;
+		private Optional<UserInterpretationContext> parentContext = Optional.empty();
+		private UsageScenarioBehaviorContext usageScenarioBehaviorContext;
 
 		public B withScenario(final UsageScenario scenario) {
 			this.scenario = scenario;
@@ -150,18 +135,13 @@ public abstract class UserInterpretationContext {
 			return actualBuilder();
 		}
 
-		public B withParentContext(final UserInterpretationContext parentContext) {
+		public B withParentContext(final Optional<UserInterpretationContext> parentContext) {
 			this.parentContext = parentContext;
 			return actualBuilder();
 		}
 		
-		public B withUserLoopInterpretationContext(final UserLoopInterpretationContext currentLoopInterpretationContext) {
-			this.currentLoopInterpretationContext = currentLoopInterpretationContext;
-			return actualBuilder();
-		}
-		
-		public B withCurrentBranchInterpretationContext(final UserBranchInterpretationContext currentBranchInterpretationContext) {
-			this.currentBranchInterpretationContext = currentBranchInterpretationContext;
+		public B withUsageScenarioBehaviorContext(final UsageScenarioBehaviorContext usageScenarioBehaviorContext) {
+			this.usageScenarioBehaviorContext = usageScenarioBehaviorContext;
 			return actualBuilder();
 		}
 		

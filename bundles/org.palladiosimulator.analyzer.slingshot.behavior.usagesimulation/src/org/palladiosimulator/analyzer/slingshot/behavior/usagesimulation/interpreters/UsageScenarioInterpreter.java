@@ -1,6 +1,7 @@
 package org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.interpreters;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -10,16 +11,15 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.UserRequest;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.ClosedWorkloadUserInterpretationContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.OpenWorkloadUserInterpretationContext;
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UserBranchInterpretationContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UserInterpretationContext;
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UserLoopInterpretationContext;
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.scenariobehavior.GeneralScenarioBehaviorContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.scenariobehavior.BranchScenarioContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.scenariobehavior.LoopScenarioBehaviorContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.scenariobehavior.UsageScenarioBehaviorContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.InnerScenarioBehaviorInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.InterArrivalUserInitiated;
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserBranchInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserEntryRequested;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserInterpretationProgressed;
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserLoopInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserRequestInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserSlept;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserStarted;
@@ -83,19 +83,20 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 		
 		final AbstractUserAction firstLoopAction = bodyBehavior.getActions_ScenarioBehaviour().get(0);
 		assert firstLoopAction instanceof Start;
-		
-		final UserLoopInterpretationContext loopInterpretationContext = UserLoopInterpretationContext.builder()
-				.withMaximalLoopCount(numberOfLoops)
-				.withUserInterpretationContext(
-						userContext.update()
+
+		final UsageScenarioBehaviorContext behaviorContext = LoopScenarioBehaviorContext.builder()
+				.withNextAction(Optional.of(loop.getSuccessor()))
+				.withParent(Optional.of(userContext.getBehaviorContext()))
+				.withReferencedContext(userContext.update()
 						.withCurrentAction(firstLoopAction)
-						.withParentContext(userContext)
+						.withParentContext(Optional.of(userContext))
 						.build())
-				.withUserLoopScenarioBehavior(new GeneralScenarioBehaviorContext(bodyBehavior, this.userContext.getScenarioContext(), loop.getSuccessor()))
+				.withScenarioBehavior(bodyBehavior)
 				.build();
 		
-		final UserLoopInitiated userLoopInitiated = new UserLoopInitiated(loopInterpretationContext);
-		return Set.of(userLoopInitiated);
+		final InnerScenarioBehaviorInitiated behaviorInitiated = new InnerScenarioBehaviorInitiated(behaviorContext.getReferencedContext(), 0);
+		
+		return Set.of(behaviorInitiated);
 	}
 
 	/**
@@ -171,7 +172,7 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 	 * used to hold the action that comes after the whole branch action.
 	 * 
 	 * @return set of the events that are returned by the first action of the branch
-	 *         transition, and {@link UserInterpretationProgressed}.
+	 *         transition, and {@link innerScenarioBehaviorInitiated}.
 	 */
 	@Override
 	public Set<DESEvent> caseBranch(final Branch branch) {
@@ -186,15 +187,18 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 				.get(0);
 		assert firstBranchAction instanceof Start;
 		
-		final UserBranchInterpretationContext branchInterpretationContext = UserBranchInterpretationContext.builder()
-				.withStartAction((Start) firstBranchAction)
-				.withUserBranchScenarioBehavior(new GeneralScenarioBehaviorContext(branchTransition.getBranchedBehaviour_BranchTransition(), this.userContext.getScenarioContext(), branch.getSuccessor()))
-				.withUserInterpretationContext(this.userContext)
+		final UsageScenarioBehaviorContext behaviorContext = BranchScenarioContext.builder()
+				.withNextAction(Optional.of(branch.getSuccessor()))
+				.withParent(Optional.of(userContext.getBehaviorContext()))
+				.withReferencedContext(userContext.update()
+						.withCurrentAction(firstBranchAction)
+						.build())
+				.withScenarioBehavior(branchTransition.getBranch_BranchTransition().getScenarioBehaviour_AbstractUserAction())
 				.build();
 		
-		final UserBranchInitiated userBranchInitiated = new UserBranchInitiated(branchInterpretationContext);
+		final InnerScenarioBehaviorInitiated innerScenarioBehaviorInitiated = new InnerScenarioBehaviorInitiated(behaviorContext.getReferencedContext(), 0);
 		
-		return Set.of(userBranchInitiated);
+		return Set.of(innerScenarioBehaviorInitiated);
 	}
 
 	/**
@@ -229,6 +233,7 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 				return this.doSwitch(abstractUserAction);
 			}
 		}
+		
 		return Set.of();
 	}
 
