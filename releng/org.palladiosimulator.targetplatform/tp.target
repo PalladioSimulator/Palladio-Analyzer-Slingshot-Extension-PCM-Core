@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?pde version="3.8"?>
-<target name="org.palladiosimulator Target Platform" sequenceNumber="1">
+<target name="org.palladiosimulator.analyzer.slingshot.targetplatform" sequenceNumber="1">
 <locations>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<unit id="org.junit" version="4.12.0.v201504281640"/>
@@ -193,15 +193,15 @@
 			<unit id="org.palladiosimulator.solver.feature.feature.group" version="4.1.0.201709290912"/>
 			<repository location="https://updatesite.palladio-simulator.com/palladio-analyzer-solver/nightly/"/>
 		</location>
-	<location filter="release" includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
-		<repository location="https://updatesite.palladio-simulator.com/palladio-thirdparty-library/releases/latest"/>
-		<unit id="ca.umontreal.iro.ssj.feature.feature.group" version="3.3.1"/>
-		<unit id="ca.umontreal.iro.ssj.feature.source.feature.group" version="3.3.1"/>
-	</location>
-	<location filter="nightly" includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
-		<repository location="https://updatesite.palladio-simulator.com/palladio-thirdparty-library/nightly"/>
-		<unit id="ca.umontreal.iro.ssj.feature.feature.group" version="3.3.1"/>
-		<unit id="ca.umontreal.iro.ssj.feature.source.feature.group" version="3.3.1"/>
-	</location>
+		<location filter="release" includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+			<repository location="https://updatesite.palladio-simulator.com/palladio-thirdparty-library/releases/latest"/>
+			<unit id="ca.umontreal.iro.ssj.feature.feature.group" version="3.3.1"/>
+			<unit id="ca.umontreal.iro.ssj.feature.source.feature.group" version="3.3.1"/>
+		</location>
+		<location filter="nightly" includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+			<repository location="https://updatesite.palladio-simulator.com/palladio-thirdparty-library/nightly"/>
+			<unit id="ca.umontreal.iro.ssj.feature.feature.group" version="3.3.1"/>
+			<unit id="ca.umontreal.iro.ssj.feature.source.feature.group" version="3.3.1"/>
+		</location>
 </locations>
 </target>

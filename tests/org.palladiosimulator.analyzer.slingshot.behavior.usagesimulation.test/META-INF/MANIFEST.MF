@@ -13,4 +13,9 @@ Require-Bundle: org.eclipse.emf.common,
  org.palladiosimulator.analyzer.slingshot.common.serialization,
  org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation,
  org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.data,
- org.mockito
+ org.mockito,
+ org.junit,
+ org.palladiosimulator.analyzer.slingshot.common.utils;bundle-version="1.0.0",
+ net.bytebuddy.byte-buddy;bundle-version="1.9.0",
+ de.uka.ipd.sdq.probfunction.math;bundle-version="4.3.0",
+ de.uka.ipd.sdq.simucomframework.variables
