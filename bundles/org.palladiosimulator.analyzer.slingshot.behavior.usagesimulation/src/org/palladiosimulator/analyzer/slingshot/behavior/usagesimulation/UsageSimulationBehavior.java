@@ -44,7 +44,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 
-
 /**
  * This behavior handles the events for the usage simulation.
  * 
@@ -54,12 +53,16 @@ import com.google.inject.Inject;
  * 
  * @author Julijan Katic
  */
-@OnEvent(when = SimulationStarted.class, then = {UserStarted.class, InterArrivalUserInitiated.class}, cardinality = MANY)
-@OnEvent(when = UserStarted.class, then = {UserFinished.class, UserEntryRequested.class, UserSlept.class, UserWokeUp.class, InnerScenarioBehaviorInitiated.class}, cardinality = MANY)
-@OnEvent(when = UserFinished.class, then = {UserStarted.class, InterArrivalUserInitiated.class}, cardinality = MANY)
-@OnEvent(when = UserWokeUp.class, then = {UserFinished.class, UserEntryRequested.class, UserSlept.class, UserWokeUp.class, InnerScenarioBehaviorInitiated.class}, cardinality = MANY)
-@OnEvent(when = UserRequestFinished.class, then = {UserFinished.class, UserEntryRequested.class, UserSlept.class, UserWokeUp.class, InnerScenarioBehaviorInitiated.class}, cardinality = MANY)
-@OnEvent(when = InnerScenarioBehaviorInitiated.class, then = {UserStarted.class}, cardinality = MANY)
+@OnEvent(when = SimulationStarted.class, then = { UserStarted.class,
+		InterArrivalUserInitiated.class }, cardinality = MANY)
+@OnEvent(when = UserStarted.class, then = { UserFinished.class, UserEntryRequested.class, UserSlept.class,
+		UserWokeUp.class, InnerScenarioBehaviorInitiated.class }, cardinality = MANY)
+@OnEvent(when = UserFinished.class, then = { UserStarted.class, InterArrivalUserInitiated.class }, cardinality = MANY)
+@OnEvent(when = UserWokeUp.class, then = { UserFinished.class, UserEntryRequested.class, UserSlept.class,
+		UserWokeUp.class, InnerScenarioBehaviorInitiated.class }, cardinality = MANY)
+@OnEvent(when = UserRequestFinished.class, then = { UserFinished.class, UserEntryRequested.class, UserSlept.class,
+		UserWokeUp.class, InnerScenarioBehaviorInitiated.class }, cardinality = MANY)
+@OnEvent(when = InnerScenarioBehaviorInitiated.class, then = { UserStarted.class }, cardinality = MANY)
 public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 
 	private final Logger LOGGER = Logger.getLogger(UsageSimulationBehavior.class);
@@ -80,15 +83,15 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 
 	@Override
 	public void init() {
-		this.usageModelRepository.load(usageModel);
-		usageInterpretationContext = UsageInterpretationContext.builder()
-				.withUsageScenariosContexts(this.collectAllUsageScenarios())
-				.build();
+		this.usageModelRepository.load(this.usageModel);
+		this.usageInterpretationContext = UsageInterpretationContext.builder()
+				.withUsageScenariosContexts(this.collectAllUsageScenarios()).build();
 	}
-	
+
 	/**
-	 * Helper method in order to collect all available usage scenarios and map them into the
-	 * {@link UsageScenarioInterpretationContext}.
+	 * Helper method in order to collect all available usage scenarios and map them
+	 * into the {@link UsageScenarioInterpretationContext}.
+	 * 
 	 * @return the immutable list of usage scenario contexts.
 	 */
 	private ImmutableList<UsageScenarioInterpretationContext> collectAllUsageScenarios() {
@@ -107,15 +110,19 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 	@Subscribe
 	public ResultEvent<DESEvent> onSimulationStart(final SimulationStarted evt) {
 		final Set<DESEvent> returnedEvents = new HashSet<>();
-		
+
 		this.startUsageSimulation(returnedEvents);
-		
-		/* Because this is the first action, this should only contain the UserStarted and InterArrivalUserInitiated events. */
-		assert Postconditions.checkResultEventTypesAndSize(returnedEvents, List.of(UserStarted.class, InterArrivalUserInitiated.class), 2);
-		
+
+		/*
+		 * Because this is the first action, this should only contain the UserStarted
+		 * and InterArrivalUserInitiated events.
+		 */
+		assert Postconditions.checkResultEventTypesAndSize(returnedEvents,
+				List.of(UserStarted.class, InterArrivalUserInitiated.class), 2);
+
 		return ResultEvent.ofAll(returnedEvents);
 	}
-	
+
 	/**
 	 * This helper method is used in order to start the user simulation. Depending
 	 * on the user's workload, the {@link UsageInterpretationEvent} will be in the
@@ -125,15 +132,16 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 	 */
 	private void startUsageSimulation(final Set<DESEvent> returnedEvents) {
 		assert returnedEvents != null;
-		
-		for (UsageScenarioInterpretationContext usageScenarioContext : usageInterpretationContext.getUsageScenarioContexts()) {
+
+		for (final UsageScenarioInterpretationContext usageScenarioContext : this.usageInterpretationContext
+				.getUsageScenarioContexts()) {
 			final UsageScenario usageScenario = usageScenarioContext.getScenario();
-			final AbstractUserAction firstAction = usageModelRepository.findFirstActionOf(usageScenario);
-			
+			final AbstractUserAction firstAction = this.usageModelRepository.findFirstActionOf(usageScenario);
+
 			if (usageScenarioContext.isClosedWorkload()) {
-				interpreteClosedWorkload(returnedEvents, usageScenario, firstAction);
+				this.interpreteClosedWorkload(returnedEvents, usageScenario, firstAction);
 			} else {
-				interpreteOpenWorkload(returnedEvents, usageScenario, firstAction);
+				this.interpreteOpenWorkload(returnedEvents, usageScenario, firstAction);
 			}
 		}
 	}
@@ -150,21 +158,23 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 	 *                       action).
 	 */
 	private void interpreteOpenWorkload(final Set<DESEvent> returnedEvents, final UsageScenario usageScenario,
-	        final AbstractUserAction firstAction) {
+			final AbstractUserAction firstAction) {
 		final OpenWorkload workloadSpec = (OpenWorkload) usageScenario.getWorkload_UsageScenario();
 		final PCMRandomVariable interArrivalRV = workloadSpec.getInterArrivalTime_OpenWorkload();
 
-		final OpenWorkloadUserInterpretationContext openWorkloadUserInterpretationContext = OpenWorkloadUserInterpretationContext.builder()
-					.withUser(new User())
-					.withScenario(usageScenario)
-					.withCurrentAction(firstAction)
-					.withInterArrivalTime(new InterArrivalTime(interArrivalRV))
-					.build();
-		
-		final UsageScenarioInterpreter interpreter = new UsageScenarioInterpreter(openWorkloadUserInterpretationContext);
-		
+		final OpenWorkloadUserInterpretationContext openWorkloadUserInterpretationContext = OpenWorkloadUserInterpretationContext
+				.builder().withUser(new User()).withScenario(usageScenario).withCurrentAction(firstAction)
+				.withInterArrivalTime(new InterArrivalTime(interArrivalRV)).build();
+
+		final UsageScenarioInterpreter interpreter = new UsageScenarioInterpreter(
+				openWorkloadUserInterpretationContext);
+
 		final Set<DESEvent> events = interpreter.doSwitch(firstAction);
-		
+
+		assert events.size() == 2;
+		assert events.stream().anyMatch(UserStarted.class::isInstance);
+		assert events.stream().anyMatch(InterArrivalUserInitiated.class::isInstance);
+
 		returnedEvents.addAll(events);
 	}
 
@@ -179,15 +189,13 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 	 *                       action).
 	 */
 	private void interpreteClosedWorkload(final Set<DESEvent> returnedEvents, final UsageScenario usageScenario,
-	        final AbstractUserAction firstAction) {
+			final AbstractUserAction firstAction) {
 		final ClosedWorkload workloadSpec = (ClosedWorkload) usageScenario.getWorkload_UsageScenario();
 
 		for (int i = 0; i < workloadSpec.getPopulation(); i++) {
 			final UserInterpretationContext interpretationContext = ClosedWorkloadUserInterpretationContext.builder()
-			        .withThinkTime(new ThinkTime(workloadSpec.getThinkTime_ClosedWorkload()))
-			        .withUser(new User())
-			        .withCurrentAction(firstAction)
-			        .build();
+					.withThinkTime(new ThinkTime(workloadSpec.getThinkTime_ClosedWorkload())).withUser(new User())
+					.withCurrentAction(firstAction).build();
 
 			final UsageScenarioInterpreter interpreter = new UsageScenarioInterpreter(interpretationContext);
 			returnedEvents.addAll(interpreter.doSwitch(firstAction));
@@ -204,26 +212,32 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 	@Subscribe
 	public ResultEvent<DESEvent> onUserStarted(final UserStarted userStarted) {
 		userStarted.getEntity().getUser().getStack().createAndPushNewStackFrame();
-		final UsageScenarioInterpreter interpreter = new UsageScenarioInterpreter(
-		        userStarted.getEntity());
+		final UsageScenarioInterpreter interpreter = new UsageScenarioInterpreter(userStarted.getEntity());
 		return ResultEvent.of(interpreter.doSwitch(userStarted.getEntity().getCurrentAction()));
 	}
-	
+
 	/**
-	 * Creates a new set of open workload users for each user scenario. Returns the events
-	 * of 
+	 * Creates a new set of open workload users for each user scenario. Returns the
+	 * events of interpreting the first actions of each open workload user scenario.
 	 * 
-	 * @param interArrivalUserInitiated
-	 * @return
+	 * @param interArrivalUserInitiated The event
+	 * @return The events of interpreting the first actions in each scenario.
 	 */
 	@Subscribe
-	public ResultEvent<DESEvent> onInterArrivalUserInitiated(final InterArrivalUserInitiated interArrivalUserInitiated) {
+	public ResultEvent<DESEvent> onInterArrivalUserInitiated(
+			final InterArrivalUserInitiated interArrivalUserInitiated) {
 		final Set<DESEvent> result = new HashSet<>();
-		
-		for (UsageScenarioInterpretationContext usageScenarioContext : usageInterpretationContext.getUsageScenarioContexts()) {
-			this.interpreteOpenWorkload(result, usageScenarioContext.getScenario(), usageModelRepository.findFirstActionOf(usageScenarioContext.getScenario()));
+
+		for (final UsageScenarioInterpretationContext usageScenarioContext : this.usageInterpretationContext
+				.getUsageScenarioContexts()) {
+			this.interpreteOpenWorkload(result, usageScenarioContext.getScenario(),
+					this.usageModelRepository.findFirstActionOf(usageScenarioContext.getScenario()));
 		}
-		
+
+		// The set should only contain UserStarted and InterArrivalUserInitiated events.
+		assert result.stream().filter(event -> !UserStarted.class.isInstance(event))
+				.filter(event -> !InterArrivalUserInitiated.class.isInstance(event)).findAny().isEmpty();
+
 		return ResultEvent.of(result);
 	}
 
@@ -263,20 +277,18 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 	 */
 	@Subscribe
 	public ResultEvent<DESEvent> onUserFinished(final UserFinished evt) {
-		LOGGER.info("User finished: " + evt.getEntity());
+		this.LOGGER.info("User finished: " + evt.getEntity());
 
 		final Set<DESEvent> resultSet = new HashSet<>();
 		final UserInterpretationContext context = evt.getEntity();
-		
+
 		if (context.getParentContext().isPresent()) {
 			/* We are inside another behavior, such as loop or branch */
 			final UsageScenarioBehaviorContext scenarioBehaviorContext = context.getBehaviorContext();
 			final UserInterpretationContext newContext;
-			
+
 			if (scenarioBehaviorContext.mustRepeatScenario()) {
-				newContext = context.update()
-						.withCurrentAction(scenarioBehaviorContext.startScenario())
-						.build();
+				newContext = context.update().withCurrentAction(scenarioBehaviorContext.startScenario()).build();
 			} else {
 				newContext = context.getParentContext().get()
 						.updateAction(scenarioBehaviorContext.getNextAction().get());
@@ -285,29 +297,30 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 			final UsageScenarioInterpreter interpreter = new UsageScenarioInterpreter(newContext);
 			resultSet.addAll(interpreter.doSwitch(newContext.getCurrentAction()));
 		} else {
-			finishUserInterpretation(resultSet, context);
+			this.finishUserInterpretation(resultSet, context);
 		}
 
 		return ResultEvent.of(resultSet);
 	}
 
 	/**
-	 * Helper method which lets the user rerun the simulation again as long as the simulation
-	 * hasn't been interrupted yet.
+	 * Helper method which lets the user rerun the simulation again as long as the
+	 * simulation hasn't been interrupted yet.
 	 * 
 	 * @param resultSet The set of events that should be published.
-	 * @param context The user's context.
+	 * @param context   The user's context.
 	 */
 	private void finishUserInterpretation(final Set<DESEvent> resultSet, final UserInterpretationContext context) {
 		context.getUser().getStack().removeStackFrame();
 		this.startUsageSimulation(resultSet);
 	}
 
-	
 	@Subscribe
-	public ResultEvent<DESEvent> onInnerScenarioBehaviorInitiated(final InnerScenarioBehaviorInitiated innerScenarioBehaviorInitiated) {
+	public ResultEvent<DESEvent> onInnerScenarioBehaviorInitiated(
+			final InnerScenarioBehaviorInitiated innerScenarioBehaviorInitiated) {
 		final UserInterpretationContext userInterpretationContext = innerScenarioBehaviorInitiated.getEntity();
-		final UsageScenarioInterpreter usageScenarioInterpreter = new UsageScenarioInterpreter(userInterpretationContext);
+		final UsageScenarioInterpreter usageScenarioInterpreter = new UsageScenarioInterpreter(
+				userInterpretationContext);
 		final Set<DESEvent> events = usageScenarioInterpreter.doSwitch(userInterpretationContext.getCurrentAction());
 		return ResultEvent.of(events);
 	}

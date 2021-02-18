@@ -14,13 +14,16 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.InterArrivalTime;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.ThinkTime;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.User;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.ClosedWorkloadUserInterpretationContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.OpenWorkloadUserInterpretationContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.scenariobehavior.BranchScenarioContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.scenariobehavior.LoopScenarioBehaviorContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.scenariobehavior.UsageScenarioBehaviorContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.InnerScenarioBehaviorInitiated;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.InterArrivalUserInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserEntryRequested;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserSlept;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserStarted;
@@ -51,11 +54,12 @@ import de.uka.ipd.sdq.simucomframework.variables.cache.StoExCache;
  * 
  * @author Julijan Katic
  */
-public class UsageScenarioInterpreterClosedWorkloadTest {
+public class UsageScenarioInterpreterTest {
 
 	private ClosedWorkloadUserInterpretationContext interpretationContext;
 	private ClosedWorkloadUserInterpretationContext.Builder builder;
 	private UsageScenarioInterpreter interpreter;
+	final UsageScenarioBehaviorContext behaviorContext = mock(UsageScenarioBehaviorContext.class);
 
 	private static final UsagemodelFactory usageModelFactory = UsagemodelFactory.eINSTANCE;
 	private static final CoreFactory coreFactory = CoreFactory.eINSTANCE;
@@ -73,14 +77,37 @@ public class UsageScenarioInterpreterClosedWorkloadTest {
 
 		this.builder = ClosedWorkloadUserInterpretationContext.builder();
 
-		final UsageScenarioBehaviorContext behaviorContext = mock(UsageScenarioBehaviorContext.class);
 		final User user = new User();
 
 		SimulatedStackHelper.createAndPushNewStackFrame(user.getStack(), ECollections.emptyEList());
 
-		this.interpretationContext = this.builder.withUsageScenarioBehaviorContext(behaviorContext).withUser(user)
+		this.interpretationContext = this.builder.withUsageScenarioBehaviorContext(this.behaviorContext).withUser(user)
 				.build();
 		this.interpreter = spy(new UsageScenarioInterpreter(this.interpretationContext));
+	}
+
+	@Test
+	public void test_openWorkloadStartAction() {
+		final PCMRandomVariable interArrivalTimeRV = coreFactory.createPCMRandomVariable();
+		interArrivalTimeRV.setSpecification("0");
+
+		final Start startEntity = usageModelFactory.createStart();
+		startEntity.setEntityName("start");
+		startEntity.setSuccessor(startEntity);
+
+		final InterArrivalTime interArrivalTime = new InterArrivalTime(interArrivalTimeRV);
+
+		final OpenWorkloadUserInterpretationContext interpretationContext = OpenWorkloadUserInterpretationContext
+				.builder().withUsageScenarioBehaviorContext(this.behaviorContext).withUser(new User())
+				.withInterArrivalTime(interArrivalTime).build();
+		this.interpreter = spy(new UsageScenarioInterpreter(interpretationContext));
+
+		final Set<DESEvent> returnedEvents = this.interpreter.doSwitch(startEntity);
+		verify(this.interpreter).caseStart(startEntity);
+
+		assertEquals(2, returnedEvents.size());
+		assertTrue(returnedEvents.stream().anyMatch(UserStarted.class::isInstance));
+		assertTrue(returnedEvents.stream().anyMatch(InterArrivalUserInitiated.class::isInstance));
 	}
 
 	@Test

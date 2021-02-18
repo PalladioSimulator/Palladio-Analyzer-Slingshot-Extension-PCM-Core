@@ -136,7 +136,8 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 
 	/**
 	 * Interprets the Start action and immediately returns the set with
-	 * {@link UserStarted} event.
+	 * {@link UserStarted} event. If this is in a nested context, then only
+	 * {@link UserStarted} will be returned.
 	 * 
 	 * @return set with {@link UserStarted} event, and if it is an open workload
 	 *         user, then also a {@link InterArrivalUserInitiated} event to start a
@@ -146,7 +147,9 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 	public Set<DESEvent> caseStart(final Start object) {
 		final Set<DESEvent> resultSet;
 
-		if (this.userContext instanceof ClosedWorkloadUserInterpretationContext) {
+		if (this.userContext.getBehaviorContext().isChildContext()) {
+			resultSet = Set.of(new UserStarted(this.userContext.updateAction(object.getSuccessor()), 0));
+		} else if (this.userContext instanceof ClosedWorkloadUserInterpretationContext) {
 			final double thinkTime = ((ClosedWorkloadUserInterpretationContext) this.userContext).getThinkTime()
 					.calculateRV();
 			resultSet = Set.of(new UserStarted(this.userContext.updateAction(object.getSuccessor()), thinkTime));
@@ -159,7 +162,6 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 			this.LOGGER.info("The user is neither a closed workload nor open workload user");
 			throw new IllegalStateException("The user must be a open workload or closed workload user");
 		}
-
 		return resultSet;
 	}
 
