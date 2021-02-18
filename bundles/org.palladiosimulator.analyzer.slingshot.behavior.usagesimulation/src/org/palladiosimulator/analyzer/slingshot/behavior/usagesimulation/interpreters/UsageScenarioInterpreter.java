@@ -1,6 +1,5 @@
 package org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.interpreters;
 
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -70,32 +69,32 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 	/**
 	 * This will handle the loop action by evaluating the number of loops that
 	 * should happen and returning a set of {@link UserLoopInitiated} event. The
-	 * UserInterpretationContext will receive a {@link UserLoopInterpretationContext} which
-	 * gives knowledge about the current loop count and the number of loops needed.
+	 * UserInterpretationContext will receive a
+	 * {@link UserLoopInterpretationContext} which gives knowledge about the current
+	 * loop count and the number of loops needed.
 	 * 
 	 * @return set of {@link UserLoopInitiated} event.
 	 */
 	@Override
 	public Set<DESEvent> caseLoop(final Loop loop) {
-		final int numberOfLoops = StackContext.evaluateStatic(loop.getLoopIteration_Loop().getSpecification(), Integer.class);
-		LOGGER.debug("Interpret loop. Maximum loop number: " + numberOfLoops);
+		final int numberOfLoops = StackContext.evaluateStatic(loop.getLoopIteration_Loop().getSpecification(),
+				Integer.class);
+		this.LOGGER.debug("Interpret loop. Maximum loop number: " + numberOfLoops);
 		final ScenarioBehaviour bodyBehavior = loop.getBodyBehaviour_Loop();
-		
+
 		final AbstractUserAction firstLoopAction = bodyBehavior.getActions_ScenarioBehaviour().get(0);
 		assert firstLoopAction instanceof Start;
 
 		final UsageScenarioBehaviorContext behaviorContext = LoopScenarioBehaviorContext.builder()
 				.withNextAction(Optional.of(loop.getSuccessor()))
-				.withParent(Optional.of(userContext.getBehaviorContext()))
-				.withReferencedContext(userContext.update()
-						.withCurrentAction(firstLoopAction)
-						.withParentContext(Optional.of(userContext))
-						.build())
-				.withScenarioBehavior(bodyBehavior)
-				.build();
-		
-		final InnerScenarioBehaviorInitiated behaviorInitiated = new InnerScenarioBehaviorInitiated(behaviorContext.getReferencedContext(), 0);
-		
+				.withParent(Optional.of(this.userContext.getBehaviorContext()))
+				.withReferencedContext(this.userContext.update().withCurrentAction(firstLoopAction)
+						.withParentContext(Optional.of(this.userContext)).build())
+				.withScenarioBehavior(bodyBehavior).withMaximalLoopCount(numberOfLoops).build();
+
+		final InnerScenarioBehaviorInitiated behaviorInitiated = new InnerScenarioBehaviorInitiated(
+				behaviorContext.getReferencedContext(), 0);
+
 		return Set.of(behaviorInitiated);
 	}
 
@@ -108,23 +107,19 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 	 */
 	@Override
 	public Set<DESEvent> caseEntryLevelSystemCall(final EntryLevelSystemCall object) {
-		LOGGER.debug("Entering EntryLevelSystemCall");
+		this.LOGGER.debug("Entering EntryLevelSystemCall");
 
 		final OperationProvidedRole opProvidedRole = EcoreUtil.copy(object.getProvidedRole_EntryLevelSystemCall());
 		final OperationSignature signature = EcoreUtil.copy(object.getOperationSignature__EntryLevelSystemCall());
 		final EList<VariableUsage> inputParameterUsages = object.getInputParameterUsages_EntryLevelSystemCall();
 
-		final UserRequest userRequest = UserRequest.builder()
-				.withUser(userContext.getUser())
-				.withOperationProvidedRole(opProvidedRole)
-				.withOperationSignature(signature)
-				.withVariableUsages(inputParameterUsages)
-				.build();
-		
-		final UserEntryRequested userEntryRequest = new UserEntryRequested(userRequest, userContext.update()
-				.withCurrentAction(object.getSuccessor())
-				.build(), 0);
-		
+		final UserRequest userRequest = UserRequest.builder().withUser(this.userContext.getUser())
+				.withOperationProvidedRole(opProvidedRole).withOperationSignature(signature)
+				.withVariableUsages(inputParameterUsages).build();
+
+		final UserEntryRequested userEntryRequest = new UserEntryRequested(userRequest,
+				this.userContext.update().withCurrentAction(object.getSuccessor()).build(), 0);
+
 		return Set.of(userEntryRequest);
 	}
 
@@ -136,31 +131,35 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 	 */
 	@Override
 	public Set<DESEvent> caseStop(final Stop object) {
-		return Set.of(new UserFinished(userContext));
+		return Set.of(new UserFinished(this.userContext));
 	}
 
 	/**
 	 * Interprets the Start action and immediately returns the set with
 	 * {@link UserStarted} event.
 	 * 
-	 * @return set with {@link UserStarted} event, and if it is an open workload user, then
-	 *         also a {@link InterArrivalUserInitiated} event to start a new user after a
-	 *         specified interArrivalTime.
+	 * @return set with {@link UserStarted} event, and if it is an open workload
+	 *         user, then also a {@link InterArrivalUserInitiated} event to start a
+	 *         new user after a specified interArrivalTime.
 	 */
 	@Override
 	public Set<DESEvent> caseStart(final Start object) {
 		final Set<DESEvent> resultSet;
+
 		if (this.userContext instanceof ClosedWorkloadUserInterpretationContext) {
-			final double thinkTime = ((ClosedWorkloadUserInterpretationContext) this.userContext).getThinkTime().calculateRV();
-			resultSet = Set.of(new UserStarted(userContext.updateAction(object.getSuccessor()), thinkTime));
+			final double thinkTime = ((ClosedWorkloadUserInterpretationContext) this.userContext).getThinkTime()
+					.calculateRV();
+			resultSet = Set.of(new UserStarted(this.userContext.updateAction(object.getSuccessor()), thinkTime));
 		} else if (this.userContext instanceof OpenWorkloadUserInterpretationContext) {
-			final double interArrivalTime = ((OpenWorkloadUserInterpretationContext) this.userContext).getInterArrivalTime().calculateRV();
-			resultSet = Set.of(new UserStarted(userContext.updateAction(object.getSuccessor())),
-					      	   new InterArrivalUserInitiated(interArrivalTime));
+			final double interArrivalTime = ((OpenWorkloadUserInterpretationContext) this.userContext)
+					.getInterArrivalTime().calculateRV();
+			resultSet = Set.of(new UserStarted(this.userContext.updateAction(object.getSuccessor())),
+					new InterArrivalUserInitiated(interArrivalTime));
 		} else {
-			LOGGER.info("The user is neither a closed workload nor open workload user");
+			this.LOGGER.info("The user is neither a closed workload nor open workload user");
 			throw new IllegalStateException("The user must be a open workload or closed workload user");
 		}
+
 		return resultSet;
 	}
 
@@ -177,27 +176,23 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 	@Override
 	public Set<DESEvent> caseBranch(final Branch branch) {
 		final TransitionDeterminer transitionDeterminer = new TransitionDeterminer(
-		        this.userContext.getUser().getStack().currentStackFrame());
+				this.userContext.getUser().getStack().currentStackFrame());
 		final BranchTransition branchTransition = transitionDeterminer
-		        .determineBranchTransition(branch.getBranchTransitions_Branch());
+				.determineBranchTransition(branch.getBranchTransitions_Branch());
 
-		final AbstractUserAction firstBranchAction = branchTransition.getBranch_BranchTransition()
-				.getScenarioBehaviour_AbstractUserAction()
-				.getActions_ScenarioBehaviour()
-				.get(0);
+		final AbstractUserAction firstBranchAction = branchTransition.getBranchedBehaviour_BranchTransition()
+				.getActions_ScenarioBehaviour().get(0);
 		assert firstBranchAction instanceof Start;
-		
+
 		final UsageScenarioBehaviorContext behaviorContext = BranchScenarioContext.builder()
 				.withNextAction(Optional.of(branch.getSuccessor()))
-				.withParent(Optional.of(userContext.getBehaviorContext()))
-				.withReferencedContext(userContext.update()
-						.withCurrentAction(firstBranchAction)
-						.build())
-				.withScenarioBehavior(branchTransition.getBranch_BranchTransition().getScenarioBehaviour_AbstractUserAction())
-				.build();
-		
-		final InnerScenarioBehaviorInitiated innerScenarioBehaviorInitiated = new InnerScenarioBehaviorInitiated(behaviorContext.getReferencedContext(), 0);
-		
+				.withParent(Optional.of(this.userContext.getBehaviorContext()))
+				.withReferencedContext(this.userContext.update().withCurrentAction(firstBranchAction).build())
+				.withScenarioBehavior(branchTransition.getBranchedBehaviour_BranchTransition()).build();
+
+		final InnerScenarioBehaviorInitiated innerScenarioBehaviorInitiated = new InnerScenarioBehaviorInitiated(
+				behaviorContext.getReferencedContext(), 0);
+
 		return Set.of(innerScenarioBehaviorInitiated);
 	}
 
@@ -212,7 +207,7 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 
 	@Override
 	public Set<DESEvent> caseAbstractUserAction(final AbstractUserAction object) {
-		LOGGER.debug("Interpret " + object.eClass().getName() + ": " + object);
+		this.LOGGER.debug("Interpret " + object.eClass().getName() + ": " + object);
 		return Set.of();
 	}
 
@@ -233,7 +228,7 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 				return this.doSwitch(abstractUserAction);
 			}
 		}
-		
+
 		return Set.of();
 	}
 
@@ -248,10 +243,9 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 	@Override
 	public Set<DESEvent> caseDelay(final Delay object) {
 		final double delay = StackContext.evaluateStatic(object.getTimeSpecification_Delay().getSpecification(),
-		        Double.class);
-		final UserInterpretationContext updatedUserContext = userContext.updateAction(object.getSuccessor());
-		return Set.of(new UserSlept(updatedUserContext),
-		        	  new UserWokeUp(updatedUserContext, delay));
+				Double.class);
+		final UserInterpretationContext updatedUserContext = this.userContext.updateAction(object.getSuccessor());
+		return Set.of(new UserSlept(updatedUserContext), new UserWokeUp(updatedUserContext, delay));
 	}
 
 	/**
@@ -261,11 +255,13 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 	 * 
 	 * @return a set or an empty set, if the original method resulted in
 	 *         {@code null}.
+	 * @throws IllegalArgumentException if this was called with a {@code null}
+	 *                                  reference.
 	 */
 	@Override
 	public Set<DESEvent> doSwitch(final EObject eObject) {
 		if (eObject == null) {
-			return Set.of();
+			throw new IllegalArgumentException("called interpretation on a null reference");
 		}
 		final Set<DESEvent> returningEvents = super.doSwitch(eObject);
 		if (returningEvents == null) {
