@@ -103,7 +103,7 @@ public abstract class UserInterpretationContext {
 	 * Builder to build {@link UserInterpretationContext}.
 	 */
 	@Generated("SparkTools")
-	protected static abstract class BaseBuilder<T extends UserInterpretationContext, B extends BaseBuilder<T, B>> {
+	protected abstract static class BaseBuilder<T extends UserInterpretationContext, B extends BaseBuilder<T, B>> {
 		private UsageScenario scenario;
 		private AbstractUserAction currentAction;
 		private User user;

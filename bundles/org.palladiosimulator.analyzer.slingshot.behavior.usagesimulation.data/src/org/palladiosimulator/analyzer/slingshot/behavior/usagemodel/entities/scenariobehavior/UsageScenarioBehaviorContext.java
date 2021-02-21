@@ -33,8 +33,17 @@ import com.google.common.base.Preconditions;
  * Hence, the nextAction can only be set if this context is a child context.
  * <p>
  * A scenario behavior might be repeated again for a certain condition.
+ * <p>
+ * This class is largely <em>sealed</em>, meaning that only a certain set of
+ * subclasses are permitted. Current subclasses are
+ * <ul>
+ * <li>{@link RootScenarioContext}
+ * <li>{@link LoopScenarioBehaviorContext}
+ * <li>{@link BranchScenarioContext}
+ * </ul>
  * 
  * @author Julijan Katic
+ * @version 1.0
  *
  */
 public abstract class UsageScenarioBehaviorContext {
@@ -51,7 +60,7 @@ public abstract class UsageScenarioBehaviorContext {
 	 * 
 	 * @param builder The base builder for this constructor.
 	 */
-	protected UsageScenarioBehaviorContext(final BaseBuilder<?, ?> builder) {
+	UsageScenarioBehaviorContext(final BaseBuilder<?, ?> builder) {
 		Preconditions.checkArgument(
 				builder.nextAction != null && builder.parent != null && builder.scenarioBehavior != null);
 		/*
@@ -167,7 +176,8 @@ public abstract class UsageScenarioBehaviorContext {
 	 * {@link UsageScenarioBehaviorContext#UsageScenarioBehaviorContext}
 	 */
 	@Generated("SparkTools")
-	public static abstract class BaseBuilder<T extends UsageScenarioBehaviorContext, B extends BaseBuilder<T, B>> {
+	@SuppressWarnings("unchecked")
+	public abstract static class BaseBuilder<T extends UsageScenarioBehaviorContext, B extends BaseBuilder<T, B>> {
 		private Optional<AbstractUserAction> nextAction = Optional.empty();
 		private Optional<UsageScenarioBehaviorContext> parent = Optional.empty();
 		private UserInterpretationContext referencedContext;

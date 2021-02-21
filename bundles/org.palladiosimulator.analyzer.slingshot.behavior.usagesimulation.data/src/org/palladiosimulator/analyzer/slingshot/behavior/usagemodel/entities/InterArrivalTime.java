@@ -4,10 +4,11 @@ import org.palladiosimulator.analyzer.slingshot.common.utils.stoexproxy.Abstract
 import org.palladiosimulator.pcm.core.PCMRandomVariable;
 
 /**
- * Proxy class responsible to calculate the inter arrival time for a user.
+ * Proxy class responsible to calculate the inter arrival time to create a new
+ * user.
  * 
  * @author Julijan Katic
- * 
+ * @version 1.0
  */
 public class InterArrivalTime extends AbstractStoExProxy<Double> {
 

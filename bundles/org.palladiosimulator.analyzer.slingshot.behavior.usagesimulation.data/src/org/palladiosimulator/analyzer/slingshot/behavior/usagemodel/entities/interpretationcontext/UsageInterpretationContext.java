@@ -1,29 +1,34 @@
 package org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext;
 
-import com.google.common.collect.ImmutableList;
 import javax.annotation.processing.Generated;
 
+import com.google.common.collect.ImmutableList;
+
 /**
- * This class represents the context of a usage model that is needed
- * to be interpreted.
+ * This class represents the context of a usage model that is needed to be
+ * interpreted. It contains an immutable list of
+ * {@link UsageScenarioInterpretationContext}.
+ * 
+ * This class is immutable.
  * 
  * @author Julijan Katic
  */
-public class UsageInterpretationContext {
+public final class UsageInterpretationContext {
 
 	private final ImmutableList<UsageScenarioInterpretationContext> usageScenariosContexts;
 
 	@Generated("SparkTools")
-	private UsageInterpretationContext(Builder builder) {
+	private UsageInterpretationContext(final Builder builder) {
 		this.usageScenariosContexts = builder.usageScenariosContexts;
 	}
-	
+
 	public ImmutableList<UsageScenarioInterpretationContext> getUsageScenarioContexts() {
 		return this.usageScenariosContexts;
 	}
 
 	/**
 	 * Creates builder to build {@link UsageInterpretationContext}.
+	 * 
 	 * @return created builder
 	 */
 	@Generated("SparkTools")
@@ -42,7 +47,7 @@ public class UsageInterpretationContext {
 		}
 
 		public Builder withUsageScenariosContexts(
-				ImmutableList<UsageScenarioInterpretationContext> usageScenariosContexts) {
+				final ImmutableList<UsageScenarioInterpretationContext> usageScenariosContexts) {
 			this.usageScenariosContexts = usageScenariosContexts;
 			return this;
 		}
@@ -51,7 +56,5 @@ public class UsageInterpretationContext {
 			return new UsageInterpretationContext(this);
 		}
 	}
-	
-	
-	
+
 }
