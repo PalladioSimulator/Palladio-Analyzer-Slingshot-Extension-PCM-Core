@@ -41,7 +41,7 @@ public abstract class UsageScenarioBehaviorContext {
 
 	private final Optional<AbstractUserAction> nextAction;
 	private final Optional<UsageScenarioBehaviorContext> parent;
-	private final UserInterpretationContext referencedContext;
+	private UserInterpretationContext referencedContext;
 	private final ScenarioBehaviour scenarioBehavior;
 
 	/**
@@ -52,8 +52,8 @@ public abstract class UsageScenarioBehaviorContext {
 	 * @param builder The base builder for this constructor.
 	 */
 	protected UsageScenarioBehaviorContext(final BaseBuilder<?, ?> builder) {
-		Preconditions.checkArgument(builder.nextAction != null && builder.parent != null
-				&& builder.referencedContext != null && builder.scenarioBehavior != null);
+		Preconditions.checkArgument(
+				builder.nextAction != null && builder.parent != null && builder.scenarioBehavior != null);
 		/*
 		 * The following precondition checks that (nextAction.isPresent() ==>
 		 * parent.isPresent()) which is mathematically equivalent to
@@ -62,7 +62,7 @@ public abstract class UsageScenarioBehaviorContext {
 		Preconditions.checkArgument(builder.nextAction.isEmpty() || builder.parent.isPresent());
 		this.nextAction = builder.nextAction;
 		this.parent = builder.parent;
-		this.referencedContext = builder.referencedContext.update().withUsageScenarioBehaviorContext(this).build();
+		this.referencedContext = builder.referencedContext;
 		this.scenarioBehavior = builder.scenarioBehavior;
 	}
 
@@ -122,12 +122,29 @@ public abstract class UsageScenarioBehaviorContext {
 	}
 
 	/**
+	 * Returns whether this object is fully initialized with non-{@code null}
+	 * values.
+	 * 
+	 * @return true if every reference in this object is not null.
+	 */
+	public boolean isInitialized() {
+		return this.referencedContext != null;
+	}
+
+	/**
 	 * Returns the {@code non-null} reference to the user interpretation context.
+	 * {@link #isInitialized()} must return true in order for this method to work.
 	 * 
 	 * @return The non-{@code null} reference to the interpretation context.
+	 * @throws IllegalStateException if this object is not fully initialized.
 	 */
 	public UserInterpretationContext getReferencedContext() {
+		Preconditions.checkState(this.isInitialized(), "The behavior context is not fully initialized.");
 		return this.referencedContext;
+	}
+
+	public void updateReferenceContext(final UserInterpretationContext context) {
+		this.referencedContext = context;
 	}
 
 	/**
@@ -151,8 +168,8 @@ public abstract class UsageScenarioBehaviorContext {
 	 */
 	@Generated("SparkTools")
 	public static abstract class BaseBuilder<T extends UsageScenarioBehaviorContext, B extends BaseBuilder<T, B>> {
-		private Optional<AbstractUserAction> nextAction;
-		private Optional<UsageScenarioBehaviorContext> parent;
+		private Optional<AbstractUserAction> nextAction = Optional.empty();
+		private Optional<UsageScenarioBehaviorContext> parent = Optional.empty();
 		private UserInterpretationContext referencedContext;
 		private ScenarioBehaviour scenarioBehavior;
 

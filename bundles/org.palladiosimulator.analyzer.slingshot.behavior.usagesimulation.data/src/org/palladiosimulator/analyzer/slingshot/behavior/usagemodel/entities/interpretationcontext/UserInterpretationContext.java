@@ -9,8 +9,6 @@ import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.sce
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
-import com.google.common.base.Preconditions;
-
 /**
  * The UserInterpretationContext represents the knowledge that the interpreter
  * needs to continue interpretation for a user.
@@ -21,7 +19,6 @@ public abstract class UserInterpretationContext {
 
 	/** The scenario to interpret. */
 	private final UsageScenario scenario;
-	
 
 	/** The current action to be interpreted. */
 	private final AbstractUserAction currentAction;
@@ -37,11 +34,9 @@ public abstract class UserInterpretationContext {
 
 	/** The behavior context indicating in which scenario we are. */
 	private final UsageScenarioBehaviorContext behaviorContext;
-	
+
 	@Generated("SparkTools")
 	protected UserInterpretationContext(final BaseBuilder<?, ?> builder) {
-		Preconditions.checkArgument(builder.usageScenarioBehaviorContext != null);
-		
 		this.scenario = builder.scenario;
 		this.currentAction = builder.currentAction;
 		this.user = builder.user;
@@ -51,58 +46,59 @@ public abstract class UserInterpretationContext {
 	}
 
 	public UsageScenario getScenario() {
-		return scenario;
+		return this.scenario;
 	}
-	
 
 	public AbstractUserAction getCurrentAction() {
-		return currentAction;
+		return this.currentAction;
 	}
 
 	public User getUser() {
-		return user;
+		return this.user;
 	}
 
 	public int getCurrentUsageRun() {
-		return currentUsageRun;
+		return this.currentUsageRun;
 	}
 
 	public Optional<UserInterpretationContext> getParentContext() {
-		return parentContext;
+		return this.parentContext;
 	}
-	
+
 	public UserInterpretationContext incrementUsageRun() {
-		return this.update().withCurrentUsageRun(currentUsageRun + 1).build();
+		return this.update().withCurrentUsageRun(this.currentUsageRun + 1).build();
 	}
-	
+
 	public UserInterpretationContext updateAction(final AbstractUserAction abstractAction) {
-		return this.update()
-				.withCurrentAction(abstractAction)
-				.build();
+		return this.update().withCurrentAction(abstractAction).build();
 	}
 
 	public abstract <T extends UserInterpretationContext, B extends BaseBuilder<T, B>> B update();
-	
+
 	/**
-	 * Helper method to create an update builder. The {@link #update()} should use this method for
-	 * to connect the updatable parameters from this parent class.
+	 * Helper method to create an update builder. The {@link #update()} should use
+	 * this method for to connect the updatable parameters from this parent class.
 	 * 
-	 * @param <T> The type extending this class. Used to inform which sub-class is built.
-	 * @param <B> The type extending the abstract builder class {@link BaseBuilder} for this. Used to indicate which concrete builder class is used.
+	 * @param <T>     The type extending this class. Used to inform which sub-class
+	 *                is built.
+	 * @param <B>     The type extending the abstract builder class
+	 *                {@link BaseBuilder} for this. Used to indicate which concrete
+	 *                builder class is used.
 	 * @param builder The actual concrete builder.
-	 * @return The same builder where each parameter of this class is connected to the builder.
+	 * @return The same builder where each parameter of this class is connected to
+	 *         the builder.
 	 */
-	protected final <T extends UserInterpretationContext, B extends BaseBuilder<T, B>> B updateWithBuilder(final B builder) {
-		return builder.withCurrentAction(this.currentAction)
-		        .withCurrentUsageRun(this.currentUsageRun)
-		        .withScenario(this.scenario)
-		        .withUser(this.user)
-		        .withParentContext(this.parentContext)
-		        .withUsageScenarioBehaviorContext(getBehaviorContext());
+	protected final <T extends UserInterpretationContext, B extends BaseBuilder<T, B>> B updateWithBuilder(
+			final B builder) {
+		return builder.withCurrentAction(this.currentAction).withCurrentUsageRun(this.currentUsageRun)
+				.withScenario(this.scenario).withUser(this.user).withParentContext(this.parentContext)
+				.withUsageScenarioBehaviorContext(this.getBehaviorContext());
 	}
+
 	public UsageScenarioBehaviorContext getBehaviorContext() {
-		return behaviorContext;
+		return this.behaviorContext;
 	}
+
 	/**
 	 * Builder to build {@link UserInterpretationContext}.
 	 */
@@ -117,34 +113,34 @@ public abstract class UserInterpretationContext {
 
 		public B withScenario(final UsageScenario scenario) {
 			this.scenario = scenario;
-			return actualBuilder();
+			return this.actualBuilder();
 		}
 
 		public B withCurrentAction(final AbstractUserAction currentAction) {
 			this.currentAction = currentAction;
-			return actualBuilder();
+			return this.actualBuilder();
 		}
 
 		public B withUser(final User user) {
 			this.user = user;
-			return actualBuilder();
+			return this.actualBuilder();
 		}
 
 		public B withCurrentUsageRun(final int currentUsageRun) {
 			this.currentUsageRun = currentUsageRun;
-			return actualBuilder();
+			return this.actualBuilder();
 		}
 
 		public B withParentContext(final Optional<UserInterpretationContext> parentContext) {
 			this.parentContext = parentContext;
-			return actualBuilder();
+			return this.actualBuilder();
 		}
-		
+
 		public B withUsageScenarioBehaviorContext(final UsageScenarioBehaviorContext usageScenarioBehaviorContext) {
 			this.usageScenarioBehaviorContext = usageScenarioBehaviorContext;
-			return actualBuilder();
+			return this.actualBuilder();
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		protected B actualBuilder() {
 			return (B) this;

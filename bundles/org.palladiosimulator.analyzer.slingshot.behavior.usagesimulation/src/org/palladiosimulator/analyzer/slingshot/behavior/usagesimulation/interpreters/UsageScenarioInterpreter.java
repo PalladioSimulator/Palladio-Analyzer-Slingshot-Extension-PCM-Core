@@ -19,7 +19,6 @@ import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.Inter
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserEntryRequested;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserInterpretationProgressed;
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserRequestInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserSlept;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserStarted;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserWokeUp;
@@ -99,9 +98,7 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 	}
 
 	/**
-	 * Interprets the EntryLevelSystemCall of the usage model. This will result in a
-	 * {@link UserRequestInitiated} event with the appropriate {@link UserRequest}
-	 * entity.
+	 * Interprets the EntryLevelSystemCall of the usage model.
 	 * 
 	 * @return set with {@link UserEntryRequested} event.
 	 */

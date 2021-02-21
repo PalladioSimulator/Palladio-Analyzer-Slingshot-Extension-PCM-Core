@@ -18,4 +18,13 @@ public final class UserInterpretationProgressed extends AbstractEntityChangedEve
 		super(entity, delay);
 	}
 
+	/**
+	 * Constructs this event with zero delay.
+	 * 
+	 * @param entity The entity of this event.
+	 */
+	public UserInterpretationProgressed(final UserInterpretationContext entity) {
+		this(entity, 0);
+	}
+
 }

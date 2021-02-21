@@ -17,6 +17,7 @@ import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.int
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UsageInterpretationContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UsageScenarioInterpretationContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UserInterpretationContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.scenariobehavior.RootScenarioContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.scenariobehavior.UsageScenarioBehaviorContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.InnerScenarioBehaviorInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.InterArrivalUserInitiated;
@@ -159,12 +160,19 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 	 */
 	private void interpreteOpenWorkload(final Set<DESEvent> returnedEvents, final UsageScenario usageScenario,
 			final AbstractUserAction firstAction) {
+		assert usageScenario.getWorkload_UsageScenario() instanceof OpenWorkload;
+
 		final OpenWorkload workloadSpec = (OpenWorkload) usageScenario.getWorkload_UsageScenario();
 		final PCMRandomVariable interArrivalRV = workloadSpec.getInterArrivalTime_OpenWorkload();
 
+		final RootScenarioContext scenarioContext = RootScenarioContext.builder()
+				.withScenarioBehavior(usageScenario.getScenarioBehaviour_UsageScenario()).build();
+
 		final OpenWorkloadUserInterpretationContext openWorkloadUserInterpretationContext = OpenWorkloadUserInterpretationContext
 				.builder().withUser(new User()).withScenario(usageScenario).withCurrentAction(firstAction)
-				.withInterArrivalTime(new InterArrivalTime(interArrivalRV)).build();
+				.withInterArrivalTime(new InterArrivalTime(interArrivalRV))
+				.withUsageScenarioBehaviorContext(scenarioContext).build();
+		scenarioContext.updateReferenceContext(openWorkloadUserInterpretationContext);
 
 		final UsageScenarioInterpreter interpreter = new UsageScenarioInterpreter(
 				openWorkloadUserInterpretationContext);
@@ -190,15 +198,29 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 	 */
 	private void interpreteClosedWorkload(final Set<DESEvent> returnedEvents, final UsageScenario usageScenario,
 			final AbstractUserAction firstAction) {
+		assert usageScenario.getWorkload_UsageScenario() instanceof ClosedWorkload;
+
+		final RootScenarioContext scenarioContext = RootScenarioContext.builder()
+				.withScenarioBehavior(usageScenario.getScenarioBehaviour_UsageScenario()).build();
+
 		final ClosedWorkload workloadSpec = (ClosedWorkload) usageScenario.getWorkload_UsageScenario();
+		final ClosedWorkloadUserInterpretationContext.Builder partialInterpretationBuilder = ClosedWorkloadUserInterpretationContext
+				.builder().withCurrentAction(firstAction)
+				.withThinkTime(new ThinkTime(workloadSpec.getThinkTime_ClosedWorkload()))
+				.withUsageScenarioBehaviorContext(scenarioContext);
 
 		for (int i = 0; i < workloadSpec.getPopulation(); i++) {
-			final UserInterpretationContext interpretationContext = ClosedWorkloadUserInterpretationContext.builder()
-					.withThinkTime(new ThinkTime(workloadSpec.getThinkTime_ClosedWorkload())).withUser(new User())
-					.withCurrentAction(firstAction).build();
+			final UserInterpretationContext interpretationContext = partialInterpretationBuilder.withUser(new User())
+					.build();
+			scenarioContext.updateReferenceContext(interpretationContext);
 
 			final UsageScenarioInterpreter interpreter = new UsageScenarioInterpreter(interpretationContext);
-			returnedEvents.addAll(interpreter.doSwitch(firstAction));
+			final Set<DESEvent> events = interpreter.doSwitch(firstAction);
+
+			assert events.size() == 1;
+			assert events.stream().allMatch(UserStarted.class::isInstance);
+
+			returnedEvents.addAll(events);
 		}
 	}
 
