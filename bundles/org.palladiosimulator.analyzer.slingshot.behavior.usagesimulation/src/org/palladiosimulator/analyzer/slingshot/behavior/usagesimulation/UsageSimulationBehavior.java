@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.UserEntryRequested;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.InterArrivalTime;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.ThinkTime;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.User;
@@ -21,6 +20,7 @@ import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.sce
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.scenariobehavior.UsageScenarioBehaviorContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.InnerScenarioBehaviorInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.InterArrivalUserInitiated;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserEntryRequested;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserRequestFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserSlept;
