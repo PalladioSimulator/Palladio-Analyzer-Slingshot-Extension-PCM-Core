@@ -3,21 +3,12 @@ package org.palladiosimulator.analyzer.slingshot.simulation.events.graph.exporta
 import java.io.IOException;
 import java.io.Writer;
 
-import javax.annotation.processing.Filer;
-import javax.tools.FileObject;
-import javax.tools.StandardLocation;
-
 import org.palladiosimulator.analyzer.slingshot.simulation.events.graph.EventEdge;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.graph.EventGraph;
 
 public class DotFileGraphExporter implements GraphExporter {
 
 	private final Writer writer;
-
-	public DotFileGraphExporter(final Filer filer) throws IOException {
-		final FileObject fileObject = filer.createResource(StandardLocation.SOURCE_PATH, "", "EventGraph.dot");
-		this.writer = fileObject.openWriter();
-	}
 
 	public DotFileGraphExporter(final Writer writer) {
 		this.writer = writer;
