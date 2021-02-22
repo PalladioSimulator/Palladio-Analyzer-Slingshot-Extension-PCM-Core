@@ -9,6 +9,8 @@ import de.uka.ipd.sdq.simucomframework.variables.stackframe.SimulatedStack;
 /**
  * An entity that represents a user within the usage model. In this simulator,
  * each user has an own simulation stack for variables.
+ * <p>
+ * Two users are considered the same if they both have the same id.
  * 
  * @author Julijan Katic
  */
@@ -21,7 +23,8 @@ public class User implements IUser {
 	private final SimulatedStack<Object> stack;
 
 	/**
-	 * Constructs the user by creating a new SimulatedStack.
+	 * Constructs the user by creating a new SimulatedStack with a random id and a
+	 * new simulated stack.
 	 */
 	public User() {
 		this.id = UUID.randomUUID().toString();

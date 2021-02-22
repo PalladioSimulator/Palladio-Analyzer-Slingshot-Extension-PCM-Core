@@ -14,4 +14,9 @@
 =======
 /.settings/
 /.metadata/
+<<<<<<< HEAD
 >>>>>>> 3fba946 (Added documentation)
+=======
+
+.DS_Sore
+>>>>>>> 8f34617 (Updated User class and .gitignore)
