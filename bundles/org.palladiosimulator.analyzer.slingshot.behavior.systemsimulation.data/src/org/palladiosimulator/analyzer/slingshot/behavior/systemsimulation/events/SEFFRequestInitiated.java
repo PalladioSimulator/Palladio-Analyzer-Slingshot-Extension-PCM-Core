@@ -1,6 +1,7 @@
 package org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events;
 
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.GeneralEntryRequest;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserEntryRequested;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntityChangedEvent;
 
 /**
@@ -11,9 +12,9 @@ import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntity
  * @author Julijan Katic
  * @see UserEntryRequested
  */
-public class RequestInitiated extends AbstractEntityChangedEvent<GeneralEntryRequest> {
+public class SEFFRequestInitiated extends AbstractEntityChangedEvent<GeneralEntryRequest> implements SEFFInterpreted {
 
-	public RequestInitiated(final GeneralEntryRequest entity, final double delay) {
+	public SEFFRequestInitiated(final GeneralEntryRequest entity, final double delay) {
 		super(entity, delay);
 	}
 

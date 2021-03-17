@@ -1,6 +1,7 @@
 package org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.interpreters;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -8,15 +9,16 @@ import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.SeffInterpretationEntity;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.seffspecificevents.SeffInterpretationRequested;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.SEFFInterpretationContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.behaviorcontext.RootBehaviorContextHolder;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.user.RequestProcessingContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInterpretationProgressed;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.repository.SystemModelRepository;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.User;
 import org.palladiosimulator.analyzer.slingshot.common.utils.SimulatedStackHelper;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.core.composition.ComposedStructure;
 import org.palladiosimulator.pcm.core.composition.CompositionPackage;
-import org.palladiosimulator.pcm.core.composition.Connector;
 import org.palladiosimulator.pcm.core.composition.ProvidedDelegationConnector;
 import org.palladiosimulator.pcm.core.entity.ComposedProvidingRequiringEntity;
 import org.palladiosimulator.pcm.core.entity.EntityPackage;
@@ -43,7 +45,7 @@ import de.uka.ipd.sdq.simucomframework.variables.stackframe.SimulatedStackframe;
  * 
  * @author Julijan Katic
  */
-public class RepositoryInterpreter extends RepositorySwitch<Set<SeffInterpretationRequested>> {
+public class RepositoryInterpreter extends RepositorySwitch<Set<SEFFInterpretationProgressed>> {
 
 	private static final Logger LOGGER = Logger.getLogger(RepositoryInterpreter.class);
 
@@ -90,7 +92,7 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SeffInterpretati
 	 * {@link #signature}.
 	 */
 	@Override
-	public Set<SeffInterpretationRequested> caseBasicComponent(final BasicComponent object) {
+	public Set<SEFFInterpretationProgressed> caseBasicComponent(final BasicComponent object) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Entering BasicComponent: " + object);
 		}
@@ -105,16 +107,24 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SeffInterpretati
 		final List<ServiceEffectSpecification> calledSeffs = this
 		        .getSeffsForCall(object.getServiceEffectSpecifications__BasicComponent(), this.signature);
 
-		/*
-		 * Define for each SEFF a new request event to be interpreted.
-		 */
+		
 		return calledSeffs.stream()
-		        .filter(seff -> seff instanceof ResourceDemandingSEFF)
-		        .map(seff -> (ResourceDemandingSEFF) seff)
+		        .filter(ResourceDemandingSEFF.class::isInstance)
+		        .map(ResourceDemandingSEFF.class::cast)
 		        .map(rdSeff -> {
-			        final SeffInterpretationEntity entity = new SeffInterpretationEntity(assemblyContext, user,
-			                rdSeff.getSteps_Behaviour().get(0));
-			        return new SeffInterpretationRequested(entity, 0);
+		        	/*
+		    		 * Define for each SEFF a new request event to be interpreted.
+		    		 */
+			        final SEFFInterpretationContext context = SEFFInterpretationContext.builder()
+			        		.withAssemblyContext(this.assemblyContext)
+			        		.withBehaviorContext(new RootBehaviorContextHolder(rdSeff))
+			        		.withRequestProcessingContext(RequestProcessingContext.builder()
+			        				.withAssemblyContext(this.assemblyContext)
+			        				.withProvidedRole(this.providedRole)
+			        				.withUser(this.user)
+			        				.build())
+			        		.build();
+			        return new SEFFInterpretationProgressed(context);
 		        })
 		        .collect(Collectors.toSet());
 
@@ -149,17 +159,17 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SeffInterpretati
 	 * the normal {@link #caseBasicComponent()} will be called.
 	 */
 	@Override
-	public Set<SeffInterpretationRequested> caseProvidedRole(final ProvidedRole providedRole) {
+	public Set<SEFFInterpretationProgressed> caseProvidedRole(final ProvidedRole providedRole) {
 		LOGGER.debug("Accessing provided role: " + providedRole.getId());
 
 		/* Sometime the providing entity is not defined and therefore must be
 		 * found by the system model repository to find the right entity. 
 		 */
-		if (providedRole.getProvidingEntity_ProvidedRole() == null) {
-			LOGGER.debug("ProvidedRole does not have the information about its providing entity, find it...");
-			final InterfaceProvidingEntity foundEntity = this.modelRepository.findProvidingEntity(providedRole);
-			providedRole.setProvidingEntity_ProvidedRole(foundEntity);
-		}
+		//if (providedRole.getProvidingEntity_ProvidedRole() == null) {
+		//	LOGGER.debug("ProvidedRole does not have the information about its providing entity, find it...");
+		//	final InterfaceProvidingEntity foundEntity = this.modelRepository.findProvidingEntity(providedRole);
+		//	providedRole.setProvidingEntity_ProvidedRole(foundEntity);
+		//}
 
 		return this.doSwitch(providedRole.getProvidingEntity_ProvidedRole());
 	}
@@ -174,7 +184,7 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SeffInterpretati
 	 * 
 	 */
 	@Override
-	public Set<SeffInterpretationRequested> caseComposedProvidingRequiringEntity(
+	public Set<SEFFInterpretationProgressed> caseComposedProvidingRequiringEntity(
 	        final ComposedProvidingRequiringEntity entity) {
 
 		if (entity != this.providedRole.getProvidingEntity_ProvidedRole()) {
@@ -184,7 +194,8 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SeffInterpretati
 			return Set.of();
 		}
 
-		final ProvidedDelegationConnector connectedProvidedDelegationConnector = getConnectedProvidedDelegationConnector();
+		final ProvidedDelegationConnector connectedProvidedDelegationConnector = this.getConnectedProvidedDelegationConnector()
+				.orElseThrow(IllegalStateException::new);
 		final RepositoryInterpreter repositoryInterpreter = new RepositoryInterpreter(
 		        connectedProvidedDelegationConnector.getAssemblyContext_ProvidedDelegationConnector(), this.signature,
 		        connectedProvidedDelegationConnector.getInnerProvidedRole_ProvidedDelegationConnector(), this.user,
@@ -199,18 +210,18 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SeffInterpretati
 	 * 
 	 * @return the determined provided delegation connector, null otherwise.
 	 */
-	private ProvidedDelegationConnector getConnectedProvidedDelegationConnector() {
-		final InterfaceProvidingEntity implementingEntity = providedRole.getProvidingEntity_ProvidedRole();
-		for (final Connector connector : ((ComposedStructure) implementingEntity).getConnectors__ComposedStructure()) {
-			if (connector.eClass() == CompositionPackage.eINSTANCE.getProvidedDelegationConnector()) {
-				final ProvidedDelegationConnector delegationConnector = (ProvidedDelegationConnector) connector;
-				if (delegationConnector.getOuterProvidedRole_ProvidedDelegationConnector().getId()
-				        .equals(providedRole.getId())) {
-					return delegationConnector;
-				}
-			}
-		}
-		return null;
+	private Optional<ProvidedDelegationConnector> getConnectedProvidedDelegationConnector() {
+		final InterfaceProvidingEntity implementingEntity = this.providedRole.getProvidingEntity_ProvidedRole();
+		assert implementingEntity instanceof ComposedStructure;
+		
+		final ComposedStructure composedStructure = (ComposedStructure) implementingEntity;
+		
+		return composedStructure.getConnectors__ComposedStructure().stream()
+				.filter(connector -> connector.eClass() == CompositionPackage.eINSTANCE.getProvidedDelegationConnector())
+				.map(ProvidedDelegationConnector.class::cast)
+				.filter(delegationConnector -> delegationConnector.getOuterProvidedRole_ProvidedDelegationConnector().getId().equals(this.providedRole.getId()))
+				.findFirst();
+		
 	}
 
 	/**
@@ -220,8 +231,8 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SeffInterpretati
 	 * never {@code null} is returned, but an empty set instead.
 	 */
 	@Override
-	public Set<SeffInterpretationRequested> doSwitch(final EClass eClass, final EObject eObject) {
-		Set<SeffInterpretationRequested> result;
+	public Set<SEFFInterpretationProgressed> doSwitch(final EClass eClass, final EObject eObject) {
+		Set<SEFFInterpretationProgressed> result;
 		if (EntityPackage.eINSTANCE.getComposedProvidingRequiringEntity().isSuperTypeOf(eClass)) {
 			result = this.caseComposedProvidingRequiringEntity((ComposedProvidingRequiringEntity) eObject);
 		} else {

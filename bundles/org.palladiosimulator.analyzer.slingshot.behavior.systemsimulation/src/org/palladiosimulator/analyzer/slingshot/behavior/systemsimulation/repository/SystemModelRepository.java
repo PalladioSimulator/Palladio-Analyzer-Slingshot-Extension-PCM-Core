@@ -1,14 +1,14 @@
 package org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.repository;
 
+import java.util.Optional;
+
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.core.composition.ProvidedDelegationConnector;
-import org.palladiosimulator.pcm.core.entity.InterfaceProvidingEntity;
 import org.palladiosimulator.pcm.repository.ProvidedRole;
 import org.palladiosimulator.pcm.repository.RequiredRole;
 import org.palladiosimulator.pcm.repository.Signature;
 import org.palladiosimulator.pcm.seff.ServiceEffectSpecification;
 import org.palladiosimulator.pcm.system.System;
-import org.palladiosimulator.pcm.usagemodel.EntryLevelSystemCall;
 
 import com.google.inject.ImplementedBy;
 
@@ -23,19 +23,22 @@ public interface SystemModelRepository {
 
 	void load(System system);
 
-	AssemblyContext findAssemblyForEntryLevelSystemCall(EntryLevelSystemCall systemCall);
+	Optional<ServiceEffectSpecification> findSeffFromRequiredRole(RequiredRole requiredRole, Signature signature);
 
-	ProvidedDelegationConnector getConnectedProvidedDelegationConnector(ProvidedRole providedRole);
+	Optional<AssemblyContext> findAssemblyContextFromRequiredRole(RequiredRole requiredRole);
 
-	ServiceEffectSpecification getDelegatedComponentSeff(final ProvidedDelegationConnector connector,
-	        final Signature signature);
+	Optional<ProvidedDelegationConnector> getConnectedProvidedDelegationConnector(ProvidedRole providedRole);
 
-	ServiceEffectSpecification findSeffFromRequiredRole(final RequiredRole requiredRole,
-	        final Signature signature);
+	Optional<ServiceEffectSpecification> getDelegatedComponentSeff(ProvidedDelegationConnector connector,
+			Signature signature);
 
-	ServiceEffectSpecification getSeffFromProvidedRole(ProvidedRole role, Signature signature);
+	Optional<ServiceEffectSpecification> getSeffFromProvidedRole(ProvidedRole role, Signature signature);
 
-	AssemblyContext findAssemblyContextFromRequiredRole(RequiredRole requiredRole);
+	static SystemModelRepository getDefaultInstance() {
+		return INSTANCE;
+	}
 
-	InterfaceProvidingEntity findProvidingEntity(ProvidedRole providedRole);
+	static final SystemModelRepository INSTANCE = new SystemModelRepositoryImpl();
+
+	Optional<AssemblyContext> findAssemblyContextByProvidedRole(ProvidedRole role);
 }

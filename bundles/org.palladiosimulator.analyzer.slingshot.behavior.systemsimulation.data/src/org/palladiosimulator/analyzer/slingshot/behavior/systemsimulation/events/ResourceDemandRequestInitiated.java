@@ -1,6 +1,6 @@
-package org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.seffspecificevents;
+package org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events;
 
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.ResourceDemandRequest;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.resource.ResourceDemandRequest;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntityChangedEvent;
 
 /**
@@ -11,10 +11,14 @@ import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntity
  * @author Julijan Katic
  */
 public class ResourceDemandRequestInitiated extends AbstractEntityChangedEvent<ResourceDemandRequest>
-        implements SeffInterpretationEvent {
+        implements SEFFInterpreted {
 
 	public ResourceDemandRequestInitiated(final ResourceDemandRequest entity, final double delay) {
 		super(entity, delay);
 	}
 
+	public ResourceDemandRequestInitiated(final ResourceDemandRequest entity) {
+		this(entity, 0);
+	}
+	
 }

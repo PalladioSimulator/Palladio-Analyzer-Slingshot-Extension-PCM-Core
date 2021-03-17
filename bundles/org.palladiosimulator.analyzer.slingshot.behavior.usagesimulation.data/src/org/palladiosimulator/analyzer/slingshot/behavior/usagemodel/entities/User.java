@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import org.palladiosimulator.analyzer.slingshot.simulation.core.entities.IUser;
 
-import de.uka.ipd.sdq.simucomframework.variables.stackframe.SimulatedStack;
+import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 
 /**
  * An entity that represents a user within the usage model. In this simulator,
@@ -14,30 +14,23 @@ import de.uka.ipd.sdq.simucomframework.variables.stackframe.SimulatedStack;
  * 
  * @author Julijan Katic
  */
-public class User implements IUser {
+public class User extends StackContext implements IUser {
 
+	/**
+	 * @generated 
+	 */
+	private static final long serialVersionUID = 1089208332274419571L;
+	
 	/** The id of the user. */
 	private final String id;
-
-	/** The simulated stack of objects belonging to the simulated user. */
-	private final SimulatedStack<Object> stack;
 
 	/**
 	 * Constructs the user by creating a new SimulatedStack with a random id and a
 	 * new simulated stack.
 	 */
 	public User() {
+		super();
 		this.id = UUID.randomUUID().toString();
-		this.stack = new SimulatedStack<>();
-	}
-
-	/**
-	 * Returns the SimulatedStack from this user.
-	 * 
-	 * @return the simulated stack.
-	 */
-	public SimulatedStack<Object> getStack() {
-		return this.stack;
 	}
 
 	/**

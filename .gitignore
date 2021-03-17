@@ -8,12 +8,16 @@
 **/codemr/
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 **/.settings/
 **/.metadata/
 
 .DS_Store
 =======
 /.settings/
+=======
+**/.settings/
+>>>>>>> 63bc130 (Improved System Interpretation)
 /.metadata/
 <<<<<<< HEAD
 >>>>>>> 3fba946 (Added documentation)

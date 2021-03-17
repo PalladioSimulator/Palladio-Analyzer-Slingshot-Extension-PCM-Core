@@ -3,13 +3,16 @@ package org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.ActiveResourceRequestContext;
-import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.ActiveResourceRequested;
-import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobInitiated;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.seffspecificevents.ResourceDemandRequestInitiated;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.seffspecificevents.SeffInterpretationEvent;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.seffspecificevents.SeffInterpretationRequested;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.SEFFInterpretationContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.behaviorcontext.SeffBehaviorHolder;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.ResourceDemandRequestInitiated;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInterpretationFinished;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInterpretationProgressed;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInterpreted;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.interpreters.SeffInterpreter;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.UserRequest;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UserInterpretationContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserRequestFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventCardinality;
@@ -18,45 +21,101 @@ import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral
 
 import com.google.common.eventbus.Subscribe;
 
-import de.uka.ipd.sdq.simucomframework.variables.StackContext;
-
 /**
  * This behavior module both interprets and generates events specifically for
  * SEFFs.
  * 
  * @author Julijan Katic
  */
-@OnEvent(when = SeffInterpretationRequested.class, then = SeffInterpretationEvent.class, cardinality = EventCardinality.MANY)
-@OnEvent(when = ResourceDemandRequestInitiated.class, then = ActiveResourceRequested.class, cardinality = EventCardinality.SINGLE)
+@OnEvent(when = SEFFInterpretationProgressed.class, then = {SEFFInterpreted.class}, cardinality = EventCardinality.MANY)
+@OnEvent(when = SEFFInterpretationFinished.class, then = {SEFFInterpretationProgressed.class, UserRequestFinished.class}, cardinality = EventCardinality.SINGLE)
 public class SeffSimulationBehavior implements SimulationBehaviorExtension {
 
-	private final Logger LOGGER = Logger.getLogger(SeffSimulationBehavior.class);
-
-	/**
-	 * This listens to the event that requests of a interpretation of a SEFF. This
-	 * will return the events resulting from the interpretation which is specified
-	 * in {@link SeffInterpreter}.
-	 */
-	@Subscribe
-	public ResultEvent<?> onSeffInterpretationStarted(final SeffInterpretationRequested event) {
-		final SeffInterpreter seffInterpreter = new SeffInterpreter(event.getEntity().getAssemblyContext(),
-		        event.getEntity().getUser());
-		final Set<DESEvent> events = seffInterpreter.doSwitch(event.getEntity().getCurrentAction());
-		return ResultEvent.of(events);
-	}
+	private static final Logger LOGGER = Logger.getLogger(SeffSimulationBehavior.class);
 
 	/**
 	 * This catches the event if the SEFF calls an internal method with a certain
 	 * ResourceDemand. It behaves by resulting an {@link JobInitiated} event to for
 	 * the resource simulation.
+	 * 
+	 * @deprecated Let the resource handler listen to it by itself.
 	 */
-	@Subscribe
+	//@Subscribe
+	@Deprecated
 	public ResultEvent<?> onResourceDemandRequestInitiated(final ResourceDemandRequestInitiated event) {
-		final Double resourceDemand = StackContext.evaluateStatic(event.getEntity().getDemand().getSpecification(),
-		        Double.class, event.getEntity().getUser().getStack().currentStackFrame());
-		final ActiveResourceRequestContext activeResourceRequestContext = new ActiveResourceRequestContext(
-		        event.getEntity().getRequiredResource(), event.getEntity().getAssemblyContext(), resourceDemand);
+		//final Double resourceDemand = StackContext.evaluateStatic(event.getEntity().getDemand().getSpecification(),
+		//        Double.class, event.getEntity().getUser().getStack().currentStackFrame());
+		//final ActiveResourceRequestContext activeResourceRequestContext = new ActiveResourceRequestContext(
+		//        event.getEntity().getRequiredResource(), event.getEntity().getAssemblyContext(), resourceDemand);
+		
+		return ResultEvent.empty();
+		//return ResultEvent.of(new ActiveResourceRequested(activeResourceRequestContext, 0));
+	}
+	
+	@Subscribe
+	public ResultEvent<SEFFInterpreted> onSeffInterpretationProgressed(final SEFFInterpretationProgressed progressed) {
+		final SeffInterpreter interpreter = new SeffInterpreter(progressed.getEntity());
+		final Set<SEFFInterpreted> events = interpreter.doSwitch(progressed.getEntity().getBehaviorContext().getNextAction());
+		return ResultEvent.of(events);
+	}
+	
+	@Subscribe
+	public ResultEvent<DESEvent> onSEFFInterpretationFinished(final SEFFInterpretationFinished finished) {
+		final SEFFInterpretationContext entity = finished.getEntity();
+		final ResultEvent<DESEvent> result;
+		
+		/*
+		 * If the interpretation is finished in a SEFF that was called from another
+		 * SEFF, continue there. Otherwise, the SEFF comes from a User request.
+		 */
+		if (entity.getCaller().isPresent()) {
+			result = this.continueInCaller(entity);
+		} else if (entity.getBehaviorContext().getParent().isPresent()) {
+			result = this.continueInParent(entity);
+		} else {
+			result = this.finishUserRequest(entity);
+		}
+		
+		return result;
+	}
 
-		return ResultEvent.of(new ActiveResourceRequested(activeResourceRequestContext, 0));
+	/**
+	 * @param entity
+	 * @return
+	 */
+	private ResultEvent<DESEvent> finishUserRequest(final SEFFInterpretationContext entity) {
+		final UserRequest userRequest = entity.getRequestProcessingContext().getUserRequest();
+		final UserInterpretationContext userInterpretationContext = entity.getRequestProcessingContext().getUserInterpretationContext();
+		
+		entity.getRequestProcessingContext().getUser().getStack().removeStackFrame();
+		
+		return ResultEvent.of(new UserRequestFinished(userRequest, userInterpretationContext));
+	}
+
+	/**
+	 * @param entity
+	 * @return
+	 */
+	private ResultEvent<DESEvent> continueInParent(final SEFFInterpretationContext entity) {
+		final SeffBehaviorHolder seffBehaviorHolder = entity.getBehaviorContext().getParent().get();
+		
+		final SEFFInterpretationContext seffInterpretationContext = SEFFInterpretationContext.builder()
+				.withAssemblyContext(entity.getAssemblyContext())
+				.withBehaviorContext(seffBehaviorHolder.getContext())
+				.withCaller(entity.getCaller())
+				.withRequestProcessingContext(entity.getRequestProcessingContext())
+				.build();
+		
+		return ResultEvent.of(new SEFFInterpretationProgressed(seffInterpretationContext));
+	}
+
+	/**
+	 * @param entity
+	 * @return
+	 */
+	private ResultEvent<DESEvent> continueInCaller(final SEFFInterpretationContext entity) {
+		final SEFFInterpretationContext seffInterpretationContext = entity.getCaller().get();
+		
+		return ResultEvent.of(new SEFFInterpretationProgressed(seffInterpretationContext));
 	}
 }

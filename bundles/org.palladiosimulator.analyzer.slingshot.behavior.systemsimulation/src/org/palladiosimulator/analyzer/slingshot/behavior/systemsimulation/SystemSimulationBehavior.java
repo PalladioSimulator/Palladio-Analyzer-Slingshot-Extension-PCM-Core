@@ -3,21 +3,25 @@ package org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation;
 import static org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventCardinality.MANY;
 import static org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventCardinality.SINGLE;
 
+import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.eclipse.emf.common.util.EList;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.GeneralEntryRequest;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.RepositoryInterpretationContext;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.UserEntryRequest;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.SEFFInterpretationContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.behaviorcontext.RootBehaviorContextHolder;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.user.RequestProcessingContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.RepositoryInterpretationInitiated;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.RequestFinished;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.RequestInitiated;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.UserEntryRequested;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.seffspecificevents.SeffInterpretationRequested;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInterpretationProgressed;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFRequestInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.interpreters.RepositoryInterpreter;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.repository.SystemModelRepository;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.UserRequest;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserEntryRequested;
 import org.palladiosimulator.analyzer.slingshot.common.utils.SimulatedStackHelper;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
@@ -25,6 +29,11 @@ import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
 import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
+import org.palladiosimulator.pcm.parameter.VariableUsage;
+import org.palladiosimulator.pcm.repository.OperationProvidedRole;
+import org.palladiosimulator.pcm.repository.OperationSignature;
+import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
+import org.palladiosimulator.pcm.seff.ServiceEffectSpecification;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -35,13 +44,12 @@ import com.google.common.eventbus.Subscribe;
  * 
  * @author Julijan Katic
  */
-@OnEvent(when = UserEntryRequested.class, then = RepositoryInterpretationInitiated.class, cardinality = SINGLE)
-@OnEvent(when = RepositoryInterpretationInitiated.class, then = SeffInterpretationRequested.class, cardinality = MANY)
-@OnEvent(when = RequestInitiated.class, then = SeffInterpretationRequested.class, cardinality = MANY)
-@OnEvent(when = RequestFinished.class, then = {})
+@OnEvent(when = UserEntryRequested.class, then = SEFFInterpretationProgressed.class, cardinality = SINGLE)
+@OnEvent(when = RepositoryInterpretationInitiated.class, then = SEFFInterpretationProgressed.class, cardinality = MANY)
+@OnEvent(when = SEFFRequestInitiated.class, then = SEFFInterpretationProgressed.class, cardinality = MANY)
 public class SystemSimulationBehavior implements SimulationBehaviorExtension {
 
-	private final Logger LOGGER = Logger.getLogger(SystemSimulationBehavior.class);
+	private static final Logger LOGGER = Logger.getLogger(SystemSimulationBehavior.class);
 
 	private final Allocation allocationModel;
 	private final SystemModelRepository systemRepository;
@@ -54,76 +62,93 @@ public class SystemSimulationBehavior implements SimulationBehaviorExtension {
 
 	@Override
 	public void init() {
-		this.systemRepository.load(allocationModel.getSystem_Allocation());
+		this.systemRepository.load(this.allocationModel.getSystem_Allocation());
 	}
 
 	/**
-	 * Handles the UserEntryRequest event by starting the interpretation of the
-	 * repository. The goal is to find the right SEFF and then interpreting that.
-	 * 
-	 * @param userEntryRequested the event.
-	 * @return RepositoryInterpretationInitiated event if found.
+	 * Used to interpret the entry request from a usage model.
 	 */
 	@Subscribe
-	public ResultEvent<DESEvent> onUserEnterRequest(final UserEntryRequested userEntryRequested) {
-		final UserEntryRequest entryRequest = userEntryRequested.getEntity();
+	public ResultEvent<DESEvent> onUserEntryRequested(final UserEntryRequested userEntryRequested) {
+		final UserRequest request = userEntryRequested.getEntity();
 
-		SimulatedStackHelper.createAndPushNewStackFrame(entryRequest.getUser().getStack(), entryRequest.getVariableUsages(),
-		        entryRequest.getUser().getStack().currentStackFrame());
-
-		final RepositoryInterpretationContext repositoryContext = new RepositoryInterpretationContext(
-		        entryRequest.getUser());
-		repositoryContext.setSignature(entryRequest.getSignature());
-		repositoryContext.setProvidedRole(entryRequest.getProvidedRole());
-		repositoryContext.setInputParameters(entryRequest.getVariableUsages());
-
-		return ResultEvent.of(new RepositoryInterpretationInitiated(repositoryContext, 0));
+		final OperationProvidedRole operationProvidedRole = request.getOperationProvidedRole();
+		final OperationSignature operationSignature = request.getOperationSignature();
+		final EList<VariableUsage> variableUsages = request.getVariableUsages();
+		
+		/* Receive the assembly context and its seff. */
+		final Optional<ServiceEffectSpecification> seffFromProvidedRole = this.systemRepository.getSeffFromProvidedRole(operationProvidedRole, operationSignature);
+		final Optional<AssemblyContext> assemblyContextByProvidedRole = this.systemRepository.findAssemblyContextByProvidedRole(operationProvidedRole);
+		
+		
+		if (seffFromProvidedRole.isPresent() && assemblyContextByProvidedRole.isPresent()) {
+			SimulatedStackHelper.createAndPushNewStackFrame(request.getUser().getStack(), variableUsages);	
+			final ServiceEffectSpecification seff = seffFromProvidedRole.get();
+			
+			assert seff instanceof ResourceDemandingBehaviour;
+			
+			final RequestProcessingContext requestProcessingContext = RequestProcessingContext.builder()
+				.withUser(request.getUser())
+				.withUserRequest(request)
+				.withUserInterpretationContext(userEntryRequested.getUserInterpretationContext())
+				.withProvidedRole(operationProvidedRole)
+				.withAssemblyContext(assemblyContextByProvidedRole.get())
+				.build();
+			
+			final SEFFInterpretationContext context = SEFFInterpretationContext.builder()
+				.withRequestProcessingContext(requestProcessingContext)
+				.withAssemblyContext(assemblyContextByProvidedRole.get())
+				.withBehaviorContext(new RootBehaviorContextHolder((ResourceDemandingBehaviour) seff))
+				.build();
+			
+			return ResultEvent.of(new SEFFInterpretationProgressed(context));
+		} else {
+			LOGGER.info("Either seff or assembly context is not found => stop interpretation for this request.");
+		}
+		
+		return ResultEvent.of();
 	}
 
 	/**
 	 * This event will handle the repository interpretation of a system, especially
 	 * for the entry of a system.
+	 * 
+	 * TODO: Is this needed?
 	 */
 	@Subscribe
-	public ResultEvent<SeffInterpretationRequested> onRepositoryInterpretationInitiated(
-	        final RepositoryInterpretationInitiated event) {
+	public ResultEvent<SEFFInterpretationProgressed> onRepositoryInterpretationInitiated(
+			final RepositoryInterpretationInitiated event) {
 		final RepositoryInterpretationContext context = event.getEntity();
 
 		final RepositoryInterpreter interpreter = new RepositoryInterpreter(context.getAssemblyContext(),
-		        context.getSignature(), context.getProvidedRole(), context.getUser(), this.systemRepository);
-		final Set<SeffInterpretationRequested> appearedEvents = interpreter.doSwitch(context.getProvidedRole());
-
-		return ResultEvent.of(appearedEvents);
-	}
-
-	@Subscribe
-	public ResultEvent<SeffInterpretationRequested> onRequestInitiated(final RequestInitiated requestInitiated) {
-		final GeneralEntryRequest entity = requestInitiated.getEntity();
-		final AssemblyContext assemblyContext = systemRepository
-		        .findAssemblyContextFromRequiredRole(entity.getRequiredRole());
-
-		final RepositoryInterpreter interpreter = new RepositoryInterpreter(assemblyContext, entity.getSignature(),
-		        null, entity.getUser(), systemRepository);
-
-		/* Interpret the Component of the system. */
-		final Set<SeffInterpretationRequested> appearedEvents = interpreter
-		        .doSwitch(assemblyContext.getEncapsulatedComponent__AssemblyContext());
+				context.getSignature(), context.getProvidedRole(), context.getUser(), this.systemRepository);
+		final Set<SEFFInterpretationProgressed> appearedEvents = interpreter.doSwitch(context.getProvidedRole());
 
 		return ResultEvent.of(appearedEvents);
 	}
 
 	/**
-	 * Handles the event that a seff interpretation is finished, either from a user
-	 * or from a general event. In both cases the last stackframe is popped as there
-	 * shouldn't be any further calculations.
-	 * 
-	 * @return An empty event set.
+	 * Used to interpret the next SEFF that is requested by another seff. For example, when an External Call
+	 * action was performed.
 	 */
 	@Subscribe
-	public ResultEvent<DESEvent> onRequestFinished(final RequestFinished requestFinished) {
+	public ResultEvent<SEFFInterpretationProgressed> onRequestInitiated(final SEFFRequestInitiated requestInitiated) {
+		final GeneralEntryRequest entity = requestInitiated.getEntity();
+		final Optional<AssemblyContext> assemblyContext = this.systemRepository
+				.findAssemblyContextFromRequiredRole(entity.getRequiredRole());
 
-		requestFinished.getEntity().getStack().removeStackFrame();
-
-		return ResultEvent.empty();
+		if (assemblyContext.isPresent()) {
+			final RepositoryInterpreter interpreter = new RepositoryInterpreter(assemblyContext.get(), entity.getSignature(),
+					null, entity.getUser(), this.systemRepository);
+	
+			/* Interpret the Component of the system. */
+			final Set<SEFFInterpretationProgressed> appearedEvents = interpreter
+					.doSwitch(assemblyContext.get().getEncapsulatedComponent__AssemblyContext());
+	
+			return ResultEvent.of(appearedEvents);
+		} else {
+			return ResultEvent.of();
+		}
 	}
+
 }
