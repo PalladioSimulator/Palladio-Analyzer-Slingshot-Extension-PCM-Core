@@ -20,9 +20,10 @@ import org.palladiosimulator.pcm.usagemodel.ScenarioBehaviour;
  * @author Julijan Katic
  * @version 1.0
  */
-public class RootScenarioContext extends UsageScenarioBehaviorContext {
+public final class RootScenarioContext extends UsageScenarioBehaviorContext {
 
-	private boolean scenarioStarted = true;
+	
+	private boolean startOnce = true;
 
 	/**
 	 * Convenience constructor to build this object without a builder. The
@@ -35,8 +36,11 @@ public class RootScenarioContext extends UsageScenarioBehaviorContext {
 	 */
 	public RootScenarioContext(final UserInterpretationContext referencedContext,
 			final ScenarioBehaviour scenarioBehavior) {
-		this(builder().withNextAction(Optional.empty()).withParent(Optional.empty())
-				.withReferencedContext(referencedContext).withScenarioBehavior(scenarioBehavior));
+		this(builder()
+				.withNextAction(Optional.empty())
+				.withParent(Optional.empty())
+				.withReferencedContext(referencedContext)
+				.withScenarioBehavior(scenarioBehavior));
 	}
 
 	public RootScenarioContext(final Builder builder) {
@@ -45,13 +49,13 @@ public class RootScenarioContext extends UsageScenarioBehaviorContext {
 
 	@Override
 	public boolean mustRepeatScenario() {
-		return this.scenarioStarted;
+		return this.startOnce;
 	}
 
 	@Override
 	public AbstractUserAction startScenario() {
 		final AbstractUserAction userAction = super.startScenario();
-		this.scenarioStarted = false;
+		this.startOnce = false;
 		return userAction;
 	}
 

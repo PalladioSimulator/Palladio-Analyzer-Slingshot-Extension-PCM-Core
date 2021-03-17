@@ -7,6 +7,7 @@ import javax.annotation.processing.Generated;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UserInterpretationContext;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.ScenarioBehaviour;
+import org.palladiosimulator.pcm.usagemodel.Start;
 
 import com.google.common.base.Preconditions;
 
@@ -168,7 +169,10 @@ public abstract class UsageScenarioBehaviorContext {
 		}
 
 		assert !this.scenarioBehavior.getActions_ScenarioBehaviour().isEmpty() : "The list of actions is empty";
-		return this.scenarioBehavior.getActions_ScenarioBehaviour().get(0);
+		return this.scenarioBehavior.getActions_ScenarioBehaviour().stream()
+				.filter(Start.class::isInstance)
+				.findFirst()
+				.orElseThrow(() -> new IllegalStateException("The model must have a Start action in order to perform"));
 	}
 
 	/**
