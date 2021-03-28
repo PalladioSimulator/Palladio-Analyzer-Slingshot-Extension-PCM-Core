@@ -5,7 +5,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.SEFFInterpretationContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.behaviorcontext.SeffBehaviorHolder;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.ResourceDemandRequestInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInterpretationFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInterpretationProgressed;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInterpreted;
@@ -32,25 +31,6 @@ import com.google.common.eventbus.Subscribe;
 public class SeffSimulationBehavior implements SimulationBehaviorExtension {
 
 	private static final Logger LOGGER = Logger.getLogger(SeffSimulationBehavior.class);
-
-	/**
-	 * This catches the event if the SEFF calls an internal method with a certain
-	 * ResourceDemand. It behaves by resulting an {@link JobInitiated} event to for
-	 * the resource simulation.
-	 * 
-	 * @deprecated Let the resource handler listen to it by itself.
-	 */
-	//@Subscribe
-	@Deprecated
-	public ResultEvent<?> onResourceDemandRequestInitiated(final ResourceDemandRequestInitiated event) {
-		//final Double resourceDemand = StackContext.evaluateStatic(event.getEntity().getDemand().getSpecification(),
-		//        Double.class, event.getEntity().getUser().getStack().currentStackFrame());
-		//final ActiveResourceRequestContext activeResourceRequestContext = new ActiveResourceRequestContext(
-		//        event.getEntity().getRequiredResource(), event.getEntity().getAssemblyContext(), resourceDemand);
-		
-		return ResultEvent.empty();
-		//return ResultEvent.of(new ActiveResourceRequested(activeResourceRequestContext, 0));
-	}
 	
 	@Subscribe
 	public ResultEvent<SEFFInterpreted> onSeffInterpretationProgressed(final SEFFInterpretationProgressed progressed) {

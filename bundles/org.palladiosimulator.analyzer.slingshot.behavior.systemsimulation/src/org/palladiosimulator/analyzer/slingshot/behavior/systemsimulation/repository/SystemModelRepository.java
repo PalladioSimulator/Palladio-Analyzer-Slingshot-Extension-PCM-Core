@@ -38,7 +38,7 @@ public interface SystemModelRepository {
 		return INSTANCE;
 	}
 
-	static final SystemModelRepository INSTANCE = new SystemModelRepositoryImpl();
+	final SystemModelRepository INSTANCE = new SystemModelRepositoryImpl();
 
 	Optional<AssemblyContext> findAssemblyContextByProvidedRole(ProvidedRole role);
 }

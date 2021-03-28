@@ -16,8 +16,8 @@ import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entiti
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.behaviorcontext.RootBehaviorContextHolder;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.user.RequestProcessingContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.RepositoryInterpretationInitiated;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFExternalActionCalled;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInterpretationProgressed;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFRequestInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.interpreters.RepositoryInterpreter;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.repository.SystemModelRepository;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.UserRequest;
@@ -40,13 +40,13 @@ import com.google.common.eventbus.Subscribe;
 /**
  * The System simulation behavior is a extension that simulates the system
  * model. It listens to events requesting to interpret the repository and
- * sometimes will result in a seff intepretation request if there is a RDSeff.
+ * sometimes will result in a SEFF Interpretation request if there is a RDSeff.
  * 
  * @author Julijan Katic
  */
 @OnEvent(when = UserEntryRequested.class, then = SEFFInterpretationProgressed.class, cardinality = SINGLE)
 @OnEvent(when = RepositoryInterpretationInitiated.class, then = SEFFInterpretationProgressed.class, cardinality = MANY)
-@OnEvent(when = SEFFRequestInitiated.class, then = SEFFInterpretationProgressed.class, cardinality = MANY)
+@OnEvent(when = SEFFExternalActionCalled.class, then = SEFFInterpretationProgressed.class, cardinality = MANY)
 public class SystemSimulationBehavior implements SimulationBehaviorExtension {
 
 	private static final Logger LOGGER = Logger.getLogger(SystemSimulationBehavior.class);
@@ -132,7 +132,7 @@ public class SystemSimulationBehavior implements SimulationBehaviorExtension {
 	 * action was performed.
 	 */
 	@Subscribe
-	public ResultEvent<SEFFInterpretationProgressed> onRequestInitiated(final SEFFRequestInitiated requestInitiated) {
+	public ResultEvent<SEFFInterpretationProgressed> onRequestInitiated(final SEFFExternalActionCalled requestInitiated) {
 		final GeneralEntryRequest entity = requestInitiated.getEntity();
 		final Optional<AssemblyContext> assemblyContext = this.systemRepository
 				.findAssemblyContextFromRequiredRole(entity.getRequiredRole());

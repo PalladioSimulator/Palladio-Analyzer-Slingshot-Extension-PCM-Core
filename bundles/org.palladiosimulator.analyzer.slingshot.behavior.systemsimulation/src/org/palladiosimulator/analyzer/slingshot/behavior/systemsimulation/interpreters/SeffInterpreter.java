@@ -14,7 +14,8 @@ import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entiti
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.SEFFInterpretationContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.behaviorcontext.BranchBehaviorContextHolder;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.behaviorcontext.LoopBehaviorContextHolder;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.ResourceDemandRequestInitiated;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.PassiveResourceReleased;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.ResourceDemandRequested;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFChildInterpretationStarted;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFExternalActionCalled;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInterpretationFinished;
@@ -41,6 +42,7 @@ import org.palladiosimulator.pcm.seff.StopAction;
 import org.palladiosimulator.pcm.seff.util.SeffSwitch;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
+import de.uka.ipd.sdq.simucomframework.variables.stackframe.SimulatedStack;
 import de.uka.ipd.sdq.simucomframework.variables.stackframe.SimulatedStackframe;
 
 /**
@@ -86,8 +88,8 @@ public class SeffInterpreter extends SeffSwitch<Set<SEFFInterpreted>> {
 	}
 
 	@Override
-	public Set<SEFFInterpreted> caseBranchAction(final BranchAction object) {
-		final EList<AbstractBranchTransition> abstractBranchTransitions = object.getBranches_Branch();
+	public Set<SEFFInterpreted> caseBranchAction(final BranchAction branchAction) {
+		final EList<AbstractBranchTransition> abstractBranchTransitions = branchAction.getBranches_Branch();
 		
 		if (abstractBranchTransitions.isEmpty()) {
 			throw new IllegalStateException("Empty branch action is not allowed!");
@@ -100,7 +102,7 @@ public class SeffInterpreter extends SeffSwitch<Set<SEFFInterpreted>> {
 			throw new IllegalStateException("No branch transition was active. This is not allowed.");
 		}
 		
-		final BranchBehaviorContextHolder holder = new BranchBehaviorContextHolder(branchTransition.getBranchBehaviour_BranchTransition(), object.getSuccessor_AbstractAction(), this.context.getBehaviorContext().getCurrentProcessedBehavior());
+		final BranchBehaviorContextHolder holder = new BranchBehaviorContextHolder(branchTransition.getBranchBehaviour_BranchTransition(), branchAction.getSuccessor_AbstractAction(), this.context.getBehaviorContext().getCurrentProcessedBehavior());
 		final SEFFInterpretationContext childContext = SEFFInterpretationContext.builder()
 				.withBehaviorContext(holder)
 				.withRequestProcessingContext(this.context.getRequestProcessingContext())
@@ -121,13 +123,6 @@ public class SeffInterpreter extends SeffSwitch<Set<SEFFInterpreted>> {
 	public Set<SEFFInterpreted> caseStartAction(final StartAction object) {
 		LOGGER.debug("Found starting action of SEFF");
 		return Set.of(new SEFFInterpretationProgressed(this.context));
-	}
-	
-
-	@Override
-	public Set<SEFFInterpreted> caseReleaseAction(final ReleaseAction object) {
-		// TODO Auto-generated method stub
-		return super.caseReleaseAction(object);
 	}
 
 	@Override
@@ -184,7 +179,19 @@ public class SeffInterpreter extends SeffSwitch<Set<SEFFInterpreted>> {
 				.withSeffInterpretationContext(this.context)
 				.build();
 		
-		return Set.of(new ResourceDemandRequestInitiated(request));
+		return Set.of(new ResourceDemandRequested(request));
+	}
+	
+	@Override
+	public Set<SEFFInterpreted> caseReleaseAction(final ReleaseAction object) {
+		final ResourceDemandRequest request = ResourceDemandRequest.builder()
+				.withResourceType(ResourceType.PASSIVE)
+				.withSeffInterpretationContext(this.context)
+				.withAssemblyContext(this.context.getAssemblyContext())
+				.withPassiveResource(object.getPassiveResource_ReleaseAction())
+				.build();
+		
+		return Set.of(new PassiveResourceReleased(request, 0));
 	}
 
 	@Override
@@ -220,22 +227,24 @@ public class SeffInterpreter extends SeffSwitch<Set<SEFFInterpreted>> {
 		this.context.getRequestProcessingContext().getUser().evaluateInner(innerVariableStackFrame, parameter.getParameterName() + ".");
 		
 		final LoopBehaviorContextHolder holder = new LoopBehaviorContextHolder(object.getBodyBehaviour_Loop(), object.getSuccessor_AbstractAction(), this.context.getBehaviorContext().getCurrentProcessedBehavior(), iterationCount);
-		final SEFFInterpretationContext context = this.context.update()
+		final SEFFInterpretationContext newContext = this.context.update()
 				.withBehaviorContext(holder)
 				.build();
 		
-		return Set.of(new SEFFChildInterpretationStarted(context));
+		return Set.of(new SEFFChildInterpretationStarted(newContext));
 	}
 
 	@Override
 	public Set<SEFFInterpreted> caseSetVariableAction(final SetVariableAction object) {
-		SimulatedStackHelper.addParameterToStackFrame(this.context.getRequestProcessingContext().getUser().getStack().currentStackFrame(), object.getLocalVariableUsages_SetVariableAction(), this.context.getRequestProcessingContext().getUser().getStack().currentStackFrame());
+		final SimulatedStack<Object> stack = this.context.getRequestProcessingContext().getUser().getStack();
+		final SimulatedStackframe<Object> stackFrame = stack.currentStackFrame();
+		SimulatedStackHelper.addParameterToStackFrame(stackFrame, object.getLocalVariableUsages_SetVariableAction(), stackFrame);
 		return Set.of(new SEFFInterpretationProgressed(this.context));
 	}
 
 	/**
 	 * An internal action demands certain resources and hence, a
-	 * {@link ResourceDemandRequestInitiated} will be returned for each demand
+	 * {@link ResourceDemandRequested} will be returned for each demand
 	 * specified.
 	 */
 	@Override
@@ -253,7 +262,7 @@ public class SeffInterpreter extends SeffSwitch<Set<SEFFInterpreted>> {
 					.withParametricResourceDemand(demand)
 					.build();
 			
-			final ResourceDemandRequestInitiated requestEvent = new ResourceDemandRequestInitiated(request);
+			final ResourceDemandRequested requestEvent = new ResourceDemandRequested(request);
 			events.add(requestEvent);
 		});
 

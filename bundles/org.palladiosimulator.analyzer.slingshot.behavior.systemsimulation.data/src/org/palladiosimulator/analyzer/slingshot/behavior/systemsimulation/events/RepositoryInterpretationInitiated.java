@@ -10,7 +10,7 @@ import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntity
  * 
  * @author Julijan Katic
  */
-public class RepositoryInterpretationInitiated extends AbstractEntityChangedEvent<RepositoryInterpretationContext> {
+public final class RepositoryInterpretationInitiated extends AbstractEntityChangedEvent<RepositoryInterpretationContext> {
 
 	public RepositoryInterpretationInitiated(final RepositoryInterpretationContext entity, final double delay) {
 		super(entity, delay);

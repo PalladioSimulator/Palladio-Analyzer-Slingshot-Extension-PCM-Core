@@ -1,7 +1,6 @@
 package org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events;
 
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.resource.ResourceDemandRequest;
-import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntityChangedEvent;
 
 /**
  * An event holding the {@link ResourceDemandRequest} entity specifying that a
@@ -10,14 +9,13 @@ import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntity
  * 
  * @author Julijan Katic
  */
-public class ResourceDemandRequestInitiated extends AbstractEntityChangedEvent<ResourceDemandRequest>
-        implements SEFFInterpreted {
+public final class ResourceDemandRequested extends AbstractResourceRequestEvent implements SEFFInterpreted {
 
-	public ResourceDemandRequestInitiated(final ResourceDemandRequest entity, final double delay) {
+	public ResourceDemandRequested(final ResourceDemandRequest entity, final double delay) {
 		super(entity, delay);
 	}
 
-	public ResourceDemandRequestInitiated(final ResourceDemandRequest entity) {
+	public ResourceDemandRequested(final ResourceDemandRequest entity) {
 		this(entity, 0);
 	}
 	

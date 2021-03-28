@@ -28,6 +28,7 @@ public final class SEFFInterpretationContext {
 
 	private final Optional<SEFFInterpretationContext> calledFrom;
 	
+	
 	@Generated("SparkTools")
 	private SEFFInterpretationContext(final Builder builder) {
 		Preconditions.checkArgument(builder.behaviorContext != null);
