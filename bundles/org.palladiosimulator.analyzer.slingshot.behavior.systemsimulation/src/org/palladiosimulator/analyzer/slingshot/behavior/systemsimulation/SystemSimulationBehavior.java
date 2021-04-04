@@ -29,6 +29,7 @@ import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
 import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
+import org.palladiosimulator.pcm.core.composition.ProvidedDelegationConnector;
 import org.palladiosimulator.pcm.parameter.VariableUsage;
 import org.palladiosimulator.pcm.repository.OperationProvidedRole;
 import org.palladiosimulator.pcm.repository.OperationSignature;
@@ -75,37 +76,49 @@ public class SystemSimulationBehavior implements SimulationBehaviorExtension {
 		final OperationProvidedRole operationProvidedRole = request.getOperationProvidedRole();
 		final OperationSignature operationSignature = request.getOperationSignature();
 		final EList<VariableUsage> variableUsages = request.getVariableUsages();
-		
+
 		/* Receive the assembly context and its seff. */
-		final Optional<ServiceEffectSpecification> seffFromProvidedRole = this.systemRepository.getSeffFromProvidedRole(operationProvidedRole, operationSignature);
-		final Optional<AssemblyContext> assemblyContextByProvidedRole = this.systemRepository.findAssemblyContextByProvidedRole(operationProvidedRole);
-		
-		
+		final Optional<ProvidedDelegationConnector> connectedProvidedDelegationConnector = this.systemRepository
+				.getConnectedProvidedDelegationConnector(operationProvidedRole);
+		if (connectedProvidedDelegationConnector.isEmpty()) {
+			LOGGER.info("This is not an entry request! Role" + operationProvidedRole.getEntityName());
+			return ResultEvent.of();
+		}
+
+		final Optional<ServiceEffectSpecification> seffFromProvidedRole = this.systemRepository
+				.getDelegatedComponentSeff(connectedProvidedDelegationConnector.get(), operationSignature);
+		final Optional<AssemblyContext> assemblyContextByProvidedRole = this.systemRepository
+				.findAssemblyContextByProvidedRole(
+						connectedProvidedDelegationConnector.get().getInnerProvidedRole_ProvidedDelegationConnector());
+
+		LOGGER.debug("SEFF? " + seffFromProvidedRole.isPresent() + " | AssemblyContext? "
+				+ assemblyContextByProvidedRole.isPresent());
+
 		if (seffFromProvidedRole.isPresent() && assemblyContextByProvidedRole.isPresent()) {
-			SimulatedStackHelper.createAndPushNewStackFrame(request.getUser().getStack(), variableUsages);	
+			SimulatedStackHelper.createAndPushNewStackFrame(request.getUser().getStack(), variableUsages);
 			final ServiceEffectSpecification seff = seffFromProvidedRole.get();
-			
+
 			assert seff instanceof ResourceDemandingBehaviour;
-			
+
 			final RequestProcessingContext requestProcessingContext = RequestProcessingContext.builder()
-				.withUser(request.getUser())
-				.withUserRequest(request)
-				.withUserInterpretationContext(userEntryRequested.getUserInterpretationContext())
-				.withProvidedRole(operationProvidedRole)
-				.withAssemblyContext(assemblyContextByProvidedRole.get())
-				.build();
-			
+					.withUser(request.getUser())
+					.withUserRequest(request)
+					.withUserInterpretationContext(userEntryRequested.getUserInterpretationContext())
+					.withProvidedRole(operationProvidedRole)
+					.withAssemblyContext(assemblyContextByProvidedRole.get())
+					.build();
+
 			final SEFFInterpretationContext context = SEFFInterpretationContext.builder()
-				.withRequestProcessingContext(requestProcessingContext)
-				.withAssemblyContext(assemblyContextByProvidedRole.get())
-				.withBehaviorContext(new RootBehaviorContextHolder((ResourceDemandingBehaviour) seff))
-				.build();
-			
+					.withRequestProcessingContext(requestProcessingContext)
+					.withAssemblyContext(assemblyContextByProvidedRole.get())
+					.withBehaviorContext(new RootBehaviorContextHolder((ResourceDemandingBehaviour) seff))
+					.build();
+
 			return ResultEvent.of(new SEFFInterpretationProgressed(context));
 		} else {
 			LOGGER.info("Either seff or assembly context is not found => stop interpretation for this request.");
 		}
-		
+
 		return ResultEvent.of();
 	}
 
@@ -128,23 +141,25 @@ public class SystemSimulationBehavior implements SimulationBehaviorExtension {
 	}
 
 	/**
-	 * Used to interpret the next SEFF that is requested by another seff. For example, when an External Call
-	 * action was performed.
+	 * Used to interpret the next SEFF that is requested by another seff. For
+	 * example, when an External Call action was performed.
 	 */
 	@Subscribe
-	public ResultEvent<SEFFInterpretationProgressed> onRequestInitiated(final SEFFExternalActionCalled requestInitiated) {
+	public ResultEvent<SEFFInterpretationProgressed> onRequestInitiated(
+			final SEFFExternalActionCalled requestInitiated) {
 		final GeneralEntryRequest entity = requestInitiated.getEntity();
 		final Optional<AssemblyContext> assemblyContext = this.systemRepository
 				.findAssemblyContextFromRequiredRole(entity.getRequiredRole());
 
 		if (assemblyContext.isPresent()) {
-			final RepositoryInterpreter interpreter = new RepositoryInterpreter(assemblyContext.get(), entity.getSignature(),
+			final RepositoryInterpreter interpreter = new RepositoryInterpreter(assemblyContext.get(),
+					entity.getSignature(),
 					null, entity.getUser(), this.systemRepository);
-	
+
 			/* Interpret the Component of the system. */
 			final Set<SEFFInterpretationProgressed> appearedEvents = interpreter
 					.doSwitch(assemblyContext.get().getEncapsulatedComponent__AssemblyContext());
-	
+
 			return ResultEvent.of(appearedEvents);
 		} else {
 			return ResultEvent.of();

@@ -4,7 +4,8 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.SEFFInterpretationContext;
-import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.behaviorcontext.SeffBehaviorHolder;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.behaviorcontext.SeffBehaviorWrapper;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFChildInterpretationStarted;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInterpretationFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInterpretationProgressed;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInterpreted;
@@ -26,36 +27,53 @@ import com.google.common.eventbus.Subscribe;
  * 
  * @author Julijan Katic
  */
-@OnEvent(when = SEFFInterpretationProgressed.class, then = {SEFFInterpreted.class}, cardinality = EventCardinality.MANY)
-@OnEvent(when = SEFFInterpretationFinished.class, then = {SEFFInterpretationProgressed.class, UserRequestFinished.class}, cardinality = EventCardinality.SINGLE)
+@OnEvent(when = SEFFInterpretationProgressed.class, then = SEFFInterpreted.class, cardinality = EventCardinality.MANY)
+@OnEvent(when = SEFFInterpretationFinished.class, then = { SEFFInterpretationProgressed.class,
+		UserRequestFinished.class }, cardinality = EventCardinality.SINGLE)
+@OnEvent(when = SEFFChildInterpretationStarted.class, then = SEFFInterpreted.class, cardinality = EventCardinality.MANY)
 public class SeffSimulationBehavior implements SimulationBehaviorExtension {
 
 	private static final Logger LOGGER = Logger.getLogger(SeffSimulationBehavior.class);
-	
+
 	@Subscribe
 	public ResultEvent<SEFFInterpreted> onSeffInterpretationProgressed(final SEFFInterpretationProgressed progressed) {
 		final SeffInterpreter interpreter = new SeffInterpreter(progressed.getEntity());
-		final Set<SEFFInterpreted> events = interpreter.doSwitch(progressed.getEntity().getBehaviorContext().getNextAction());
+		final Set<SEFFInterpreted> events = interpreter
+				.doSwitch(progressed.getEntity().getBehaviorContext().getNextAction());
 		return ResultEvent.of(events);
 	}
-	
+
+	@Subscribe
+	public ResultEvent<SEFFInterpreted> onSEFFChildInterpretationStarted(
+			final SEFFChildInterpretationStarted seffChildInterpretationStarted) {
+		final SeffInterpreter interpreter = new SeffInterpreter(seffChildInterpretationStarted.getEntity());
+		final Set<SEFFInterpreted> events = interpreter
+				.doSwitch(seffChildInterpretationStarted.getEntity().getBehaviorContext().getNextAction());
+		return ResultEvent.of(events);
+	}
+
 	@Subscribe
 	public ResultEvent<DESEvent> onSEFFInterpretationFinished(final SEFFInterpretationFinished finished) {
 		final SEFFInterpretationContext entity = finished.getEntity();
 		final ResultEvent<DESEvent> result;
-		
 		/*
 		 * If the interpretation is finished in a SEFF that was called from another
 		 * SEFF, continue there. Otherwise, the SEFF comes from a User request.
 		 */
-		if (entity.getCaller().isPresent()) {
+		if (!entity.getBehaviorContext().hasFinished()) {
+			LOGGER.info("repeat scenario");
+			result = this.repeat(entity);
+		} else if (entity.getCaller().isPresent()) {
+			LOGGER.info("return to caller");
 			result = this.continueInCaller(entity);
-		} else if (entity.getBehaviorContext().getParent().isPresent()) {
+		} else if (entity.getBehaviorContext().isChild()) {
+			LOGGER.info("return to parent");
 			result = this.continueInParent(entity);
 		} else {
+			LOGGER.info("finish request");
 			result = this.finishUserRequest(entity);
 		}
-		
+
 		return result;
 	}
 
@@ -65,10 +83,11 @@ public class SeffSimulationBehavior implements SimulationBehaviorExtension {
 	 */
 	private ResultEvent<DESEvent> finishUserRequest(final SEFFInterpretationContext entity) {
 		final UserRequest userRequest = entity.getRequestProcessingContext().getUserRequest();
-		final UserInterpretationContext userInterpretationContext = entity.getRequestProcessingContext().getUserInterpretationContext();
-		
+		final UserInterpretationContext userInterpretationContext = entity.getRequestProcessingContext()
+				.getUserInterpretationContext();
+
 		entity.getRequestProcessingContext().getUser().getStack().removeStackFrame();
-		
+
 		return ResultEvent.of(new UserRequestFinished(userRequest, userInterpretationContext));
 	}
 
@@ -77,15 +96,15 @@ public class SeffSimulationBehavior implements SimulationBehaviorExtension {
 	 * @return
 	 */
 	private ResultEvent<DESEvent> continueInParent(final SEFFInterpretationContext entity) {
-		final SeffBehaviorHolder seffBehaviorHolder = entity.getBehaviorContext().getParent().get();
-		
+		final SeffBehaviorWrapper seffBehaviorHolder = entity.getBehaviorContext().getParent().get();
+
 		final SEFFInterpretationContext seffInterpretationContext = SEFFInterpretationContext.builder()
 				.withAssemblyContext(entity.getAssemblyContext())
 				.withBehaviorContext(seffBehaviorHolder.getContext())
 				.withCaller(entity.getCaller())
 				.withRequestProcessingContext(entity.getRequestProcessingContext())
 				.build();
-		
+
 		return ResultEvent.of(new SEFFInterpretationProgressed(seffInterpretationContext));
 	}
 
@@ -95,7 +114,11 @@ public class SeffSimulationBehavior implements SimulationBehaviorExtension {
 	 */
 	private ResultEvent<DESEvent> continueInCaller(final SEFFInterpretationContext entity) {
 		final SEFFInterpretationContext seffInterpretationContext = entity.getCaller().get();
-		
+
 		return ResultEvent.of(new SEFFInterpretationProgressed(seffInterpretationContext));
+	}
+
+	private ResultEvent<DESEvent> repeat(final SEFFInterpretationContext entity) {
+		return ResultEvent.of(new SEFFInterpretationProgressed(entity));
 	}
 }

@@ -11,7 +11,7 @@ import com.google.common.base.Preconditions;
 public abstract class MultiBehaviorContextHolder extends SeffBehaviorContextHolder {
 
 	protected MultiBehaviorContextHolder(final List<ResourceDemandingBehaviour> behaviors,
-			final Optional<AbstractAction> successor, final Optional<SeffBehaviorHolder> parent) {
+			final Optional<AbstractAction> successor, final Optional<SeffBehaviorWrapper> parent) {
 		super(behaviors, successor, parent);
 		Preconditions.checkArgument(behaviors.size() > 1);
 	}
