@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import javax.annotation.processing.Generated;
 
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UserInterpretationContext;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.ScenarioBehaviour;
 import org.palladiosimulator.pcm.usagemodel.Start;
@@ -51,7 +50,6 @@ public abstract class UsageScenarioBehaviorContext {
 
 	private final Optional<AbstractUserAction> nextAction;
 	private final Optional<UsageScenarioBehaviorContext> parent;
-	private UserInterpretationContext referencedContext;
 	private final ScenarioBehaviour scenarioBehavior;
 
 	/**
@@ -72,7 +70,6 @@ public abstract class UsageScenarioBehaviorContext {
 		Preconditions.checkArgument(builder.nextAction.isEmpty() || builder.parent.isPresent());
 		this.nextAction = builder.nextAction;
 		this.parent = builder.parent;
-		this.referencedContext = builder.referencedContext;
 		this.scenarioBehavior = builder.scenarioBehavior;
 	}
 
@@ -132,32 +129,6 @@ public abstract class UsageScenarioBehaviorContext {
 	}
 
 	/**
-	 * Returns whether this object is fully initialized with non-{@code null}
-	 * values.
-	 * 
-	 * @return true if every reference in this object is not null.
-	 */
-	public boolean isInitialized() {
-		return this.referencedContext != null;
-	}
-
-	/**
-	 * Returns the {@code non-null} reference to the user interpretation context.
-	 * {@link #isInitialized()} must return true in order for this method to work.
-	 * 
-	 * @return The non-{@code null} reference to the interpretation context.
-	 * @throws IllegalStateException if this object is not fully initialized.
-	 */
-	public UserInterpretationContext getReferencedContext() {
-		Preconditions.checkState(this.isInitialized(), "The behavior context is not fully initialized.");
-		return this.referencedContext;
-	}
-
-	public void updateReferenceContext(final UserInterpretationContext context) {
-		this.referencedContext = context;
-	}
-
-	/**
 	 * This will start the scenario by returning the first user action in this
 	 * scenario.
 	 * 
@@ -168,7 +139,6 @@ public abstract class UsageScenarioBehaviorContext {
 			throw new IllegalStateException("This scenario cannot be repeated again");
 		}
 
-		assert !this.scenarioBehavior.getActions_ScenarioBehaviour().isEmpty() : "The list of actions is empty";
 		return this.scenarioBehavior.getActions_ScenarioBehaviour().stream()
 				.filter(Start.class::isInstance)
 				.findFirst()
@@ -184,7 +154,6 @@ public abstract class UsageScenarioBehaviorContext {
 	public abstract static class BaseBuilder<T extends UsageScenarioBehaviorContext, B extends BaseBuilder<T, B>> {
 		private Optional<AbstractUserAction> nextAction = Optional.empty();
 		private Optional<UsageScenarioBehaviorContext> parent = Optional.empty();
-		private UserInterpretationContext referencedContext;
 		private ScenarioBehaviour scenarioBehavior;
 
 		protected BaseBuilder() {
@@ -197,11 +166,6 @@ public abstract class UsageScenarioBehaviorContext {
 
 		public B withParent(final Optional<UsageScenarioBehaviorContext> parent) {
 			this.parent = parent;
-			return (B) this;
-		}
-
-		public B withReferencedContext(final UserInterpretationContext referencedContext) {
-			this.referencedContext = referencedContext;
 			return (B) this;
 		}
 

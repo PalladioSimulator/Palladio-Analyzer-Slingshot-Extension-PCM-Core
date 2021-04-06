@@ -49,7 +49,7 @@ import de.uka.ipd.sdq.simucomframework.variables.StackContext;
  */
 public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 
-	private final Logger LOGGER = Logger.getLogger(UsageScenarioInterpreter.class);
+	private static final Logger LOGGER = Logger.getLogger(UsageScenarioInterpreter.class);
 
 	/** The context from which the user needs to be interpreted. */
 	private final UserInterpretationContext userContext;
@@ -78,21 +78,27 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 	public Set<DESEvent> caseLoop(final Loop loop) {
 		final int numberOfLoops = StackContext.evaluateStatic(loop.getLoopIteration_Loop().getSpecification(),
 				Integer.class);
-		this.LOGGER.debug("Interpret loop. Maximum loop number: " + numberOfLoops);
+		LOGGER.debug("Interpret loop. Maximum loop number: " + numberOfLoops);
 		final ScenarioBehaviour bodyBehavior = loop.getBodyBehaviour_Loop();
 
-		final AbstractUserAction firstLoopAction = bodyBehavior.getActions_ScenarioBehaviour().get(0);
-		assert firstLoopAction instanceof Start;
+		final AbstractUserAction firstLoopAction = bodyBehavior.getActions_ScenarioBehaviour().stream()
+				.filter(Start.class::isInstance)
+				.findFirst()
+				.orElseThrow(() -> new IllegalStateException("There is no start action within the loop!"));
 
 		final UsageScenarioBehaviorContext behaviorContext = LoopScenarioBehaviorContext.builder()
 				.withNextAction(Optional.of(loop.getSuccessor()))
 				.withParent(Optional.of(this.userContext.getBehaviorContext()))
-				.withReferencedContext(this.userContext.update().withCurrentAction(firstLoopAction)
-						.withParentContext(Optional.of(this.userContext)).build())
 				.withScenarioBehavior(bodyBehavior).withMaximalLoopCount(numberOfLoops).build();
 
+		final UserInterpretationContext newContext = this.userContext.update()
+				.withCurrentAction(firstLoopAction)
+				.withParentContext(Optional.of(this.userContext))
+				.withUsageScenarioBehaviorContext(behaviorContext)
+				.build();
+
 		final InnerScenarioBehaviorInitiated behaviorInitiated = new InnerScenarioBehaviorInitiated(
-				behaviorContext.getReferencedContext(), 0);
+				newContext, 0);
 
 		return Set.of(behaviorInitiated);
 	}
@@ -104,7 +110,7 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 	 */
 	@Override
 	public Set<DESEvent> caseEntryLevelSystemCall(final EntryLevelSystemCall object) {
-		this.LOGGER.debug("Entering EntryLevelSystemCall");
+		LOGGER.debug("Entering EntryLevelSystemCall");
 
 		final OperationProvidedRole opProvidedRole = EcoreUtil.copy(object.getProvidedRole_EntryLevelSystemCall());
 		final OperationSignature signature = EcoreUtil.copy(object.getOperationSignature__EntryLevelSystemCall());
@@ -156,7 +162,7 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 			resultSet = Set.of(new UserStarted(this.userContext.updateAction(object.getSuccessor())),
 					new InterArrivalUserInitiated(interArrivalTime));
 		} else {
-			this.LOGGER.info("The user is neither a closed workload nor open workload user");
+			LOGGER.info("The user is neither a closed workload nor open workload user");
 			throw new IllegalStateException("The user must be a open workload or closed workload user");
 		}
 		return resultSet;
@@ -180,17 +186,24 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 				.determineBranchTransition(branch.getBranchTransitions_Branch());
 
 		final AbstractUserAction firstBranchAction = branchTransition.getBranchedBehaviour_BranchTransition()
-				.getActions_ScenarioBehaviour().get(0);
-		assert firstBranchAction instanceof Start;
+				.getActions_ScenarioBehaviour().stream()
+				.filter(Start.class::isInstance)
+				.findFirst()
+				.orElseThrow(() -> new IllegalStateException("There is no start action within the branch transition!"));
 
 		final UsageScenarioBehaviorContext behaviorContext = BranchScenarioContext.builder()
 				.withNextAction(Optional.of(branch.getSuccessor()))
 				.withParent(Optional.of(this.userContext.getBehaviorContext()))
-				.withReferencedContext(this.userContext.update().withCurrentAction(firstBranchAction).build())
 				.withScenarioBehavior(branchTransition.getBranchedBehaviour_BranchTransition()).build();
 
+		final UserInterpretationContext newContext = this.userContext.update()
+				.withCurrentAction(firstBranchAction)
+				.withUsageScenarioBehaviorContext(behaviorContext)
+				.withParentContext(Optional.of(this.userContext))
+				.build();
+
 		final InnerScenarioBehaviorInitiated innerScenarioBehaviorInitiated = new InnerScenarioBehaviorInitiated(
-				behaviorContext.getReferencedContext(), 0);
+				newContext, 0);
 
 		return Set.of(innerScenarioBehaviorInitiated);
 	}
@@ -206,7 +219,7 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 
 	@Override
 	public Set<DESEvent> caseAbstractUserAction(final AbstractUserAction object) {
-		this.LOGGER.debug("Interpret " + object.eClass().getName() + ": " + object);
+		LOGGER.debug("Interpret " + object.eClass().getName() + ": " + object);
 		return Set.of();
 	}
 

@@ -169,10 +169,13 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 				.withScenarioBehavior(usageScenario.getScenarioBehaviour_UsageScenario()).build();
 
 		final OpenWorkloadUserInterpretationContext openWorkloadUserInterpretationContext = OpenWorkloadUserInterpretationContext
-				.builder().withUser(new User()).withScenario(usageScenario).withCurrentAction(firstAction)
+				.builder()
+				.withUser(new User())
+				.withScenario(usageScenario)
+				.withCurrentAction(firstAction)
 				.withInterArrivalTime(new InterArrivalTime(interArrivalRV))
-				.withUsageScenarioBehaviorContext(scenarioContext).build();
-		scenarioContext.updateReferenceContext(openWorkloadUserInterpretationContext);
+				.withUsageScenarioBehaviorContext(scenarioContext)
+				.build();
 
 		final UsageScenarioInterpreter interpreter = new UsageScenarioInterpreter(
 				openWorkloadUserInterpretationContext);
@@ -201,18 +204,20 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 		assert usageScenario.getWorkload_UsageScenario() instanceof ClosedWorkload;
 
 		final RootScenarioContext scenarioContext = RootScenarioContext.builder()
-				.withScenarioBehavior(usageScenario.getScenarioBehaviour_UsageScenario()).build();
+				.withScenarioBehavior(usageScenario.getScenarioBehaviour_UsageScenario())
+				.build();
 
 		final ClosedWorkload workloadSpec = (ClosedWorkload) usageScenario.getWorkload_UsageScenario();
 		final ClosedWorkloadUserInterpretationContext.Builder partialInterpretationBuilder = ClosedWorkloadUserInterpretationContext
-				.builder().withCurrentAction(firstAction)
+				.builder()
+				.withCurrentAction(firstAction)
 				.withThinkTime(new ThinkTime(workloadSpec.getThinkTime_ClosedWorkload()))
 				.withUsageScenarioBehaviorContext(scenarioContext);
 
 		for (int i = 0; i < workloadSpec.getPopulation(); i++) {
-			final UserInterpretationContext interpretationContext = partialInterpretationBuilder.withUser(new User())
+			final UserInterpretationContext interpretationContext = partialInterpretationBuilder
+					.withUser(new User())
 					.build();
-			scenarioContext.updateReferenceContext(interpretationContext);
 
 			final UsageScenarioInterpreter interpreter = new UsageScenarioInterpreter(interpretationContext);
 			final Set<DESEvent> events = interpreter.doSwitch(firstAction);
@@ -310,7 +315,9 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 			final UserInterpretationContext newContext;
 
 			if (scenarioBehaviorContext.mustRepeatScenario()) {
-				newContext = context.update().withCurrentAction(scenarioBehaviorContext.startScenario()).build();
+				newContext = context.update()
+						.withCurrentAction(scenarioBehaviorContext.startScenario())
+						.build();
 			} else {
 				newContext = context.getParentContext().get()
 						.updateAction(scenarioBehaviorContext.getNextAction().get());

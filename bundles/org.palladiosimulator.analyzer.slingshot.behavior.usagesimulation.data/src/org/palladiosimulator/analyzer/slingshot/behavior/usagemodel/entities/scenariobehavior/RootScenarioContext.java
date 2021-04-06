@@ -2,7 +2,6 @@ package org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.sc
 
 import java.util.Optional;
 
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UserInterpretationContext;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.ScenarioBehaviour;
 
@@ -22,7 +21,6 @@ import org.palladiosimulator.pcm.usagemodel.ScenarioBehaviour;
  */
 public final class RootScenarioContext extends UsageScenarioBehaviorContext {
 
-	
 	private boolean startOnce = true;
 
 	/**
@@ -30,16 +28,12 @@ public final class RootScenarioContext extends UsageScenarioBehaviorContext {
 	 * {@code nextAction} and {@code parent} will be set to empty optionals. All
 	 * parameter must not be {@code null}.
 	 * 
-	 * @param referencedContext The referenced context behavior. That context should
-	 *                          be referencing this object afterwards.
-	 * @param scenarioBehavior  The scenario behavior that this context should hold.
+	 * @param scenarioBehavior The scenario behavior that this context should hold.
 	 */
-	public RootScenarioContext(final UserInterpretationContext referencedContext,
-			final ScenarioBehaviour scenarioBehavior) {
+	public RootScenarioContext(final ScenarioBehaviour scenarioBehavior) {
 		this(builder()
 				.withNextAction(Optional.empty())
 				.withParent(Optional.empty())
-				.withReferencedContext(referencedContext)
 				.withScenarioBehavior(scenarioBehavior));
 	}
 
