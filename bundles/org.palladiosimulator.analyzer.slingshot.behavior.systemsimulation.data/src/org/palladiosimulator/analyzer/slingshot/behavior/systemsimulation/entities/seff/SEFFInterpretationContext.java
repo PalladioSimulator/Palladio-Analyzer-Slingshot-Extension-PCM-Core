@@ -23,17 +23,13 @@ public final class SEFFInterpretationContext {
 	private final SeffBehaviorContextHolder behaviorContext;
 
 	private final RequestProcessingContext requestProcessingContext;
-	
+
 	private final AssemblyContext assemblyContext;
 
 	private final Optional<SEFFInterpretationContext> calledFrom;
-	
-	
+
 	@Generated("SparkTools")
 	private SEFFInterpretationContext(final Builder builder) {
-		Preconditions.checkArgument(builder.behaviorContext != null);
-		Preconditions.checkArgument(builder.requestProcessingContext != null);
-		Preconditions.checkArgument(builder.assemblyContext != null);
 		this.calledFrom = builder.calledFrom;
 		this.behaviorContext = builder.behaviorContext;
 		this.requestProcessingContext = builder.requestProcessingContext;
@@ -53,24 +49,25 @@ public final class SEFFInterpretationContext {
 	public RequestProcessingContext getRequestProcessingContext() {
 		return this.requestProcessingContext;
 	}
-	
+
 	public AssemblyContext getAssemblyContext() {
 		return this.assemblyContext;
 	}
-	
+
 	public Optional<SEFFInterpretationContext> getCaller() {
 		return this.calledFrom;
 	}
-	
+
 	public Builder update() {
 		return builder()
 				.withBehaviorContext(this.behaviorContext)
 				.withAssemblyContext(this.assemblyContext)
 				.withRequestProcessingContext(this.requestProcessingContext);
 	}
-	
+
 	/**
 	 * Creates builder to build {@link SEFFInterpretationContext}.
+	 * 
 	 * @return created builder
 	 */
 	@Generated("SparkTools")
@@ -92,10 +89,10 @@ public final class SEFFInterpretationContext {
 		}
 
 		public Builder withBehaviorContext(final SeffBehaviorContextHolder behaviorContext) {
-			this.behaviorContext = behaviorContext;
+			this.behaviorContext = builderNonNull(behaviorContext);
 			return this;
 		}
-		
+
 		public Builder withCaller(final SEFFInterpretationContext calledFrom) {
 			if (calledFrom != null) {
 				this.calledFrom = Optional.of(calledFrom);
@@ -106,25 +103,27 @@ public final class SEFFInterpretationContext {
 		}
 
 		public Builder withRequestProcessingContext(final RequestProcessingContext requestProcessingContext) {
-			this.requestProcessingContext = requestProcessingContext;
+			this.requestProcessingContext = builderNonNull(requestProcessingContext);
 			return this;
 		}
 
 		public Builder withAssemblyContext(final AssemblyContext assemblyContext) {
-			this.assemblyContext = assemblyContext;
+			this.assemblyContext = builderNonNull(assemblyContext);
 			return this;
 		}
 
 		public Builder withCaller(final Optional<SEFFInterpretationContext> caller) {
-			this.calledFrom = caller;
+			this.calledFrom = builderNonNull(caller);
 			return this;
 		}
-		
+
 		public SEFFInterpretationContext build() {
 			return new SEFFInterpretationContext(this);
 		}
 
-		
+		private static <T> T builderNonNull(final T reference) {
+			return Preconditions.checkNotNull(reference, "Builder does not allow null-references.");
+		}
 	}
 
 }

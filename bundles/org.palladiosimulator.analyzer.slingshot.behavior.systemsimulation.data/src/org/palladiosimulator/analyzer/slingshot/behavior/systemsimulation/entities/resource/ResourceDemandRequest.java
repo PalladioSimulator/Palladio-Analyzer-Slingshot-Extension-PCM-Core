@@ -69,7 +69,9 @@ public final class ResourceDemandRequest {
 	@Generated("SparkTools")
 	private ResourceDemandRequest(final Builder builder) {
 		Preconditions.checkArgument(
-				implies(builder.resourceType == ResourceType.PASSIVE, builder.passiveResource.isPresent()));
+				implies(builder.resourceType == ResourceType.PASSIVE, builder.passiveResource.isPresent()),
+				"The passive resource must be supplied in this request in order for it to work."
+						+ "(ResourceDemandRequest is specified as a ResourceType.PASSIVE, but no passive resource was supplied)");
 		this.assemblyContext = builder.assemblyContext;
 		this.seffInterpretationContext = builder.seffInterpretationContext;
 		this.parametricResourceDemand = builder.parametricResourceDemand;
@@ -160,22 +162,22 @@ public final class ResourceDemandRequest {
 		}
 
 		public Builder withAssemblyContext(final AssemblyContext assemblyContext) {
-			this.assemblyContext = assemblyContext;
+			this.assemblyContext = builderNonNull(assemblyContext);
 			return this;
 		}
 
 		public Builder withSeffInterpretationContext(final SEFFInterpretationContext seffInterpretationContext) {
-			this.seffInterpretationContext = seffInterpretationContext;
+			this.seffInterpretationContext = builderNonNull(seffInterpretationContext);
 			return this;
 		}
 
 		public Builder withParametricResourceDemand(final ParametricResourceDemand parametricResourceDemand) {
-			this.parametricResourceDemand = parametricResourceDemand;
+			this.parametricResourceDemand = builderNonNull(parametricResourceDemand);
 			return this;
 		}
 
 		public Builder withResourceType(final ResourceType resourceType) {
-			this.resourceType = resourceType;
+			this.resourceType = builderNonNull(resourceType);
 			return this;
 		}
 
@@ -186,6 +188,15 @@ public final class ResourceDemandRequest {
 				this.passiveResource = Optional.of(passiveResource);
 			}
 			return this;
+		}
+
+		public Builder withPassiveResource(final Optional<PassiveResource> passiveResource) {
+			this.passiveResource = builderNonNull(passiveResource);
+			return this;
+		}
+
+		private static <T> T builderNonNull(final T reference) {
+			return Preconditions.checkNotNull(reference, "The builder does not allow null values.");
 		}
 
 		public ResourceDemandRequest build() {
