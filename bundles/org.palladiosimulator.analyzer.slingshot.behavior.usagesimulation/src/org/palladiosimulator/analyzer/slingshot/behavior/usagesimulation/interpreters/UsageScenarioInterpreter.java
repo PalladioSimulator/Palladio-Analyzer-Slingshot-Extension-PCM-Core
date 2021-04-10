@@ -139,8 +139,15 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 
 	/**
 	 * Interprets the Start action and immediately returns the set with
-	 * {@link UserStarted} event. If this is in a nested context, then only
-	 * {@link UserStarted} will be returned.
+	 * {@link UserStarted} event. If this is in a nested context or it is a closed
+	 * workload user, then only {@link UserStarted} will be returned. If the user is
+	 * an open workload user, then a {@link InterArrivalUserInitiated} will be
+	 * returned as well that lets spawn a new user after a specified time.
+	 * <p>
+	 * Hint: Closed Workload users have a specified think time that tells when a
+	 * users re-enters the usage scenario after it has traversed the model. This is
+	 * done when the user finishes ({@link UserFinished}), but not when the user
+	 * starts.
 	 * 
 	 * @return set with {@link UserStarted} event, and if it is an open workload
 	 *         user, then also a {@link InterArrivalUserInitiated} event to start a
@@ -150,15 +157,14 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 	public Set<DESEvent> caseStart(final Start object) {
 		final Set<DESEvent> resultSet;
 
-		if (this.userContext.getBehaviorContext().isChildContext()) {
-			resultSet = Set.of(new UserStarted(this.userContext.updateAction(object.getSuccessor()), 0));
-		} else if (this.userContext instanceof ClosedWorkloadUserInterpretationContext) {
-			final double thinkTime = ((ClosedWorkloadUserInterpretationContext) this.userContext).getThinkTime()
-					.calculateRV();
-			resultSet = Set.of(new UserStarted(this.userContext.updateAction(object.getSuccessor()), thinkTime));
+		if (this.userContext.getBehaviorContext().isChildContext()
+				|| this.userContext instanceof ClosedWorkloadUserInterpretationContext) {
+			resultSet = Set.of(new UserStarted(this.userContext.updateAction(object.getSuccessor())));
+//		} else if (this.userContext instanceof ClosedWorkloadUserInterpretationContext) {
+//			resultSet = Set.of(new UserStarted(this.userContext.updateAction(object.getSuccessor())));
 		} else if (this.userContext instanceof OpenWorkloadUserInterpretationContext) {
-			final double interArrivalTime = ((OpenWorkloadUserInterpretationContext) this.userContext)
-					.getInterArrivalTime().calculateRV();
+			final OpenWorkloadUserInterpretationContext openWorkloadUserContext = (OpenWorkloadUserInterpretationContext) this.userContext;
+			final double interArrivalTime = openWorkloadUserContext.getInterArrivalTime().calculateRV();
 			resultSet = Set.of(new UserStarted(this.userContext.updateAction(object.getSuccessor())),
 					new InterArrivalUserInitiated(interArrivalTime));
 		} else {

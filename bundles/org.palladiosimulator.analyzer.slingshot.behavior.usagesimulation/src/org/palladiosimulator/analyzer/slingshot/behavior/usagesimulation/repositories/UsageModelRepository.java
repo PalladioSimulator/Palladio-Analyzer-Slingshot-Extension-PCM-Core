@@ -1,6 +1,7 @@
 package org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.repositories;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.ClosedWorkload;
@@ -24,12 +25,10 @@ public interface UsageModelRepository {
 
 	List<UsageScenario> findAllUsageScenarios();
 
-	Workload findWorkloadForUsageScenario(final UsageScenario usageScenario);
+	Optional<Workload> findWorkloadForUsageScenario(final UsageScenario usageScenario);
 
 	int findClosedWorkloadPopulation(final ClosedWorkload workload);
 
-	AbstractUserAction findFirstActionOf(final UsageScenario usageScenario);
-
-	AbstractUserAction findNextAction(UsageScenario scenario, AbstractUserAction currentPosition);
+	Optional<AbstractUserAction> findFirstActionOf(final UsageScenario usageScenario);
 
 }

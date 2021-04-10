@@ -1,11 +1,13 @@
 package org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.repositories;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.ClosedWorkload;
+import org.palladiosimulator.pcm.usagemodel.Start;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 import org.palladiosimulator.pcm.usagemodel.UsagemodelFactory;
@@ -23,18 +25,16 @@ public class UsageModelRepositoryImpl implements UsageModelRepository {
 
 	@Override
 	public List<UsageScenario> findAllUsageScenarios() {
-		final EList<UsageScenario> usageScenarios = usageModel.getUsageScenario_UsageModel();
+		final EList<UsageScenario> usageScenarios = this.usageModel.getUsageScenario_UsageModel();
 		return usageScenarios;
 	}
 
 	@Override
-	public Workload findWorkloadForUsageScenario(final UsageScenario usageScenario) {
-		for (final UsageScenario scenario : findAllUsageScenarios()) {
-			if (scenario.getId().equals(usageScenario.getId())) {
-				return scenario.getWorkload_UsageScenario();
-			}
-		}
-		return null;
+	public Optional<Workload> findWorkloadForUsageScenario(final UsageScenario usageScenario) {
+		return this.findAllUsageScenarios().stream()
+				.filter(scenario -> scenario.getId().equals(usageScenario.getId()))
+				.map(UsageScenario::getWorkload_UsageScenario)
+				.findFirst();
 	}
 
 	@Override
@@ -48,34 +48,10 @@ public class UsageModelRepositoryImpl implements UsageModelRepository {
 	}
 
 	@Override
-	public AbstractUserAction findFirstActionOf(final UsageScenario scenario) {
-		return scenario.getScenarioBehaviour_UsageScenario().getActions_ScenarioBehaviour().get(0);
-	}
-
-	@Override
-	public AbstractUserAction findNextAction(final UsageScenario scenario, final AbstractUserAction currentPosition) {
-		final UsageScenario usageScenario = findUsageScenarioBy(scenario.getId());
-
-		final EList<AbstractUserAction> actions = usageScenario.getScenarioBehaviour_UsageScenario()
-		        .getActions_ScenarioBehaviour();
-		for (final AbstractUserAction action : actions) {
-			if (action.getId().equals(currentPosition.getId())) {
-				return action.getSuccessor();
-			}
-		}
-		// no more actions available
-		return null;
-	}
-
-	public UsageScenario findUsageScenarioBy(final String scenarioId) {
-		final EList<UsageScenario> usageScenarios = usageModel.getUsageScenario_UsageModel();
-		for (final UsageScenario usageScenario : usageScenarios) {
-			if (usageScenario.getId().equals(scenarioId)) {
-				return usageScenario;
-			}
-		}
-		// FIXME: throw Exception if scenario not found
-		return null;
+	public Optional<AbstractUserAction> findFirstActionOf(final UsageScenario scenario) {
+		return scenario.getScenarioBehaviour_UsageScenario().getActions_ScenarioBehaviour().stream()
+				.filter(Start.class::isInstance)
+				.findFirst();
 	}
 
 }

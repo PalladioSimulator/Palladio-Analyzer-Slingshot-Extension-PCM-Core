@@ -5,6 +5,7 @@ import static org.palladiosimulator.analyzer.slingshot.simulation.extensions.beh
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
@@ -18,6 +19,7 @@ import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.int
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UserInterpretationContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.scenariobehavior.RootScenarioContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.scenariobehavior.UsageScenarioBehaviorContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.ClosedWorkloadUserInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.InnerScenarioBehaviorInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.InterArrivalUserInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserEntryRequested;
@@ -58,7 +60,8 @@ import com.google.inject.Inject;
 		InterArrivalUserInitiated.class }, cardinality = MANY)
 @OnEvent(when = UserStarted.class, then = { UserFinished.class, UserEntryRequested.class, UserSlept.class,
 		UserWokeUp.class, InnerScenarioBehaviorInitiated.class }, cardinality = MANY)
-@OnEvent(when = UserFinished.class, then = { UserStarted.class, InterArrivalUserInitiated.class }, cardinality = MANY)
+@OnEvent(when = UserFinished.class, then = { UserStarted.class, InterArrivalUserInitiated.class,
+		ClosedWorkloadUserInitiated.class }, cardinality = MANY)
 @OnEvent(when = UserWokeUp.class, then = { UserFinished.class, UserEntryRequested.class, UserSlept.class,
 		UserWokeUp.class, InnerScenarioBehaviorInitiated.class }, cardinality = MANY)
 @OnEvent(when = UserRequestFinished.class, then = { UserFinished.class, UserEntryRequested.class, UserSlept.class,
@@ -86,7 +89,8 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 	public void init() {
 		this.usageModelRepository.load(this.usageModel);
 		this.usageInterpretationContext = UsageInterpretationContext.builder()
-				.withUsageScenariosContexts(this.collectAllUsageScenarios()).build();
+				.withUsageScenariosContexts(this.collectAllUsageScenarios())
+				.build();
 	}
 
 	/**
@@ -137,7 +141,9 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 		for (final UsageScenarioInterpretationContext usageScenarioContext : this.usageInterpretationContext
 				.getUsageScenarioContexts()) {
 			final UsageScenario usageScenario = usageScenarioContext.getScenario();
-			final AbstractUserAction firstAction = this.usageModelRepository.findFirstActionOf(usageScenario);
+			final AbstractUserAction firstAction = this.usageModelRepository.findFirstActionOf(usageScenario)
+					.orElseThrow(() -> new IllegalStateException(
+							"There must be a Start user action within the usage scenario."));
 
 			if (usageScenarioContext.isClosedWorkload()) {
 				this.interpreteClosedWorkload(returnedEvents, usageScenario, firstAction);
@@ -257,13 +263,20 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 
 		for (final UsageScenarioInterpretationContext usageScenarioContext : this.usageInterpretationContext
 				.getUsageScenarioContexts()) {
-			this.interpreteOpenWorkload(result, usageScenarioContext.getScenario(),
-					this.usageModelRepository.findFirstActionOf(usageScenarioContext.getScenario()));
+			final AbstractUserAction firstAction = this.usageModelRepository
+					.findFirstActionOf(usageScenarioContext.getScenario())
+					.orElseThrow(
+							() -> new IllegalStateException("There must be a Start action within the usage scenario."));
+
+			this.interpreteOpenWorkload(result, usageScenarioContext.getScenario(), firstAction);
 		}
 
 		// The set should only contain UserStarted and InterArrivalUserInitiated events.
-		assert result.stream().filter(event -> !UserStarted.class.isInstance(event))
-				.filter(event -> !InterArrivalUserInitiated.class.isInstance(event)).findAny().isEmpty();
+		assert result.stream()
+				.filter(Predicate.not(UserStarted.class::isInstance))
+				.filter(Predicate.not(InterArrivalUserInitiated.class::isInstance))
+				.findAny()
+				.isEmpty();
 
 		return ResultEvent.of(result);
 	}
@@ -341,7 +354,33 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 	 */
 	private void finishUserInterpretation(final Set<DESEvent> resultSet, final UserInterpretationContext context) {
 		context.getUser().getStack().removeStackFrame();
-		this.startUsageSimulation(resultSet);
+//		this.startUsageSimulation(resultSet);
+		/* 
+		 * Error in Semantics before with the above statement:
+		 *  - For OpenWorkloads, another user will be spawned which is already done by the InterArrivalUserInitiated event. 
+		 *  - For ClosedWorkloads, old users will be replaced with new users, which is not exactly "re-entering" and it is
+		 *    harder to let them only spawn after a ThinkTime.
+		 * Instead, only for ClosedWorkloadUsers, let them re-enter the system after the ThinkTime.
+		 * For OpenWorkloadUsers, this is already handled in the other event.
+		 */
+		if (context instanceof ClosedWorkloadUserInterpretationContext) {
+			final ClosedWorkloadUserInterpretationContext closedContext = (ClosedWorkloadUserInterpretationContext) context;
+			resultSet.add(new ClosedWorkloadUserInitiated(context, closedContext.getThinkTime()));
+		}
+	}
+
+	/**
+	 * Restarts the interpretation of a Usage Scenario by updating the
+	 * {@link RootScenarioContext} and interpreting the first start action.
+	 */
+	@Subscribe
+	public ResultEvent<DESEvent> onClosedWorkloadUserInitiated(
+			final ClosedWorkloadUserInitiated closedWorkloadUserInitiated) {
+		final RootScenarioContext updatedRootScenarioContext = new RootScenarioContext(
+				closedWorkloadUserInitiated.getEntity().getBehaviorContext().getScenarioBehavior());
+		final UsageScenarioInterpreter usageScenarioInterpreter = new UsageScenarioInterpreter(
+				closedWorkloadUserInitiated.getEntity());
+		return ResultEvent.of(usageScenarioInterpreter.doSwitch(updatedRootScenarioContext.startScenario()));
 	}
 
 	@Subscribe

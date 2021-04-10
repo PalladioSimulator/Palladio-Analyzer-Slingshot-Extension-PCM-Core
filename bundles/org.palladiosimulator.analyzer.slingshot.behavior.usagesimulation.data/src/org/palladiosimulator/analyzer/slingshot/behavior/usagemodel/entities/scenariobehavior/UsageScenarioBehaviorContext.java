@@ -145,6 +145,10 @@ public abstract class UsageScenarioBehaviorContext {
 				.orElseThrow(() -> new IllegalStateException("The model must have a Start action in order to perform"));
 	}
 
+	public ScenarioBehaviour getScenarioBehavior() {
+		return this.scenarioBehavior;
+	}
+
 	/**
 	 * For the preconditions, see
 	 * {@link UsageScenarioBehaviorContext#UsageScenarioBehaviorContext}
