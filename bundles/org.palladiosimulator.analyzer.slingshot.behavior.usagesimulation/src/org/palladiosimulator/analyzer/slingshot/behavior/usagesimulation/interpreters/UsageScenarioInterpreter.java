@@ -160,8 +160,6 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 		if (this.userContext.getBehaviorContext().isChildContext()
 				|| this.userContext instanceof ClosedWorkloadUserInterpretationContext) {
 			resultSet = Set.of(new UserStarted(this.userContext.updateAction(object.getSuccessor())));
-//		} else if (this.userContext instanceof ClosedWorkloadUserInterpretationContext) {
-//			resultSet = Set.of(new UserStarted(this.userContext.updateAction(object.getSuccessor())));
 		} else if (this.userContext instanceof OpenWorkloadUserInterpretationContext) {
 			final OpenWorkloadUserInterpretationContext openWorkloadUserContext = (OpenWorkloadUserInterpretationContext) this.userContext;
 			final double interArrivalTime = openWorkloadUserContext.getInterArrivalTime().calculateRV();
