@@ -7,6 +7,7 @@
 *.js
 **/codemr/
 <<<<<<< HEAD
+<<<<<<< HEAD
 **/.settings/
 **/.metadata/
 
@@ -20,3 +21,9 @@
 
 .DS_Sore
 >>>>>>> 8f34617 (Updated User class and .gitignore)
+=======
+**/.settings/
+**/.metadata/
+
+.DS_Sore
+>>>>>>> b8924e3 (Updated gitignore)
