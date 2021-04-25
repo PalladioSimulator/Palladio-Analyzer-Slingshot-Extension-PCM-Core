@@ -5,7 +5,7 @@ public class ModelFileTypeConstants {
 
 	public static final String ALLOCATION_FILE = "allocationmodel";
 	public static final String USAGE_FILE = "usagemodel";
-	public static final String MONITOR_REPOSITORY_FILE = "monitorRepositorymodel";
+	public static final String MONITOR_REPOSITORY_FILE = "monitorRepositoryFile";
 
 	public static final String[] ALLOCATION_FILE_EXTENSION = new String[] {
 			"*." + ModelTypeConstants.ALLOCATION_EXTENSION };

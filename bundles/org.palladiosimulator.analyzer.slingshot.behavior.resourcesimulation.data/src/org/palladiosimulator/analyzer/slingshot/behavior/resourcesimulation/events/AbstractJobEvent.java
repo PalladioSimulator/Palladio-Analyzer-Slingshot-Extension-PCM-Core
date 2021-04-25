@@ -1,6 +1,6 @@
 package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events;
 
-import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.jobs.JobContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.jobs.Job;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntityChangedEvent;
 
 /**
@@ -9,9 +9,9 @@ import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntity
  * 
  * @author Julijan Katic
  */
-public abstract class AbstractJobEvent extends AbstractEntityChangedEvent<JobContext<?>> {
+public abstract class AbstractJobEvent extends AbstractEntityChangedEvent<Job> {
 
-	public AbstractJobEvent(final JobContext<?> entity, final double delay) {
+	public AbstractJobEvent(final Job entity, final double delay) {
 		super(entity, delay);
 	}
 

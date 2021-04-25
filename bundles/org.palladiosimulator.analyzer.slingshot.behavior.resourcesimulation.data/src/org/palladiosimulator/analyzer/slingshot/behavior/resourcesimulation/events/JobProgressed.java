@@ -1,6 +1,6 @@
 package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events;
 
-import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.jobs.JobContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.jobs.Job;
 
 /**
  * Specifies that the job or the context containing jobs has somehow progressed.
@@ -11,7 +11,7 @@ import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.enti
  */
 public class JobProgressed extends AbstractJobEvent {
 
-	public JobProgressed(final JobContext<?> entity, final double delay) {
+	public JobProgressed(final Job entity, final double delay) {
 		super(entity, delay);
 	}
 
