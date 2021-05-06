@@ -13,4 +13,8 @@ public final class JobInitiated extends AbstractJobEvent {
 		super(entity, delay);
 	}
 
+	public JobInitiated(final Job entity) {
+		super(entity, 0);
+	}
+
 }

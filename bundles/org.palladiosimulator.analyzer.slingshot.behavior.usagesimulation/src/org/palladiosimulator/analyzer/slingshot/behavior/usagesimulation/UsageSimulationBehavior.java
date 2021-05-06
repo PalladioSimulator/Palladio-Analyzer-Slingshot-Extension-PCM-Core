@@ -67,6 +67,7 @@ import com.google.inject.Inject;
 @OnEvent(when = UserRequestFinished.class, then = { UserFinished.class, UserEntryRequested.class, UserSlept.class,
 		UserWokeUp.class, InnerScenarioBehaviorInitiated.class }, cardinality = MANY)
 @OnEvent(when = InnerScenarioBehaviorInitiated.class, then = { UserStarted.class }, cardinality = MANY)
+@OnEvent(when = ClosedWorkloadUserInitiated.class, then = UserStarted.class, cardinality = MANY)
 public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 
 	private final Logger LOGGER = Logger.getLogger(UsageSimulationBehavior.class);

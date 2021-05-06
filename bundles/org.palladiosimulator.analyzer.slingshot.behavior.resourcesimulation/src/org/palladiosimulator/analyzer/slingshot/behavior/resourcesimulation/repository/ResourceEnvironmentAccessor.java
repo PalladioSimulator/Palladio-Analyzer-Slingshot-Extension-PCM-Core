@@ -3,6 +3,7 @@ package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.rep
 import java.util.Optional;
 
 import org.palladiosimulator.pcm.allocation.Allocation;
+import org.palladiosimulator.pcm.allocation.AllocationContext;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.resourceenvironment.ProcessingResourceSpecification;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
@@ -27,20 +28,19 @@ public class ResourceEnvironmentAccessor {
 	}
 
 	public Optional<ProcessingResourceSpecification> findResourceSpecification(final ResourceContainer container,
-	        final ResourceType type) {
-		assert resourceEnvironment.getResourceContainer_ResourceEnvironment().contains(container);
+			final ResourceType type) {
+		assert this.resourceEnvironment.getResourceContainer_ResourceEnvironment().contains(container);
 
 		return container.getActiveResourceSpecifications_ResourceContainer().stream()
-		        .filter(spec -> type.getId().equals(spec.getActiveResourceType_ActiveResourceSpecification().getId()))
-		        .findFirst();
+				.filter(spec -> type.getId().equals(spec.getActiveResourceType_ActiveResourceSpecification().getId()))
+				.findFirst();
 	}
 
-	public Optional<ResourceContainer> findResourceContainerOfComponent(final AssemblyContext assemblyContext) {
-		return allocation.getAllocationContexts_Allocation().stream()
-		        .filter(allocationContext -> allocationContext.getAssemblyContext_AllocationContext().getId()
-		                .equals(assemblyContext.getId()))
-		        .map(allocationContext -> allocationContext.getResourceContainer_AllocationContext())
-		        .findFirst();
+	public Optional<AllocationContext> findResourceContainerOfComponent(final AssemblyContext assemblyContext) {
+		return this.allocation.getAllocationContexts_Allocation().stream()
+				.filter(allocationContext -> allocationContext.getAssemblyContext_AllocationContext().getId()
+						.equals(assemblyContext.getId()))
+				.findFirst();
 	}
 
 }

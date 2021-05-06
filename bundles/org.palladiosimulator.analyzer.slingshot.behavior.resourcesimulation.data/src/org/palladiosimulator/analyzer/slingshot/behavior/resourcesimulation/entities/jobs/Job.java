@@ -4,6 +4,7 @@ import javax.annotation.processing.Generated;
 
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.resource.ResourceDemandRequest;
+import org.palladiosimulator.pcm.allocation.AllocationContext;
 import org.palladiosimulator.pcm.resourcetype.ProcessingResourceType;
 
 import de.uka.ipd.sdq.probfunction.math.util.MathTools;
@@ -30,6 +31,9 @@ public class Job implements Comparable<Job> {
 	/** The processing resource type that is being requested */
 	private final ProcessingResourceType processingResourceType;
 
+	/** The allocation context where the resource resides. */
+	private final AllocationContext allocationContext;
+
 	/** Keeps track of the resource demand. */
 	private final ResourceDemandRequest request;
 
@@ -38,6 +42,7 @@ public class Job implements Comparable<Job> {
 		this.id = builder.id;
 		this.demand = builder.demand;
 		this.processingResourceType = builder.processingResourceType;
+		this.allocationContext = builder.allocationContext;
 		this.request = builder.request;
 	}
 
@@ -85,6 +90,13 @@ public class Job implements Comparable<Job> {
 	 */
 	public boolean isFinished() {
 		return MathTools.equalsDouble(this.demand, 0);
+	}
+
+	/**
+	 * @return the allocationContext
+	 */
+	public AllocationContext getAllocationContext() {
+		return this.allocationContext;
 	}
 
 	@Override
@@ -159,6 +171,7 @@ public class Job implements Comparable<Job> {
 		private String id;
 		private double demand;
 		private ProcessingResourceType processingResourceType;
+		private AllocationContext allocationContext;
 		private ResourceDemandRequest request;
 
 		private Builder() {
@@ -194,6 +207,17 @@ public class Job implements Comparable<Job> {
 		 */
 		public Builder withProcessingResourceType(final ProcessingResourceType processingResourceType) {
 			this.processingResourceType = processingResourceType;
+			return this;
+		}
+
+		/**
+		 * Builder method for allocationContext parameter.
+		 * 
+		 * @param allocationContext field to set
+		 * @return builder
+		 */
+		public Builder withAllocationContext(final AllocationContext allocationContext) {
+			this.allocationContext = allocationContext;
 			return this;
 		}
 

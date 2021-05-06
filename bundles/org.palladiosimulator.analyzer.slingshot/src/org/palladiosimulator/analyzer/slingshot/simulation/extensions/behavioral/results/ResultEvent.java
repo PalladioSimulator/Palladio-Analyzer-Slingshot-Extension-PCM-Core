@@ -1,8 +1,10 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 
@@ -35,14 +37,14 @@ public class ResultEvent<T extends DESEvent> {
 	 * @param evts The set of events to copy.
 	 */
 	public ResultEvent(final Set<T> evts) {
-		events = new LinkedHashSet<T>(evts);
+		this.events = new LinkedHashSet<T>(evts);
 	}
 
 	/**
 	 * Constructs a result set without resulting events.
 	 */
 	public ResultEvent() {
-		events = Set.of();
+		this.events = Set.of();
 	}
 
 	/**
@@ -51,7 +53,7 @@ public class ResultEvent<T extends DESEvent> {
 	 * {@link #isEmpty()} are true.
 	 */
 	public boolean areMany() {
-		return events.size() > 1;
+		return this.events.size() > 1;
 	}
 
 	/**
@@ -60,7 +62,7 @@ public class ResultEvent<T extends DESEvent> {
 	 * {@link #isEmpty()} are true.
 	 */
 	public boolean isOne() {
-		return events.size() == 1;
+		return this.events.size() == 1;
 	}
 
 	/**
@@ -69,7 +71,7 @@ public class ResultEvent<T extends DESEvent> {
 	 * true.
 	 */
 	public boolean isEmpty() {
-		return events.isEmpty();
+		return this.events.isEmpty();
 	}
 
 	/**
@@ -78,7 +80,7 @@ public class ResultEvent<T extends DESEvent> {
 	 * @return the set of events.
 	 */
 	public Set<T> getEventsForScheduling() {
-		return Collections.unmodifiableSet(events);
+		return Collections.unmodifiableSet(this.events);
 	}
 
 	/**
@@ -128,7 +130,9 @@ public class ResultEvent<T extends DESEvent> {
 		if (events == null) {
 			actualEvents = Set.of();
 		} else {
-			actualEvents = events;
+			actualEvents = events.stream()
+					.filter(event -> event != null)
+					.collect(Collectors.toSet());
 		}
 		return new ResultEvent<T>(actualEvents);
 	}
@@ -142,7 +146,13 @@ public class ResultEvent<T extends DESEvent> {
 	 */
 	@SafeVarargs
 	public static <T extends DESEvent> ResultEvent<T> of(final T... events) {
-		return new ResultEvent<T>(Set.of(events));
+		if (events == null) {
+			return ResultEvent.empty();
+		} else {
+			return ResultEvent.of(Arrays.stream(events)
+					.filter(event -> event != null)
+					.collect(Collectors.toSet()));
+		}
 	}
 
 	/**
@@ -157,7 +167,7 @@ public class ResultEvent<T extends DESEvent> {
 	/**
 	 * Creates a ResultEvent instance with no events.
 	 */
-	public static ResultEvent<DESEvent> empty() {
-		return new ResultEvent<DESEvent>(Set.of());
+	public static <T extends DESEvent> ResultEvent<T> empty() {
+		return new ResultEvent<T>(Set.of());
 	}
 }

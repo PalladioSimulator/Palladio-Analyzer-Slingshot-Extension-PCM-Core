@@ -26,11 +26,15 @@ public class SchedulingInterceptor extends AbstractInterceptor {
 
 	@Override
 	public void postIntercept(final Object extension, final Method m, final Object[] args, final Object result) {
-		final ResultEvent<DESEvent> eventResult = (ResultEvent<DESEvent>) result;
+		if (!(result instanceof ResultEvent<?>)) {
+			throw new IllegalArgumentException("The return type of the intercepted method is not ResultEvent!");
+		}
+
+		final ResultEvent<?> eventResult = (ResultEvent<?>) result;
 
 		for (final DESEvent desEvent : eventResult.getEventsForScheduling()) {
 			LOGGER.info(EventPrettyLogPrinter.prettyPrint(desEvent, "Forwarding Event", "Scheduling Interceptor"));
-			scheduling.scheduleForSimulation(desEvent);
+			this.scheduling.scheduleForSimulation(desEvent);
 		}
 
 	}

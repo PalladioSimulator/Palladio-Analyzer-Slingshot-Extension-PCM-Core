@@ -8,7 +8,7 @@ import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntity
  * 
  * @author Julijan Katic
  */
-public class JobScheduled extends AbstractEntityChangedEvent<Job> {
+public final class JobScheduled extends AbstractEntityChangedEvent<Job> {
 
 	public JobScheduled(final Job entity, final double delay) {
 		super(entity, delay);
