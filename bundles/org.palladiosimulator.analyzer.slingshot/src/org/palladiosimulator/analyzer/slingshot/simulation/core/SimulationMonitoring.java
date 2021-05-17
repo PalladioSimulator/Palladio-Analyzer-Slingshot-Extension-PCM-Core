@@ -1,13 +1,21 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.core;
 
-import java.util.List;
+import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 
-import org.palladiosimulator.analyzer.slingshot.simulation.core.entities.IUser;
-
+/**
+ * The simulation monitoring interface allows for event-based probes to be
+ * tracked and register calculators.
+ * 
+ * @author Julijan Katic
+ *
+ */
 public interface SimulationMonitoring {
 
-	void addSimulatedUser();
-	
-	List<IUser> getSimulatedUsers();
+	/**
+	 * Publishes an event that can be probed and used later in calculations.
+	 * 
+	 * @param event The event that can be probed.
+	 */
+	void publishProbeEvent(final DESEvent event);
 
 }
