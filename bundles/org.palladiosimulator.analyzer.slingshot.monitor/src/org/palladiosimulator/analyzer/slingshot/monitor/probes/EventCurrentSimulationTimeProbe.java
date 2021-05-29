@@ -5,10 +5,9 @@ import static javax.measure.unit.SI.SECOND;
 import javax.measure.Measure;
 import javax.measure.quantity.Duration;
 
-import org.palladiosimulator.analyzer.slingshot.monitor.probe.EventProbe;
-import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
+import org.palladiosimulator.analyzer.slingshot.monitor.probe.EntityBasedDESEventProbe;
+import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntityChangedEvent;
 import org.palladiosimulator.metricspec.constants.MetricDescriptionConstants;
-import org.palladiosimulator.probeframework.measurement.RequestContext;
 
 /**
  * This probe will return the current simulation time from an event.
@@ -16,15 +15,16 @@ import org.palladiosimulator.probeframework.measurement.RequestContext;
  * @author Julijan Katic
  *
  */
-public class EventCurrentSimulationTimeProbe extends EventProbe<DESEvent, Double, Duration> {
+public class EventCurrentSimulationTimeProbe<E extends AbstractEntityChangedEvent<?>>
+		extends EntityBasedDESEventProbe<E, Double, Duration> {
 
-	public EventCurrentSimulationTimeProbe(final DESEvent event) {
-		super(event, MetricDescriptionConstants.POINT_IN_TIME_METRIC);
+	public EventCurrentSimulationTimeProbe(final Class<E> eventType) {
+		super(eventType, MetricDescriptionConstants.POINT_IN_TIME_METRIC);
 	}
 
 	@Override
-	protected Measure<Double, Duration> getBasicMeasure(final RequestContext arg0) {
-		return Measure.valueOf(this.getStateObject().time(), SECOND);
+	protected Measure<Double, Duration> getBasicMeasure(final E event) {
+		return Measure.valueOf(event.time(), SECOND);
 	}
 
 }
