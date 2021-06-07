@@ -5,11 +5,14 @@ Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.monitor;singleton:
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.monitor
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Require-Bundle: org.palladiosimulator.probeframework;bundle-version="5.0.0",
+Require-Bundle: org.palladiosimulator.probeframework;bundle-version="5.0.0";visibility:=reexport,
  org.palladiosimulator.analyzer.slingshot,
  org.jscience;bundle-version="4.3.1",
- org.palladiosimulator.metricspec;bundle-version="5.0.0",
- org.palladiosimulator.measurementframework,
+ org.palladiosimulator.metricspec;bundle-version="5.0.0";visibility:=reexport,
+ org.palladiosimulator.measurementframework;visibility:=reexport,
  org.palladiosimulator.analyzer.slingshot.util.extensionpoint;bundle-version="1.0.0",
- org.palladiosimulator.recorderframework;bundle-version="5.0.0",
- org.palladiosimulator.edp2
+ org.palladiosimulator.recorderframework;bundle-version="5.0.0";visibility:=reexport,
+ org.palladiosimulator.edp2;visibility:=reexport,
+ org.palladiosimulator.monitorrepository;bundle-version="5.0.0";visibility:=reexport
+Export-Package: org.palladiosimulator.analyzer.slingshot.monitor.probe,
+ org.palladiosimulator.analyzer.slingshot.monitor.probes

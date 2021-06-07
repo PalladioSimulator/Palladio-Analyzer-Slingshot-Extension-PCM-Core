@@ -24,4 +24,10 @@ import org.palladiosimulator.probeframework.calculator.Calculator;
 @Target(METHOD)
 public @interface CalculatorProvider {
 
+	/**
+	 * The name/identifier of the calculator. If the string is empty, then the
+	 * method's name will be used as the identifier.
+	 */
+	public String id() default "";
+
 }

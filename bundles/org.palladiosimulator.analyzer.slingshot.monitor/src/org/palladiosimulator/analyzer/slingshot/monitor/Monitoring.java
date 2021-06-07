@@ -1,49 +1,54 @@
 package org.palladiosimulator.analyzer.slingshot.monitor;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import javax.inject.Inject;
 
 import org.palladiosimulator.analyzer.slingshot.monitor.calculator.CalculatorProvider;
 import org.palladiosimulator.analyzer.slingshot.monitor.calculator.CalculatorProviderObject;
-import org.palladiosimulator.analyzer.slingshot.monitor.probe.DESEventProbe;
-import org.palladiosimulator.analyzer.slingshot.monitor.probe.Probed;
+import org.palladiosimulator.analyzer.slingshot.monitor.calculator.CalculatorRegistry;
+import org.palladiosimulator.analyzer.slingshot.monitor.probe.ProbeRegistry;
+import org.palladiosimulator.analyzer.slingshot.monitor.probe.ProbeRegistry.SingletonProbeInstanceMap;
 import org.palladiosimulator.analyzer.slingshot.monitor.recorder.RecorderAttachingCalculatorFactoryDecorator;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationMonitoring;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.probeframework.ProbeFrameworkContext;
-import org.palladiosimulator.probeframework.calculator.Calculator;
 import org.palladiosimulator.probeframework.calculator.ExtensibleCalculatorFactoryDelegatingFactory;
 import org.palladiosimulator.recorderframework.utils.RecorderExtensionHelper;
 
 /**
+ * A controller class that controls the probes, calculators as well as recorders
+ * in this system.
+ * <p>
+ * The monitoring listens to {@link DESEvent}s, and if this event can be probed,
+ * then a probe will be taken which could possibly lead to a calculation.
+ * <p>
+ * The probable events are identified through the definition of calculators. For
+ * that, see {@link CalculatorProvider}.
  * 
  * @author Julijan Katic
  */
-public class Monitoring implements SimulationMonitoring {
+public final class Monitoring implements SimulationMonitoring {
 
-	// TODO: Find better way of this map.
-	private final Map<Class<? extends DESEvent>, Map<Class<? extends DESEventProbe<?, ?, ?>>, DESEventProbe<?, ?, ?>>> probes;
+	/** The collection of probes */
+	private final ProbeRegistry probeRegistry;
 
-	private final Set<Calculator> calculators;
+	/** The collection of calculators. */
+	private final CalculatorRegistry calculatorRegistry;
 
+	/** A context for probes as needed by the probe framework. */
 	private final ProbeFrameworkContext probeFrameworkContext;
 
+	@Inject
 	public Monitoring() {
-		this.probes = new HashMap<>();
-		this.calculators = new HashSet<Calculator>();
-		this.setUpCalculators();
+		this.probeRegistry = new ProbeRegistry();
+		this.calculatorRegistry = new CalculatorRegistry(this.probeRegistry);
 		this.probeFrameworkContext = new ProbeFrameworkContext(new RecorderAttachingCalculatorFactoryDecorator(
 				new ExtensibleCalculatorFactoryDelegatingFactory(), "",
 				RecorderExtensionHelper.getRecorderConfigurationFactoryForName("")));
+		this.setUpCalculators();
 	}
 
 	/**
@@ -54,17 +59,16 @@ public class Monitoring implements SimulationMonitoring {
 	 */
 	@Override
 	public void publishProbeEvent(final DESEvent event) {
-		final Map<?, DESEventProbe<?, ?, ?>> probes = this.getRegisteredProbes(event.getClass());
+		final SingletonProbeInstanceMap probes = this.probeRegistry.getProbeMapFor(event.getClass());
 		if (probes != null) {
-			probes.values().forEach(probe -> probe.takeMeasurement(event));
+			probes.getSingletonInstances().values().forEach(probe -> probe.takeMeasurement(event));
 		}
 	}
 
-	private Map<Class<? extends DESEventProbe<?, ?, ?>>, DESEventProbe<?, ?, ?>> getRegisteredProbes(
-			final Class<? extends DESEvent> event) {
-		return this.probes.get(event);
-	}
-
+	/**
+	 * Helper method that sets up the calculators that are defined in the extension
+	 * point. By setting up the calculator, the probes will be identified as well.
+	 */
 	private void setUpCalculators() {
 		final CalculatorProviderObject calculatorProviderObject = new CalculatorProviderObject();
 		final List<Class<?>> classes = calculatorProviderObject.getAllProviders();
@@ -73,49 +77,8 @@ public class Monitoring implements SimulationMonitoring {
 				.flatMap(clazz -> Arrays.stream(clazz.getMethods()))
 				.filter(method -> Modifier.isStatic(method.getModifiers()))
 				.filter(method -> method.isAnnotationPresent(CalculatorProvider.class))
-				.forEach(this::createCalculator);
+				.forEach(method -> this.calculatorRegistry.createCalculator(method, this.probeFrameworkContext));
 
 	}
 
-	@SuppressWarnings("unchecked")
-	private void createCalculator(final Method calculatorProvider) {
-		final List<DESEventProbe<?, ?, ?>> calculatorProbes = new ArrayList<>();
-
-		for (final Parameter parameter : calculatorProvider.getParameters()) {
-			final Probed probed = parameter.getAnnotation(Probed.class);
-			// assume probed != null
-			final Class<? extends DESEvent> value = probed.value();
-			final Class<? extends DESEventProbe<?, ?, ?>> probeType = (Class<? extends DESEventProbe<?, ?, ?>>) parameter
-					.getType();
-
-			this.createProbe(value, probeType);
-			calculatorProbes.add(this.probes.get(value).get(probeType));
-		}
-
-		try {
-			final Calculator calculator = (Calculator) calculatorProvider.invoke(null, calculatorProbes.toArray());
-			this.calculators.add(calculator);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
-
-	private void createProbe(final Class<? extends DESEvent> value,
-			final Class<? extends DESEventProbe<?, ?, ?>> probeType) {
-		if (!this.probes.containsKey(value)) {
-			this.probes.put(value, new HashMap<>());
-		}
-		if (!this.probes.get(value).containsKey(probeType)) {
-			try {
-				this.probes.get(value).put(probeType,
-						probeType.getDeclaredConstructor(value.getClass()).newInstance(value));
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
 }
