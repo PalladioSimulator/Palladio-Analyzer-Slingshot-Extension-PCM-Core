@@ -55,7 +55,7 @@
                   
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn="java.lang.Object:"/>
+                  <meta.attribute kind="java" basedOn="org.palladiosimulator.analyzer.slingshot.monitor.calculator.AbstractCalculatorProviders:"/>
                </appinfo>
             </annotation>
          </attribute>

@@ -2,7 +2,7 @@ package org.palladiosimulator.analyzer.slingshot.monitor.calculator;
 
 import org.palladiosimulator.analyzer.slingshot.util.extensionpoint.AbstractClassExtensionPointHandler;
 
-public final class CalculatorProviderObject extends AbstractClassExtensionPointHandler<Object> {
+public final class CalculatorProviderObject extends AbstractClassExtensionPointHandler<AbstractCalculatorProviders> {
 
 	@Override
 	public String getExtensionPointId() {
@@ -11,12 +11,12 @@ public final class CalculatorProviderObject extends AbstractClassExtensionPointH
 
 	@Override
 	public String getExecutableExtensionName() {
-		return "providers";
+		return "provider";
 	}
 
 	@Override
-	protected Class<? extends Object> getProvidersClazz() {
-		return Object.class;
+	protected Class<? extends AbstractCalculatorProviders> getProvidersClazz() {
+		return AbstractCalculatorProviders.class;
 	}
 
 }

@@ -15,6 +15,7 @@ import org.palladiosimulator.analyzer.slingshot.workflow.configuration.Simulatio
 import org.palladiosimulator.analyzer.slingshot.workflow.launcher.jobs.SimulationRootJob;
 import org.palladiosimulator.analyzer.workflow.configurations.AbstractPCMLaunchConfigurationDelegate;
 
+import de.uka.ipd.sdq.simucomframework.SimuComConfig;
 import de.uka.ipd.sdq.workflow.jobs.IJob;
 import de.uka.ipd.sdq.workflow.logging.console.LoggerAppenderStruct;
 
@@ -24,22 +25,22 @@ public class SimulationLauncher extends AbstractPCMLaunchConfigurationDelegate<S
 
 	@Override
 	protected SimulationWorkflowConfiguration deriveConfiguration(final ILaunchConfiguration configuration,
-	        final String mode)
-	        throws CoreException {
+			final String mode)
+			throws CoreException {
 
 		LOGGER.info("SimulationLauncher.deriveConfiguration");
 
-		return buildWorkflowConfiguration(configuration, mode);
+		return this.buildWorkflowConfiguration(configuration, mode);
 	}
 
 	@Override
 	protected IJob createWorkflowJob(final SimulationWorkflowConfiguration config, final ILaunch launch)
-	        throws CoreException {
+			throws CoreException {
 		return new SimulationRootJob(config, launch);
 	}
 
 	private SimulationWorkflowConfiguration buildWorkflowConfiguration(final ILaunchConfiguration configuration,
-	        final String mode) {
+			final String mode) {
 
 		SimulationWorkflowConfiguration workflowConfiguration = null;
 		try {
@@ -48,21 +49,24 @@ public class SimulationLauncher extends AbstractPCMLaunchConfigurationDelegate<S
 			if (LOGGER.isDebugEnabled()) {
 				for (final Entry<String, Object> entry : launchConfigurationParams.entrySet()) {
 					LOGGER.debug(
-					        String.format("launch configuration param ['%s':'%s']", entry.getKey(), entry.getValue()));
+							String.format("launch configuration param ['%s':'%s']", entry.getKey(), entry.getValue()));
 				}
 			}
 
 			final ArchitecturalModelsConfiguration architecturalModels = new ArchitecturalModelsConfiguration(
-			        (String) launchConfigurationParams.get(ModelFileTypeConstants.USAGE_FILE),
-			        (String) launchConfigurationParams.get(ModelFileTypeConstants.ALLOCATION_FILE),
-			        (String) launchConfigurationParams.get(ModelFileTypeConstants.MONITOR_REPOSITORY_FILE));
+					(String) launchConfigurationParams.get(ModelFileTypeConstants.USAGE_FILE),
+					(String) launchConfigurationParams.get(ModelFileTypeConstants.ALLOCATION_FILE),
+					(String) launchConfigurationParams.get(ModelFileTypeConstants.MONITOR_REPOSITORY_FILE));
 
-			workflowConfiguration = new SimulationWorkflowConfiguration(architecturalModels);
+			// TODO: As of now, we just let it debug.
+			final SimuComConfig config = new SimuComConfig(launchConfigurationParams, true);
+
+			workflowConfiguration = new SimulationWorkflowConfiguration(architecturalModels, config);
 
 		} catch (final CoreException e) {
 			LOGGER.error(
-			        "Failed to read workflow configuration from passed launch configuration. Please check the provided launch configuration",
-			        e);
+					"Failed to read workflow configuration from passed launch configuration. Please check the provided launch configuration",
+					e);
 		}
 
 		return workflowConfiguration;
@@ -72,8 +76,8 @@ public class SimulationLauncher extends AbstractPCMLaunchConfigurationDelegate<S
 	protected ArrayList<LoggerAppenderStruct> setupLogging(final Level logLevel) throws CoreException {
 		// FIXME: during development set debug level hard-coded to DEBUG
 		final ArrayList<LoggerAppenderStruct> loggerList = super.setupLogging(Level.DEBUG);
-		loggerList.add(setupLogger("org.palladiosimulator.analyzer.slingshot", logLevel,
-		        Level.DEBUG == logLevel ? DETAILED_LOG_PATTERN : SHORT_LOG_PATTERN));
+		loggerList.add(this.setupLogger("org.palladiosimulator.analyzer.slingshot", logLevel,
+				Level.DEBUG == logLevel ? DETAILED_LOG_PATTERN : SHORT_LOG_PATTERN));
 		return loggerList;
 	}
 

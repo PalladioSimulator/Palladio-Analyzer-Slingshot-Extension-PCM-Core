@@ -13,7 +13,6 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.MockitoRule;
 import org.palladiosimulator.analyzer.slingshot.helper.TestHelperConstants;
-import org.palladiosimulator.analyzer.slingshot.module.models.ModelModule;
 import org.palladiosimulator.analyzer.slingshot.simulation.engine.SimulationEngine;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
 
@@ -21,7 +20,7 @@ import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral
 public class SimulationDriverTest {
 
 	private static final Path testModelPath = Paths
-	        .get(TestHelperConstants.TEST_MODEL_BASE_PATH + "closedWorkloadWithDelay.usagemodel");
+			.get(TestHelperConstants.TEST_MODEL_BASE_PATH + "closedWorkloadWithDelay.usagemodel");
 
 	private SimulationDriver driver;
 
@@ -39,11 +38,11 @@ public class SimulationDriverTest {
 	/**
 	 * This injector contains simple modules just for testing purposes.
 	 */
-	private ModelModule modelModule;
+	// private ModelModule modelModule;
 
 	@BeforeClass
 	public void setUpInjector() {
-		modelModule = new ModelModule();
+		// this.modelModule = new ModelModule();
 	}
 
 	@Before
@@ -53,9 +52,8 @@ public class SimulationDriverTest {
 
 	@Test
 	public void testSimulationDriverInitialization() throws Exception {
-		final SimulationDriver simulationDriver = new SimulationDriver(simEngine);
+		final SimulationDriver simulationDriver = new SimulationDriver(this.simEngine, null);
 
-		simulationDriver.init(modelModule);
-
+		// simulationDriver.init(this.modelModule);
 	}
 }

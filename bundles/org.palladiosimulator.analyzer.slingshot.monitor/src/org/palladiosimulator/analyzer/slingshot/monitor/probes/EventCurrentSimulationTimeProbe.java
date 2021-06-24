@@ -5,7 +5,9 @@ import static javax.measure.unit.SI.SECOND;
 import javax.measure.Measure;
 import javax.measure.quantity.Duration;
 
+import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.monitor.probe.EntityBasedDESEventProbe;
+import org.palladiosimulator.analyzer.slingshot.monitor.probe.EventToRequestContextMapper;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.AbstractEntityChangedEvent;
 import org.palladiosimulator.metricspec.constants.MetricDescriptionConstants;
 
@@ -18,8 +20,14 @@ import org.palladiosimulator.metricspec.constants.MetricDescriptionConstants;
 public class EventCurrentSimulationTimeProbe<E extends AbstractEntityChangedEvent<?>>
 		extends EntityBasedDESEventProbe<E, Double, Duration> {
 
+	private static final Logger LOGGER = Logger.getLogger(EventCurrentSimulationTimeProbe.class);
+
 	public EventCurrentSimulationTimeProbe(final Class<E> eventType) {
-		super(eventType, MetricDescriptionConstants.POINT_IN_TIME_METRIC);
+		this(eventType, ENTITY_REQUEST_CONTEXT);
+	}
+
+	public EventCurrentSimulationTimeProbe(final Class<E> eventType, final EventToRequestContextMapper mapper) {
+		super(eventType, mapper, MetricDescriptionConstants.POINT_IN_TIME_METRIC);
 	}
 
 	@Override

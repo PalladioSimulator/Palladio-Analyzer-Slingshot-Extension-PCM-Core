@@ -1,21 +1,18 @@
 package org.palladiosimulator.analyzer.slingshot.workflow.launcher.jobs;
 
+import java.nio.file.Paths;
+
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.palladiosimulator.analyzer.slingshot.module.models.ModelModule;
+import org.palladiosimulator.analyzer.slingshot.common.constants.model.ModelFileTypeConstants;
+import org.palladiosimulator.analyzer.slingshot.common.serialization.load.PCMFileLoader;
 import org.palladiosimulator.analyzer.slingshot.workflow.configuration.SimulationWorkflowConfiguration;
-import org.palladiosimulator.analyzer.slingshot.workflow.launcher.model.AllocationProvider;
-import org.palladiosimulator.analyzer.slingshot.workflow.launcher.model.UsageModelProvider;
-import org.palladiosimulator.pcm.allocation.Allocation;
-import org.palladiosimulator.pcm.usagemodel.UsageModel;
 
-import com.google.inject.AbstractModule;
-
-import de.uka.ipd.sdq.workflow.blackboard.Blackboard;
 import de.uka.ipd.sdq.workflow.jobs.CleanupFailedException;
 import de.uka.ipd.sdq.workflow.jobs.IBlackboardInteractingJob;
 import de.uka.ipd.sdq.workflow.jobs.JobFailedException;
 import de.uka.ipd.sdq.workflow.jobs.UserCanceledException;
+import de.uka.ipd.sdq.workflow.mdsd.blackboard.MDSDBlackboard;
 
 /**
  * This job is responsible for loading all modules that load Model files. These
@@ -23,11 +20,11 @@ import de.uka.ipd.sdq.workflow.jobs.UserCanceledException;
  * 
  * @author Julijan Katic
  */
-public class ModelLoadingJob implements IBlackboardInteractingJob<Blackboard<Object>> {
+public class ModelLoadingJob implements IBlackboardInteractingJob<MDSDBlackboard> {
 
 	private final Logger LOGGER = Logger.getLogger(ModelLoadingJob.class);
 
-	private Blackboard<Object> blackboard;
+	private MDSDBlackboard blackboard;
 
 	private final SimulationWorkflowConfiguration configuration;
 
@@ -37,22 +34,27 @@ public class ModelLoadingJob implements IBlackboardInteractingJob<Blackboard<Obj
 
 	@Override
 	public void execute(final IProgressMonitor monitor) throws JobFailedException, UserCanceledException {
-		LOGGER.info("*************** Loading Modules / Model Containers *****************");
+		this.LOGGER.info("*************** Loading Modules / Model Containers *****************");
 
-		final ModelModule moduleContainer = new ModelModule();
+//		final ModelModule moduleContainer = new ModelModule();
+//
+//		moduleContainer.getModelContainer().addModule(new AbstractModule() {
+//			@Override
+//			public void configure() {
+//				bind(SimulationWorkflowConfiguration.class).toInstance(configuration);
+//				bind(UsageModel.class).toProvider(UsageModelProvider.class);
+//				bind(Allocation.class).toProvider(AllocationProvider.class);
+//			}
+//		});
 
-		moduleContainer.getModelContainer().addModule(new AbstractModule() {
-			@Override
-			public void configure() {
-				bind(SimulationWorkflowConfiguration.class).toInstance(configuration);
-				bind(UsageModel.class).toProvider(UsageModelProvider.class);
-				bind(Allocation.class).toProvider(AllocationProvider.class);
-			}
-		});
+		// blackboard.addPartition("MODULE", moduleContainer);
 
-		blackboard.addPartition("MODULE", moduleContainer);
+		this.blackboard.addPartition(ModelFileTypeConstants.USAGE_FILE,
+				PCMFileLoader.load(Paths.get(this.configuration.getUsageModelFile())));
+		this.blackboard.addPartition(ModelFileTypeConstants.ALLOCATION_FILE,
+				PCMFileLoader.load(Paths.get(this.configuration.getAllocationFiles().get(0))));
 
-		LOGGER.info("*************** Done loading Modules ***************");
+		this.LOGGER.info("*************** Done loading Modules ***************");
 	}
 
 	@Override
@@ -66,7 +68,7 @@ public class ModelLoadingJob implements IBlackboardInteractingJob<Blackboard<Obj
 	}
 
 	@Override
-	public void setBlackboard(final Blackboard<Object> blackboard) {
+	public void setBlackboard(final MDSDBlackboard blackboard) {
 		this.blackboard = blackboard;
 	}
 

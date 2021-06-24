@@ -16,4 +16,8 @@ public class SimulationFinished extends AbstractEvent {
 		super(SimulationFinished.class, 0);
 	}
 
+	public SimulationFinished(final double delay) {
+		super(SimulationFinished.class, delay);
+	}
+
 }

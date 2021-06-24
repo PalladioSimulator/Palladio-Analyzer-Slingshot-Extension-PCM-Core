@@ -25,7 +25,7 @@ import org.osgi.framework.Bundle;
  * @author Julijan Katic
  */
 public abstract class AbstractClassExtensionPointHandler<ProviderType>
-        implements ExtensionPointHandler<Class<? extends ProviderType>> {
+		implements ExtensionPointHandler<Class<? extends ProviderType>> {
 
 	private static final Logger LOGGER = Logger.getLogger(AbstractClassExtensionPointHandler.class);
 
@@ -35,11 +35,15 @@ public abstract class AbstractClassExtensionPointHandler<ProviderType>
 		final List<Class<? extends ProviderType>> extensions = new ArrayList<>();
 
 		final IConfigurationElement[] elements = RegistryFactory.getRegistry()
-		        .getConfigurationElementsFor(this.getExtensionPointId());
+				.getConfigurationElementsFor(this.getExtensionPointId());
 
 		for (final IConfigurationElement element : elements) {
 			final String classTo = element.getAttribute(this.getExecutableExtensionName());
 			final Bundle bundle = Platform.getBundle(element.getContributor().getName());
+
+			if (classTo == null) {
+				continue;
+			}
 
 			try {
 				final Class<?> cls = bundle.loadClass(classTo);

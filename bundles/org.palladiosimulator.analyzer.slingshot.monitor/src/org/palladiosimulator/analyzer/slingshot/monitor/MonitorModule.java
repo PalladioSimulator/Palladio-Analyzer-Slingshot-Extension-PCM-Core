@@ -1,15 +1,16 @@
 package org.palladiosimulator.analyzer.slingshot.monitor;
 
-import org.palladiosimulator.analyzer.slingshot.simulation.core.SimulationMonitoring;
+import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationMonitoring;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
 
 public class MonitorModule extends AbstractModule {
 
-	@Provides
-	public SimulationMonitoring createMonitoring() {
-		return new Monitoring();
+	@Override
+	protected void configure() {
+		super.configure();
+		this.bind(SimulationMonitoring.class).to(Monitoring.class);
+		this.bind(MonitoringBehavior.class);
 	}
 
 }

@@ -11,5 +11,6 @@ Require-Bundle: org.eclipse.debug.ui;visibility:=reexport,
  org.palladiosimulator.analyzer.slingshot.common.constants;bundle-version="1.0.0",
  org.palladiosimulator.analyzer.slingshot.workflow;bundle-version="1.0.0",
  org.palladiosimulator.analyzer.slingshot.util.extensionpoint;bundle-version="1.0.0",
- org.palladiosimulator.analyzer.slingshot.module.models
+ de.uka.ipd.sdq.codegen.simucontroller,
+ org.palladiosimulator.analyzer.workflow;bundle-version="5.0.0"
 Export-Package: org.palladiosimulator.analyzer.slingshot.ui.workflow.launcher.configurer

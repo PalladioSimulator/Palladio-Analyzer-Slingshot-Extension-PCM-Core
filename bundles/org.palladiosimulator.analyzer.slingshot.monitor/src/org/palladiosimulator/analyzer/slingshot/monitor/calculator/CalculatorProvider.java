@@ -8,6 +8,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import org.palladiosimulator.analyzer.slingshot.monitor.probe.DESEventProbe;
+import org.palladiosimulator.analyzer.slingshot.monitor.probe.EventToRequestContextMapper;
 import org.palladiosimulator.probeframework.calculator.Calculator;
 
 /**
@@ -29,5 +30,10 @@ public @interface CalculatorProvider {
 	 * method's name will be used as the identifier.
 	 */
 	public String id() default "";
+
+	/**
+	 * This mapper defines to which context the probes belong.
+	 */
+	public Class<? extends EventToRequestContextMapper> requestContextMapper() default EventToRequestContextMapper.DefaultMapper.class;
 
 }

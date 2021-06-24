@@ -1,14 +1,11 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.api;
 
-import org.palladiosimulator.analyzer.slingshot.module.models.ModelModule;
-
-import com.google.inject.Injector;
-
 /**
  * Describes the general simulation behavior.
  * 
  * @author Julijan Katic
  */
+//@ImplementedBy(SimulationDriver.class)
 public interface Simulation {
 
 	/**
@@ -18,15 +15,13 @@ public interface Simulation {
 	void startSimulation();
 
 	/**
-	 * Initialize the simulation with an {@link Injector} that is provided by the
-	 * workflow for module injectors. This should be called before the simulation
-	 * starts ({@link #startSimulation}). The behavior is unknown if this method is
-	 * called after the simulation has already started.
-	 * 
-	 * @param modelInjector The injector with modules that can provide the models
-	 *                      (and different data) needed during the simulation.
+	 * Initializes the simulation. This should be called before
+	 * {@link #startSimulation()}. The behavior is unknown if this method is called
+	 * after the simulation has been started. The implementer should further specify
+	 * this behavior.
 	 */
-	void init(final ModelModule modelInjector) throws Exception;
+	default void init() throws Exception {
+	}
 
 	/**
 	 * Stops the simulation as soon as possible.

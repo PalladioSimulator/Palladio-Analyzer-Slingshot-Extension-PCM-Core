@@ -15,6 +15,7 @@ import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entiti
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.SEFFInterpretationContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.behaviorcontext.RootBehaviorContextHolder;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.user.RequestProcessingContext;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.ActiveResourceFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.RepositoryInterpretationInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFExternalActionCalled;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInterpretationProgressed;
@@ -48,6 +49,7 @@ import com.google.common.eventbus.Subscribe;
 @OnEvent(when = UserEntryRequested.class, then = SEFFInterpretationProgressed.class, cardinality = SINGLE)
 @OnEvent(when = RepositoryInterpretationInitiated.class, then = SEFFInterpretationProgressed.class, cardinality = MANY)
 @OnEvent(when = SEFFExternalActionCalled.class, then = SEFFInterpretationProgressed.class, cardinality = MANY)
+@OnEvent(when = ActiveResourceFinished.class, then = SEFFInterpretationProgressed.class, cardinality = MANY)
 public class SystemSimulationBehavior implements SimulationBehaviorExtension {
 
 	private static final Logger LOGGER = Logger.getLogger(SystemSimulationBehavior.class);
@@ -166,4 +168,10 @@ public class SystemSimulationBehavior implements SimulationBehaviorExtension {
 		}
 	}
 
+	@Subscribe
+	public ResultEvent<SEFFInterpretationProgressed> onActiveResourceFinished(
+			final ActiveResourceFinished activeResourceFinished) {
+		return ResultEvent.of(
+				new SEFFInterpretationProgressed(activeResourceFinished.getEntity().getSeffInterpretationContext()));
+	}
 }

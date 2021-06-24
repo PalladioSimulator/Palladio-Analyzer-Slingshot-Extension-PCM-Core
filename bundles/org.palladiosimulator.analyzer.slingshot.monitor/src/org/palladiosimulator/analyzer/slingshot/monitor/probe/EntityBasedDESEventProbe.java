@@ -20,7 +20,7 @@ public abstract class EntityBasedDESEventProbe<E extends AbstractEntityChangedEv
 		extends DESEventProbe<E, V, Q> {
 
 	/* We can be sure that the event will be of type AbstractEntityChangedEvent. */
-	private static final EventToRequestContextMapper ENTITY_REQUEST_CONTEXT = event -> {
+	public static final EventToRequestContextMapper ENTITY_REQUEST_CONTEXT = event -> {
 		final var entityEvent = (AbstractEntityChangedEvent<?>) event;
 		return new RequestContext(entityEvent.getEntity().toString());
 	};
@@ -28,6 +28,11 @@ public abstract class EntityBasedDESEventProbe<E extends AbstractEntityChangedEv
 	protected EntityBasedDESEventProbe(final Class<E> eventType,
 			final MetricDescription metricDescription) {
 		super(eventType, ENTITY_REQUEST_CONTEXT, metricDescription);
+	}
+
+	protected EntityBasedDESEventProbe(final Class<E> eventType, final EventToRequestContextMapper requestContextMapper,
+			final MetricDescription metricDescription) {
+		super(eventType, requestContextMapper, metricDescription);
 	}
 
 }

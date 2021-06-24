@@ -2,5 +2,6 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension-point id="org.palladiosimulator.analyzer.slingshot.extensionpoint.behavior" name="Behavior Extension Point" schema="schema/org.palladiosimulator.analyzer.slingshot.extensionpoint.behavior.exsd"/>
+   <extension-point id="org.palladiosimulator.analyzer.slingshot.module" name="Slingshot Extension Module" schema="schema/org.palladiosimulator.analyzer.slingshot.module.exsd"/>
 
 </plugin>

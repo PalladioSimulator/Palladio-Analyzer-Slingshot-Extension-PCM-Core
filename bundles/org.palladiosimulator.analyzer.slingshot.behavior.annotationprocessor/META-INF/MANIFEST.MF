@@ -15,6 +15,5 @@ Require-Bundle: org.palladiosimulator.analyzer.slingshot,
  org.eclipse.osgi,
  org.apache.log4j;bundle-version="1.2.15",
  com.google.auto.service;bundle-version="1.0.0"
-Export-Package: org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.behaviorextension,
- org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.eventcontract,
+Export-Package: org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.eventcontract,
  org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.onevent

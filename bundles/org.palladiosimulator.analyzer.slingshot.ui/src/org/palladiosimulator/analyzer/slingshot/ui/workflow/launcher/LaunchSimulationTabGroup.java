@@ -6,6 +6,10 @@ import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.palladiosimulator.analyzer.slingshot.ui.workflow.launcher.tabs.SimulationArchitectureModelsTab;
 
+import de.uka.ipd.sdq.codegen.simucontroller.runconfig.SimuComConfigurationTab;
+import de.uka.ipd.sdq.codegen.simucontroller.runconfig.SimuConfigurationTab;
+import de.uka.ipd.sdq.workflow.launchconfig.tabs.DebugEnabledCommonTab;
+
 /**
  * This creates a launch simulation with tabs. As of now, this creates the
  * {@link SimulationArchitectureModelsTab} along with Eclipse's
@@ -23,10 +27,13 @@ public class LaunchSimulationTabGroup extends AbstractLaunchConfigurationTabGrou
 
 		// Assemble the tab pages:
 		final ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
-				new SimulationArchitectureModelsTab(), new CommonTab()
+				new SimulationArchitectureModelsTab(),
+				new SimuComConfigurationTab(),
+				new SimuConfigurationTab(),
+				new DebugEnabledCommonTab()
 		};
 
-		setTabs(tabs);
+		this.setTabs(tabs);
 	}
 
 }

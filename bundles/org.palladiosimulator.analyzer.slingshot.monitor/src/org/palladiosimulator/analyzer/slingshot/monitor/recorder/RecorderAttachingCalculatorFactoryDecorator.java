@@ -3,6 +3,8 @@ package org.palladiosimulator.analyzer.slingshot.monitor.recorder;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+import org.palladiosimulator.analyzer.slingshot.monitor.MonitoringBehavior;
 import org.palladiosimulator.edp2.models.measuringpoint.MeasuringPoint;
 import org.palladiosimulator.metricspec.MetricDescription;
 import org.palladiosimulator.probeframework.calculator.Calculator;
@@ -25,18 +27,23 @@ import org.palladiosimulator.recorderframework.utils.RecorderExtensionHelper;
  */
 public class RecorderAttachingCalculatorFactoryDecorator implements IGenericCalculatorFactory {
 
+	private static final Logger LOGGER = Logger.getLogger(RecorderAttachingCalculatorFactoryDecorator.class);
+
 	/**
 	 * SimuCom model which is simulated.
 	 */
 	private final IGenericCalculatorFactory decoratedCalculatorFactory;
 	private final String recorderName;
 	private final IRecorderConfigurationFactory configurationFactory;
+	private final MonitoringBehavior monitoringBehavior;
 
 	public RecorderAttachingCalculatorFactoryDecorator(final IGenericCalculatorFactory decoratedCalculatorFactory,
-			final String recorderName, final IRecorderConfigurationFactory configurationFactory) {
+			final String recorderName, final IRecorderConfigurationFactory configurationFactory,
+			final MonitoringBehavior monitoringBehavior) {
 		this.decoratedCalculatorFactory = decoratedCalculatorFactory;
 		this.recorderName = recorderName;
 		this.configurationFactory = configurationFactory;
+		this.monitoringBehavior = monitoringBehavior;
 	}
 
 	@Override
@@ -58,6 +65,7 @@ public class RecorderAttachingCalculatorFactoryDecorator implements IGenericCalc
 				.createRecorderConfiguration(recorderConfigurationMap);
 		recorder.initialize(recorderConfiguration);
 		calculator.addObserver(recorder);
+		calculator.addObserver(this.monitoringBehavior);
 		return calculator;
 	}
 

@@ -2,15 +2,22 @@ package org.palladiosimulator.analyzer.slingshot.workflow.launcher.jobs;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.palladiosimulator.analyzer.slingshot.module.models.ModelModule;
-import org.palladiosimulator.analyzer.slingshot.simulation.api.Simulation;
-import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationFactory;
+import org.palladiosimulator.analyzer.slingshot.simulation.api.PCMPartitionManager;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.SlingshotComponent;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.SlingshotModel;
+import org.palladiosimulator.analyzer.slingshot.workflow.configuration.SimulationWorkflowConfiguration;
+import org.palladiosimulator.analyzer.workflow.blackboard.PCMResourceSetPartition;
+import org.palladiosimulator.analyzer.workflow.jobs.LoadPCMModelsIntoBlackboardJob;
 
-import de.uka.ipd.sdq.workflow.blackboard.Blackboard;
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+
+import de.uka.ipd.sdq.simucomframework.SimuComConfig;
 import de.uka.ipd.sdq.workflow.jobs.CleanupFailedException;
 import de.uka.ipd.sdq.workflow.jobs.IBlackboardInteractingJob;
 import de.uka.ipd.sdq.workflow.jobs.JobFailedException;
 import de.uka.ipd.sdq.workflow.jobs.UserCanceledException;
+import de.uka.ipd.sdq.workflow.mdsd.blackboard.MDSDBlackboard;
 
 /**
  * This class is responsible for starting and monitoring the simulation. It
@@ -19,26 +26,43 @@ import de.uka.ipd.sdq.workflow.jobs.UserCanceledException;
  * 
  * @author Julijan Katic
  */
-public class SimulationJob implements IBlackboardInteractingJob<Blackboard<Object>> {
+public class SimulationJob implements IBlackboardInteractingJob<MDSDBlackboard> {
 
 	private static final Logger LOGGER = Logger.getLogger(SimulationJob.class.getName());
 
-	private Blackboard<Object> blackboard;
+	private MDSDBlackboard blackboard;
 
-	private ModelModule modelModule;
+	private final SimulationWorkflowConfiguration configuration;
 
-	private Simulation simulation;
+	public SimulationJob(final SimulationWorkflowConfiguration config) {
+		this.configuration = config;
+	}
 
 	@Override
 	public void execute(final IProgressMonitor monitor) throws JobFailedException, UserCanceledException {
 		LOGGER.info("**** SimulationJob.execute ****");
 
-		modelModule = (ModelModule) blackboard.getPartition("MODULE");
+		final SlingshotModel model = this.loadModelFromBlackboard();
+
+		final SlingshotComponent component = SlingshotComponent.builder()
+				.withModule(model)
+				.withModule(new AbstractModule() {
+
+					@Provides
+					public SimuComConfig config() {
+						return SimulationJob.this.configuration.getConfiguration();
+					}
+
+					@Provides
+					public PCMPartitionManager partitionManager() {
+						return new PCMPartitionManager(SimulationJob.this.blackboard);
+					}
+				})
+				.build();
 
 		try {
-			simulation = SimulationFactory.createSimulation();
-			simulation.init(modelModule);
-			simulation.startSimulation();
+			component.getSimulation().init();
+			component.getSimulation().startSimulation();
 		} catch (final Exception e) {
 			throw new JobFailedException("Simulation Could Not Be Created", e);
 		}
@@ -46,9 +70,20 @@ public class SimulationJob implements IBlackboardInteractingJob<Blackboard<Objec
 		LOGGER.info("**** SimulationJob.execute  - Done ****");
 	}
 
+	@SuppressWarnings("deprecation")
+	private SlingshotModel loadModelFromBlackboard() {
+		final PCMResourceSetPartition partition = (PCMResourceSetPartition) this.blackboard
+				.getPartition(LoadPCMModelsIntoBlackboardJob.PCM_MODELS_PARTITION_ID);
+		final SlingshotModel model = SlingshotModel.builder()
+				.withAllocationModel(partition.getAllocation())
+				.withUsageModel(partition.getUsageModel())
+				.build();
+		return model;
+	}
+
 	@Override
 	public void cleanup(final IProgressMonitor monitor) throws CleanupFailedException {
-		simulation.stopSimulation();
+
 	}
 
 	@Override
@@ -57,7 +92,7 @@ public class SimulationJob implements IBlackboardInteractingJob<Blackboard<Objec
 	}
 
 	@Override
-	public void setBlackboard(final Blackboard<Object> blackboard) {
+	public void setBlackboard(final MDSDBlackboard blackboard) {
 		this.blackboard = blackboard;
 	}
 

@@ -1,29 +1,25 @@
 package org.palladiosimulator.analyzer.slingshot.workflow.configuration;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ArchitecturalModelsConfiguration {
-	
-	private String allocationFile;
-    private String usageModelFile;
+
+	private final String allocationFile;
+	private final String usageModelFile;
 	// Simulizar intergration
-	private String monitorRepositoryFile;
-	
-	public ArchitecturalModelsConfiguration(final String usageModelFile, final String allocationFile, final String monitorRepositoryFile) {
-		
+	private final String monitorRepositoryFile;
+
+	public ArchitecturalModelsConfiguration(final String usageModelFile, final String allocationFile,
+			final String monitorRepositoryFile) {
 		this.usageModelFile = usageModelFile;
 		this.monitorRepositoryFile = monitorRepositoryFile;
 		this.allocationFile = allocationFile;
 	}
 
 	public String getMonitorRepositoryFile() {
-		return monitorRepositoryFile;
+		return this.monitorRepositoryFile;
 	}
 
-	
 	public String getAllocationFile() {
-		return allocationFile;
+		return this.allocationFile;
 	}
 //	
 //	public List<String> getAllocationFiles() {
@@ -33,7 +29,7 @@ public class ArchitecturalModelsConfiguration {
 //	}
 
 	public String getUsageModelFile() {
-		return usageModelFile;
+		return this.usageModelFile;
 	}
 
 }

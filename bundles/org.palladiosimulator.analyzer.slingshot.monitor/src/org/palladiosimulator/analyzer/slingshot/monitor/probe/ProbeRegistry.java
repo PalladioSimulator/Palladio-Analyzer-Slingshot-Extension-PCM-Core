@@ -23,15 +23,16 @@ public final class ProbeRegistry {
 	 * @param event     The type of the event from which the probe should be
 	 *                  created.
 	 * @param probeType The type of the probe whose instance should be returned.
+	 * @param mapper
 	 * @return The (possibly new) singleton instance of type {@code probeType}.
 	 */
 	public DESEventProbe<?, ?, ?> createProbe(final Class<? extends DESEvent> event,
-			final Class<? extends DESEventProbe<?, ?, ?>> probeType) {
+			final Class<? extends DESEventProbe<?, ?, ?>> probeType, final EventToRequestContextMapper mapper) {
 		if (!this.eventToProbeMap.containsKey(event)) {
 			this.eventToProbeMap.put(event, new SingletonProbeInstanceMap(event));
 		}
 
-		return this.eventToProbeMap.get(event).getInstance(probeType);
+		return this.eventToProbeMap.get(event).getInstance(probeType, mapper);
 	}
 
 	public SingletonProbeInstanceMap getProbeMapFor(final Class<? extends DESEvent> event) {
@@ -71,11 +72,13 @@ public final class ProbeRegistry {
 		 *                       returned.
 		 * @return The instance of type {@code eventProbeType}.
 		 */
-		public DESEventProbe<?, ?, ?> getInstance(final Class<? extends DESEventProbe<?, ?, ?>> eventProbeType) {
+		public DESEventProbe<?, ?, ?> getInstance(final Class<? extends DESEventProbe<?, ?, ?>> eventProbeType,
+				final EventToRequestContextMapper mapper) {
 			if (!this.getSingletonInstances().containsKey(eventProbeType)) {
 				try {
 					final DESEventProbe<?, ?, ?> instance = eventProbeType
-							.getConstructor(this.mappedEventClass.getClass()).newInstance(this.mappedEventClass);
+							.getConstructor(this.mappedEventClass.getClass(), EventToRequestContextMapper.class)
+							.newInstance(this.mappedEventClass, mapper);
 					this.getSingletonInstances().put(eventProbeType, instance);
 				} catch (final NoSuchMethodException e) {
 					throw new RuntimeException(

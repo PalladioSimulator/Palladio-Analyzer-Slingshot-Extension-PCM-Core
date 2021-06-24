@@ -9,14 +9,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
-import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.interceptors.EventContractChecker;
 
 /**
  * Annotates a class that is needed for contract checking. It specifies a
  * contract for incoming events and enforces it at runtime.
  * 
  * @author Julijan Katic
- * @see EventContractChecker
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Repeatable(OnEvent.OnEvents.class)

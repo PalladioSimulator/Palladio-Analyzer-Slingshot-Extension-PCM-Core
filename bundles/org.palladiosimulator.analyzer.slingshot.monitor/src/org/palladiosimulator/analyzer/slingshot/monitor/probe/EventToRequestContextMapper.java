@@ -47,5 +47,12 @@ public interface EventToRequestContextMapper {
 	 * The default mapping, which always maps an event to
 	 * {@link RequestContext#EMPTY_REQUEST_CONTEXT}.
 	 */
-	public static final EventToRequestContextMapper DEFAULT_MAPPER = event -> RequestContext.EMPTY_REQUEST_CONTEXT;
+	public static final EventToRequestContextMapper DEFAULT_MAPPER = new DefaultMapper();
+
+	public static final class DefaultMapper implements EventToRequestContextMapper {
+		@Override
+		public RequestContext mapFrom(final DESEvent event) {
+			return RequestContext.EMPTY_REQUEST_CONTEXT;
+		}
+	}
 }

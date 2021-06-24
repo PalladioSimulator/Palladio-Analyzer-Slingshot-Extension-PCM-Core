@@ -13,6 +13,12 @@ Require-Bundle: org.palladiosimulator.probeframework;bundle-version="5.0.0";visi
  org.palladiosimulator.analyzer.slingshot.util.extensionpoint;bundle-version="1.0.0",
  org.palladiosimulator.recorderframework;bundle-version="5.0.0";visibility:=reexport,
  org.palladiosimulator.edp2;visibility:=reexport,
- org.palladiosimulator.monitorrepository;bundle-version="5.0.0";visibility:=reexport
-Export-Package: org.palladiosimulator.analyzer.slingshot.monitor.probe,
+ org.palladiosimulator.monitorrepository;bundle-version="5.0.0";visibility:=reexport,
+ org.apache.log4j,
+ de.uka.ipd.sdq.simucomframework,
+ org.palladiosimulator.edp2.util,
+ org.palladiosimulator.analyzer.slingshot.monitor.data
+Export-Package: org.palladiosimulator.analyzer.slingshot.monitor,
+ org.palladiosimulator.analyzer.slingshot.monitor.calculator,
+ org.palladiosimulator.analyzer.slingshot.monitor.probe,
  org.palladiosimulator.analyzer.slingshot.monitor.probes
