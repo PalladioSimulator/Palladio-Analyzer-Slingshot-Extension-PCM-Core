@@ -9,5 +9,6 @@ Require-Bundle: org.palladiosimulator.analyzer.slingshot;bundle-version="1.0.0",
  org.apache.log4j;bundle-version="1.2.15",
  javassist,
  org.palladiosimulator.analyzer.slingshot.util.extensionpoint;bundle-version="1.0.0",
- de.uka.ipd.sdq.simucomframework
+ de.uka.ipd.sdq.simucomframework,
+ org.palladiosimulator.analyzer.slingshot.monitor.data
 Export-Package: org.palladiosimulator.analyzer.slingshot.simulation.driver.behavior.interceptors

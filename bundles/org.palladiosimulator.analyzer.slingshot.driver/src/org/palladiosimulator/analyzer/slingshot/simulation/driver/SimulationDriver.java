@@ -8,11 +8,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.apache.log4j.Logger;
+import org.palladiosimulator.analyzer.slingshot.monitor.data.MeasurementMade;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.Simulation;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationEngine;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationScheduling;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationFinished;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationInterrupted;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.exceptions.EventContractException;
 import org.palladiosimulator.analyzer.slingshot.simulation.driver.behavior.interceptors.ExtensionLoggingInterceptor;
@@ -75,6 +75,8 @@ public final class SimulationDriver implements Simulation, SimulationScheduling 
 
 	private final SimuComConfig simuComConfig;
 
+	private long measurementsMade = 0;
+
 	/**
 	 * Instantiates the driver with an engine and the parent injector. This will
 	 * also add an Event Exception Handler.
@@ -130,9 +132,19 @@ public final class SimulationDriver implements Simulation, SimulationScheduling 
 
 		LOGGER.info(EventPrettyLogPrinter.prettyPrint(event, "Scheduled for simulation", "Simulation Driver"));
 
+		if (event instanceof MeasurementMade) {
+			/* We want to count if a measurement was made for a stopping condition. */
+			this.measurementsMade++;
+		}
+
 		try {
 			this.checkEventContract(event);
 			this.engine.scheduleEvent(event);
+
+			if (this.simuComConfig.getMaxMeasurementsCount() > 0 &&
+					this.measurementsMade >= this.simuComConfig.getMaxMeasurementsCount()) {
+				this.stopSimulation();
+			}
 		} catch (final EventContractException e) {
 			LOGGER.error("Couldn't publish event.", e);
 		}
@@ -181,7 +193,7 @@ public final class SimulationDriver implements Simulation, SimulationScheduling 
 	@Override
 	public void stopSimulation() {
 		this.simulationStarted = false;
-		this.engine.scheduleEvent(new SimulationInterrupted("Called interruption."));
+		this.engine.scheduleEvent(new SimulationFinished());
 	}
 
 	/**

@@ -6,5 +6,5 @@ Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.monitor.data
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.palladiosimulator.analyzer.slingshot;bundle-version="1.0.0",
- org.palladiosimulator.measurementframework
+ org.palladiosimulator.measurementframework;visibility:=reexport
 Export-Package: org.palladiosimulator.analyzer.slingshot.monitor.data
