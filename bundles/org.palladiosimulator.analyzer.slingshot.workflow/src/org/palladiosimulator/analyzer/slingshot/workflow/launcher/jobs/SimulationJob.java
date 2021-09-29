@@ -6,8 +6,10 @@ import org.palladiosimulator.analyzer.slingshot.simulation.api.PCMPartitionManag
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SlingshotComponent;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.SlingshotModel;
 import org.palladiosimulator.analyzer.slingshot.workflow.configuration.SimulationWorkflowConfiguration;
+import org.palladiosimulator.analyzer.workflow.ConstantsContainer;
 import org.palladiosimulator.analyzer.workflow.blackboard.PCMResourceSetPartition;
-import org.palladiosimulator.analyzer.workflow.jobs.LoadPCMModelsIntoBlackboardJob;
+import org.palladiosimulator.monitorrepository.MonitorRepository;
+import org.palladiosimulator.monitorrepository.MonitorRepositoryPackage;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -70,13 +72,14 @@ public class SimulationJob implements IBlackboardInteractingJob<MDSDBlackboard> 
 		LOGGER.info("**** SimulationJob.execute  - Done ****");
 	}
 
-	@SuppressWarnings("deprecation")
 	private SlingshotModel loadModelFromBlackboard() {
 		final PCMResourceSetPartition partition = (PCMResourceSetPartition) this.blackboard
-				.getPartition(LoadPCMModelsIntoBlackboardJob.PCM_MODELS_PARTITION_ID);
+				.getPartition(ConstantsContainer.DEFAULT_PCM_INSTANCE_PARTITION_ID);
 		final SlingshotModel model = SlingshotModel.builder()
 				.withAllocationModel(partition.getAllocation())
 				.withUsageModel(partition.getUsageModel())
+				.withMonitorinRepositoryFile((MonitorRepository) partition
+						.getElement(MonitorRepositoryPackage.eINSTANCE.getMonitorRepository()).get(0))
 				.build();
 		return model;
 	}

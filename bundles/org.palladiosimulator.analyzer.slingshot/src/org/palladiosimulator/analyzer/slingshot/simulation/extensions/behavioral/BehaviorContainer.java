@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.aopalliance.intercept.Interceptor;
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.util.extensionpoint.ExtensionInstancesContainer;
 
@@ -24,10 +25,12 @@ public final class BehaviorContainer extends AbstractModule
 	private final SimulationBehaviorExtensionLoader loader;
 	private List<Class<? extends SimulationBehaviorExtension>> clazzExtensions = null;
 	private final List<SimulationBehaviorExtension> extensions;
+	private final List<Interceptor> interceptors;
 
 	public BehaviorContainer() {
 		this.loader = new SimulationBehaviorExtensionLoader();
 		this.extensions = new ArrayList<>();
+		this.interceptors = new ArrayList<>();
 	}
 
 	@Override
@@ -57,8 +60,11 @@ public final class BehaviorContainer extends AbstractModule
 
 	@Override
 	public List<SimulationBehaviorExtension> getExtensions() {
-
 		return Collections.unmodifiableList(this.extensions);
+	}
+
+	public List<Interceptor> getInterceptors() {
+		return Collections.unmodifiableList(this.interceptors);
 	}
 
 }

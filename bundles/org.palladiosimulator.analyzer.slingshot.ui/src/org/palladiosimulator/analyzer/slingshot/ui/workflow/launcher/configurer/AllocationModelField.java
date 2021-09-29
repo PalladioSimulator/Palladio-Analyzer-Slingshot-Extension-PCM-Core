@@ -5,7 +5,8 @@ import org.palladiosimulator.analyzer.slingshot.common.constants.model.ModelFile
 public class AllocationModelField extends SingleTextModelField {
 
 	public AllocationModelField() {
-		super(new TextFieldModel("Allocation Model", "allocationmodel", ModelFileTypeConstants.ALLOCATION_FILE_EXTENSION));
+		super(new TextFieldModel("Allocation Model", "allocationmodel",
+				ModelFileTypeConstants.ALLOCATION_FILE_EXTENSION));
 	}
 
 	@Override
@@ -15,7 +16,7 @@ public class AllocationModelField extends SingleTextModelField {
 
 	@Override
 	protected String name() {
-		return "allocationmodel";
+		return ModelFileTypeConstants.ALLOCATION_FILE;
 	}
 
 }

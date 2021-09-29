@@ -32,12 +32,12 @@ public final class SimulationEngineSSJ implements SimulationEngine {
 	
 	private final Simulator simulator;
 	
-	private final SimulationMonitoring simulationMonitoring;
+	//private final SimulationMonitoring simulationMonitoring;
 	
 	@Inject
-	public SimulationEngineSSJ(final EventDispatcher eventDispatcher, final SimulationMonitoring simulationMonitoring) {
+	public SimulationEngineSSJ(final EventDispatcher eventDispatcher) {
 		this.eventDispatcher = eventDispatcher;
-		this.simulationMonitoring = simulationMonitoring;
+	//	this.simulationMonitoring = simulationMonitoring;
 		this.simulator = new Simulator();
 	}
 	
@@ -77,7 +77,7 @@ public final class SimulationEngineSSJ implements SimulationEngine {
 				
 				eventDispatcher.post(event);
 				
-				simulationMonitoring.publishProbeEvent(event);
+				//simulationMonitoring.publishProbeEvent(event);
 				
 				if (event instanceof SimulationFinished) {
 					/*

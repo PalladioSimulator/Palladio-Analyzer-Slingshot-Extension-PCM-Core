@@ -6,6 +6,8 @@ import java.util.List;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.log4j.Logger;
+import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationScheduling;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.events.HandlerInterrupted;
 
 import javassist.util.proxy.MethodHandler;
 
@@ -27,24 +29,34 @@ public class ExtensionMethodHandlerWithInterceptors implements MethodHandler, Me
 	 */
 	private final List<Interceptor> myInterceptors;
 
-	public ExtensionMethodHandlerWithInterceptors(final List<Interceptor> interceptors) {
-		myInterceptors = interceptors;
+	/** Used for creating a {@link HandlerInterrupted} event. */
+	private final SimulationScheduling scheduling;
+
+	public ExtensionMethodHandlerWithInterceptors(final List<Interceptor> interceptors,
+			final SimulationScheduling scheduling) {
+		this.myInterceptors = interceptors;
+		this.scheduling = scheduling;
 	}
 
+	/**
+	 * @deprecated since we use guice instead of javassist. TODO: Delete this
+	 *             method.
+	 */
 	@Override
+	@Deprecated
 	public Object invoke(final Object extension, final Method method, final Method proceed, final Object[] args)
-	        throws Throwable {
+			throws Throwable {
 
 		LOGGER.info(String.format("+++ Intercepting the extension method: %s#%s +++",
-		        extension.getClass().getSimpleName(), method.getName()));
+				extension.getClass().getSimpleName(), method.getName()));
 
-		for (final Interceptor interceptor : myInterceptors) {
+		for (final Interceptor interceptor : this.myInterceptors) {
 			interceptor.preIntercept(extension, method, args);
 		}
 
 		final Object result = proceed.invoke(extension, args); // execute the original method.
 
-		for (final Interceptor interceptor : myInterceptors) {
+		for (final Interceptor interceptor : this.myInterceptors) {
 			interceptor.postIntercept(extension, method, args, result);
 		}
 
@@ -55,17 +67,37 @@ public class ExtensionMethodHandlerWithInterceptors implements MethodHandler, Me
 
 	@Override
 	public Object invoke(final MethodInvocation invocation) throws Throwable {
-		for (final Interceptor interceptor : myInterceptors) {
-			interceptor.preIntercept(invocation.getThis(), invocation.getMethod(), invocation.getArguments());
+
+		try {
+			LOGGER.info(String.format("+++ Intercepting the extension method: %s#%s",
+					invocation.getThis().getClass().getName(), invocation.getMethod().getName()));
+
+			/* Pre-intercept everything. */
+			for (final Interceptor interceptor : this.myInterceptors) {
+				interceptor.preIntercept(invocation.getThis(), invocation.getMethod(), invocation.getArguments());
+			}
+
+			/* Call the actual event handler. */
+			final Object result = invocation.proceed();
+
+			/* Post-intercept everything. */
+			for (final Interceptor interceptor : this.myInterceptors) {
+				interceptor.postIntercept(invocation.getThis(), invocation.getMethod(), invocation.getArguments(),
+						result);
+			}
+
+			LOGGER.info("+++ Interception Ended +++");
+
+			return result;
+		} catch (final EventHandlerAbortedException exception) {
+			LOGGER.warn(String.format("The method interception was explicitly aborted: %s", exception.getMessage()));
+		} catch (final Exception e) {
+			LOGGER.error("An exception was thrown during an event handling", e);
+			// In this case, schedule a HandlerInterrupted.
+			this.scheduling.scheduleForSimulation(new HandlerInterrupted(e));
 		}
 
-		final Object result = invocation.proceed();
-
-		for (final Interceptor interceptor : myInterceptors) {
-			interceptor.postIntercept(invocation.getThis(), invocation.getMethod(), invocation.getArguments(), result);
-		}
-
-		return result;
+		return null;
 	}
 
 }

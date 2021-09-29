@@ -289,6 +289,7 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 	 */
 	@Subscribe
 	public ResultEvent<DESEvent> onWakeUpUserEvent(final UserWokeUp evt) {
+		this.LOGGER.info("User woke up: " + evt.getEntity().getUser());
 		return this.interpretNextAction(evt.getEntity());
 	}
 

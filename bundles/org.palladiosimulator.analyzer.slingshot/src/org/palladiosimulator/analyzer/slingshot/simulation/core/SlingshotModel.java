@@ -2,6 +2,7 @@ package org.palladiosimulator.analyzer.slingshot.simulation.core;
 
 import javax.annotation.processing.Generated;
 
+import org.palladiosimulator.monitorrepository.MonitorRepository;
 import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.repository.Repository;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment;
@@ -28,6 +29,7 @@ public final class SlingshotModel extends AbstractModule {
 	private final System systemModel;
 	private final UsageModel usageModel;
 	private final ResourceRepository resourceRepository;
+	private final MonitorRepository monitorRepository;
 
 	@Generated("SparkTools")
 	private SlingshotModel(final Builder builder) {
@@ -37,17 +39,7 @@ public final class SlingshotModel extends AbstractModule {
 		this.systemModel = builder.systemModel;
 		this.usageModel = builder.usageModel;
 		this.resourceRepository = builder.resourceRepository;
-	}
-
-	public SlingshotModel(final Allocation allocationModel, final Repository repositoryModel,
-			final ResourceEnvironment resourceEnvironmentModel, final System systemModel, final UsageModel usageModel,
-			final ResourceRepository resourceRepository) {
-		this.allocationModel = allocationModel;
-		this.repositoryModel = repositoryModel;
-		this.resourceEnvironmentModel = resourceEnvironmentModel;
-		this.systemModel = systemModel;
-		this.usageModel = usageModel;
-		this.resourceRepository = resourceRepository;
+		this.monitorRepository = builder.monitorRepository;
 	}
 
 	/**
@@ -98,6 +90,11 @@ public final class SlingshotModel extends AbstractModule {
 		return this.resourceRepository;
 	}
 
+	@Provides
+	public MonitorRepository getMonitorRepository() {
+		return this.monitorRepository;
+	}
+
 	/**
 	 * Creates builder to build {@link SlingshotModel}.
 	 * 
@@ -119,6 +116,7 @@ public final class SlingshotModel extends AbstractModule {
 		private System systemModel;
 		private UsageModel usageModel;
 		private ResourceRepository resourceRepository;
+		private MonitorRepository monitorRepository;
 
 		private Builder() {
 		}
@@ -196,6 +194,12 @@ public final class SlingshotModel extends AbstractModule {
 		 */
 		public SlingshotModel build() {
 			return new SlingshotModel(this);
+		}
+
+		public Builder withMonitorinRepositoryFile(
+				final MonitorRepository monitorRepository) {
+			this.monitorRepository = monitorRepository;
+			return this;
 		}
 	}
 

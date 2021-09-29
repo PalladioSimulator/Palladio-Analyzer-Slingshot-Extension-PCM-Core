@@ -15,5 +15,6 @@ Require-Bundle: de.uka.ipd.sdq.workflow,
  com.google.inject.guice,
  org.palladiosimulator.analyzer.slingshot.util.extensionpoint,
  de.uka.ipd.sdq.simulation,
- de.uka.ipd.sdq.simucomframework
+ de.uka.ipd.sdq.simucomframework,
+ org.palladiosimulator.monitorrepository
 Export-Package: org.palladiosimulator.analyzer.slingshot.workflow.launcher

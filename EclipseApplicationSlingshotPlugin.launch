@@ -511,11 +511,12 @@
         <setEntry value="com.google.guava*30.1.0.v20210127-2300@default:default"/>
         <setEntry value="com.google.inject*3.0.0.v201605172100@default:default"/>
         <setEntry value="com.google.inject*5.0.1.v20210324-2015@default:default"/>
-        <setEntry value="com.google.inject.assistedinject*3.0.0.v201402270930@default:default"/>
-        <setEntry value="com.google.inject.assistedinject*5.0.1.v20210324-2015@default:default"/>
-        <setEntry value="com.google.inject.multibindings@default:default"/>
+        <setEntry value="com.google.inject.assistedinject*3.0.0.v201402270930@default:false"/>
+        <setEntry value="com.google.inject.assistedinject*5.0.1.v20210324-2015@default:false"/>
+        <setEntry value="com.google.inject.multibindings@default:false"/>
         <setEntry value="com.google.javascript@default:default"/>
         <setEntry value="com.google.protobuf@default:default"/>
+        <setEntry value="com.helospark.SparkBuilderGenerator@default:default"/>
         <setEntry value="com.ibm.icu@default:default"/>
         <setEntry value="com.jcraft.jsch@default:default"/>
         <setEntry value="com.sun.el@default:default"/>
@@ -694,7 +695,7 @@
         <setEntry value="org.apache.commons.io@default:default"/>
         <setEntry value="org.apache.commons.jxpath@default:default"/>
         <setEntry value="org.apache.commons.lang@default:default"/>
-        <setEntry value="org.apache.commons.logging.fragment@default:default"/>
+        <setEntry value="org.apache.commons.logging.fragment@default:false"/>
         <setEntry value="org.apache.commons.logging@default:default"/>
         <setEntry value="org.apache.commons.math3@default:default"/>
         <setEntry value="org.apache.commons.math@default:default"/>
@@ -1478,7 +1479,7 @@
         <setEntry value="org.junit.platform.suite.api@default:default"/>
         <setEntry value="org.junit.vintage.engine@default:default"/>
         <setEntry value="org.junit@default:default"/>
-        <setEntry value="org.mockito*1.9.5.v201605172210@default:default"/>
+        <setEntry value="org.mockito*2.13.0.v20200310-1642@default:default"/>
         <setEntry value="org.mockito*2.23.0.v20200310-1642@default:default"/>
         <setEntry value="org.modelversioning.emfprofile.application.decorator.gmf@default:default"/>
         <setEntry value="org.modelversioning.emfprofile.application.decorator.reflective@default:default"/>
@@ -1497,8 +1498,7 @@
         <setEntry value="org.objectweb.asm.commons@default:default"/>
         <setEntry value="org.objectweb.asm.tree*8.0.1.v20200420-1007@default:default"/>
         <setEntry value="org.objectweb.asm.tree*9.1.0.v20210209-1849@default:default"/>
-        <setEntry value="org.objenesis*1.0.0.v201505121915@default:default"/>
-        <setEntry value="org.objenesis*2.6.0.v20180420-1519@default:default"/>
+        <setEntry value="org.objenesis@default:default"/>
         <setEntry value="org.opentest4j@default:default"/>
         <setEntry value="org.opt4j@default:default"/>
         <setEntry value="org.palladiosimulator.analyzer.accuracy@default:default"/>
@@ -1738,12 +1738,18 @@
         <setEntry value="org.palladiosimulator.analyzer.slingshot.driver@default:default"/>
         <setEntry value="org.palladiosimulator.analyzer.slingshot.engine@default:default"/>
         <setEntry value="org.palladiosimulator.analyzer.slingshot.event@default:default"/>
+        <setEntry value="org.palladiosimulator.analyzer.slingshot.monitor.data@default:default"/>
         <setEntry value="org.palladiosimulator.analyzer.slingshot.monitor@default:default"/>
         <setEntry value="org.palladiosimulator.analyzer.slingshot.tests@default:false"/>
         <setEntry value="org.palladiosimulator.analyzer.slingshot.ui@default:default"/>
         <setEntry value="org.palladiosimulator.analyzer.slingshot.util.extensionpoint@default:default"/>
         <setEntry value="org.palladiosimulator.analyzer.slingshot.workflow@default:true"/>
         <setEntry value="org.palladiosimulator.analyzer.slingshot@default:default"/>
+        <setEntry value="org.palladiosimulator.monitorrepository.edit@default:default"/>
+        <setEntry value="org.palladiosimulator.monitorrepository.editor@default:default"/>
+        <setEntry value="org.palladiosimulator.monitorrepository.map.edit@default:default"/>
+        <setEntry value="org.palladiosimulator.monitorrepository.map@default:default"/>
+        <setEntry value="org.palladiosimulator.monitorrepository@default:default"/>
         <setEntry value="org.xmlunit.xmlunit-core@default:default"/>
     </setAttribute>
     <booleanAttribute key="show_selected_only" value="false"/>

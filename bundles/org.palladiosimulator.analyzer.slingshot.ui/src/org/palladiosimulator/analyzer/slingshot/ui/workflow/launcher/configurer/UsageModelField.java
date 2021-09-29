@@ -15,7 +15,7 @@ public class UsageModelField extends SingleTextModelField {
 
 	@Override
 	protected String name() {
-		return "usagemodel";
+		return ModelFileTypeConstants.USAGE_FILE;
 	}
 
 }

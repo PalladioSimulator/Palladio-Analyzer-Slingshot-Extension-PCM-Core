@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Map
+Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.monitor.processingtype.map
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.monitor.processingtype.map
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.palladiosimulator.analyzer.slingshot;bundle-version="1.0.0",
+ org.palladiosimulator.analyzer.slingshot.monitor;bundle-version="1.0.0",
+ org.palladiosimulator.analyzer.slingshot.monitor.data;bundle-version="1.0.0",
+ org.palladiosimulator.monitorrepository.map,
+ org.palladiosimulator.edp2.util

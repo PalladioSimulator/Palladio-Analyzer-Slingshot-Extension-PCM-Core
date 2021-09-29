@@ -1,6 +1,8 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.api;
 
-import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
+import org.palladiosimulator.probeframework.ProbeFrameworkContext;
+import org.palladiosimulator.probeframework.calculator.Calculator;
+import org.palladiosimulator.probeframework.calculator.IGenericCalculatorFactory;
 
 /**
  * The simulation monitoring interface allows for event-based probes to be
@@ -12,10 +14,21 @@ import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 public interface SimulationMonitoring {
 
 	/**
-	 * Publishes an event that can be probed and used later in calculations.
-	 * 
-	 * @param event The event that can be probed.
+	 * Initializes the monitoring module.
 	 */
-	void publishProbeEvent(final DESEvent event);
+	public void init();
 
+	/**
+	 * Returns a calculator factory for creating {@link Calculator}s.
+	 * 
+	 * @return The calculator factory.
+	 */
+	public IGenericCalculatorFactory getCalculatorFactory();
+
+	/**
+	 * Returns a Probe Framework context.
+	 * 
+	 * @return
+	 */
+	public ProbeFrameworkContext getProbeFrameworkContext();
 }

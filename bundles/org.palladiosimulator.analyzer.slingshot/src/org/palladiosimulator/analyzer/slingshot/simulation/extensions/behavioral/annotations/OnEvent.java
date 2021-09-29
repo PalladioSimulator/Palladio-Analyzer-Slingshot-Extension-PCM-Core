@@ -39,6 +39,12 @@ public @interface OnEvent {
 	 */
 	Class<? extends DESEvent> when();
 
+	/**
+	 * Specifies the type parameters when the {@link #when()} type is of a generic
+	 * type.
+	 */
+	Class<?>[] whenReified() default {};
+
 	@Retention(RetentionPolicy.RUNTIME)
 	@Documented
 	@Target(TYPE)

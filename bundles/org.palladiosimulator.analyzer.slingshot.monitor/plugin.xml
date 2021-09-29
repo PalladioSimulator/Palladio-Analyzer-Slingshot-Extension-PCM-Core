@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension-point id="org.palladiosimulator.analyzer.slingshot.monitor.calculators" name="Calculator Providers" schema="schema/org.palladiosimulator.analyzer.slingshot.monitor.calculators.exsd"/>
    <extension
          point="org.palladiosimulator.analyzer.slingshot.module">
       <slingshot-module
-            module-definition="org.palladiosimulator.analyzer.slingshot.monitor.MonitorModule">
+            module-definition="org.palladiosimulator.analyzer.slingshot.monitor.MonitoringModule">
       </slingshot-module>
    </extension>
 

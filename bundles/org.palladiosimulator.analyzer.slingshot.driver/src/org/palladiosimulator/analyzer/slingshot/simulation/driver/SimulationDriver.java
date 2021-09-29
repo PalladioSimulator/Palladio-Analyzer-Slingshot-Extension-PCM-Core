@@ -1,7 +1,5 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.driver;
 
-import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -12,24 +10,17 @@ import org.palladiosimulator.analyzer.slingshot.monitor.data.MeasurementMade;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.Simulation;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationEngine;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationScheduling;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.events.ConfigurationStarted;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.exceptions.EventContractException;
-import org.palladiosimulator.analyzer.slingshot.simulation.driver.behavior.interceptors.ExtensionLoggingInterceptor;
-import org.palladiosimulator.analyzer.slingshot.simulation.driver.behavior.interceptors.ExtensionMethodHandlerWithInterceptors;
-import org.palladiosimulator.analyzer.slingshot.simulation.driver.behavior.interceptors.Interceptor;
-import org.palladiosimulator.analyzer.slingshot.simulation.driver.behavior.interceptors.SchedulingInterceptor;
-import org.palladiosimulator.analyzer.slingshot.simulation.driver.behavior.interceptors.SimulationExtensionOnEventContractEnforcementInterceptor;
+import org.palladiosimulator.analyzer.slingshot.simulation.driver.behavior.interceptors.DefaultInterceptorModule;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.EventPrettyLogPrinter;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.BehaviorContainer;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventContract;
-import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventMethod;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Injector;
-import com.google.inject.matcher.AbstractMatcher;
-import com.google.inject.matcher.Matchers;
 
 import de.uka.ipd.sdq.simucomframework.SimuComConfig;
 
@@ -73,8 +64,10 @@ public final class SimulationDriver implements Simulation, SimulationScheduling 
 	 */
 	private final Injector parentInjector;
 
+	/** The configuration. */
 	private final SimuComConfig simuComConfig;
 
+	/** Counter for the stopping condition for measurements. */
 	private long measurementsMade = 0;
 
 	/**
@@ -107,7 +100,7 @@ public final class SimulationDriver implements Simulation, SimulationScheduling 
 		final Injector simulationChildInjector = this.parentInjector
 				.createChildInjector(
 						container,
-						new InterceptorModule(this));
+						new DefaultInterceptorModule(this));
 
 		container.loadExtensions(simulationChildInjector);
 
@@ -177,10 +170,12 @@ public final class SimulationDriver implements Simulation, SimulationScheduling 
 	@Override
 	public void startSimulation() {
 		this.simulationStarted = true;
-		final DESEvent simulationStart = new SimulationStarted();
 
 		this.engine.init();
-		this.engine.scheduleEvent(simulationStart);
+		/* Start Configuration */
+		this.engine.scheduleEvent(new ConfigurationStarted(this.simuComConfig));
+		/* Start the simulation */
+		this.engine.scheduleEvent(new SimulationStarted());
 		/* Stop simulation as configured after a certain time. */
 		this.engine.scheduleEvent(new SimulationFinished(this.simuComConfig.getSimuTime()));
 
@@ -196,48 +191,4 @@ public final class SimulationDriver implements Simulation, SimulationScheduling 
 		this.engine.scheduleEvent(new SimulationFinished());
 	}
 
-	/**
-	 * A module that defines the interceptors.
-	 */
-	class InterceptorModule extends AbstractModule {
-
-		private final List<Interceptor> interceptors;
-
-		public InterceptorModule(final SimulationScheduling scheduler) {
-			final ExtensionLoggingInterceptor loggingInterceptor = new ExtensionLoggingInterceptor();
-			final SchedulingInterceptor schedulingInterceptor = new SchedulingInterceptor(scheduler);
-			final SimulationExtensionOnEventContractEnforcementInterceptor contractInterceptor = new SimulationExtensionOnEventContractEnforcementInterceptor();
-			// final EventMonitoringInterceptor eventMonitoringInterceptor = new
-			// EventMonitoringInterceptor(eventGraph);
-
-			this.interceptors = List.of(loggingInterceptor, schedulingInterceptor, contractInterceptor);
-		}
-
-		@Override
-		protected void configure() {
-			this.bindInterceptor(
-					Matchers.any(),
-					new ExtensionMethodMatcher(),
-					new ExtensionMethodHandlerWithInterceptors(this.interceptors));
-		}
-
-	}
-
-	/**
-	 * Matcher that returns true if the method either starts with "on" or is
-	 * annotated with {@link EventMethod} Annotation.
-	 */
-	class ExtensionMethodMatcher extends AbstractMatcher<Method> implements Serializable {
-
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public boolean matches(final Method method) {
-			final boolean isTheRightMethod = method.getName().startsWith("on")
-					|| method.getAnnotation(EventMethod.class) != null;
-			LOGGER.debug(String.format("Method name: %s (%s)", method.getName(), isTheRightMethod));
-			return isTheRightMethod;
-		}
-
-	}
 }

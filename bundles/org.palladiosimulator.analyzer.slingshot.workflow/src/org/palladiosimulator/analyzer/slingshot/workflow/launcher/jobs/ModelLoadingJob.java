@@ -20,6 +20,7 @@ import de.uka.ipd.sdq.workflow.mdsd.blackboard.MDSDBlackboard;
  * 
  * @author Julijan Katic
  */
+@Deprecated
 public class ModelLoadingJob implements IBlackboardInteractingJob<MDSDBlackboard> {
 
 	private final Logger LOGGER = Logger.getLogger(ModelLoadingJob.class);

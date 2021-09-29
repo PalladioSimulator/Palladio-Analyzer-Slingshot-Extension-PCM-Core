@@ -3,6 +3,7 @@ package org.palladiosimulator.analyzer.slingshot.simulation.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.EventDispatcher;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.Simulation;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationEngine;
@@ -21,6 +22,8 @@ import com.google.inject.Module;
  *
  */
 public final class SlingshotComponent {
+
+	private static final Logger LOGGER = Logger.getLogger(SlingshotComponent.class);
 
 	/** The scheduler or the driver of the simulator. */
 	private final SimulationScheduling scheduling;
@@ -87,6 +90,19 @@ public final class SlingshotComponent {
 
 	public EventDispatcher getDispatcher() {
 		return this.dispatcher;
+	}
+
+	/**
+	 * Initializes all the modules.
+	 */
+	public void initializeSlingshot() {
+		try {
+			this.simulation.init();
+			this.monitoring.init();
+		} catch (final Exception e) {
+			LOGGER.error("An error occured during initializing slingshot", e);
+		}
+
 	}
 
 	public static final class Builder {

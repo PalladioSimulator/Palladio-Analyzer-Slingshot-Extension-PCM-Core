@@ -1,6 +1,5 @@
 package org.palladiosimulator.analyzer.slingshot.ui.workflow.launcher.tabs;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -8,7 +7,6 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridLayout;
@@ -16,6 +14,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.palladiosimulator.analyzer.slingshot.common.constants.model.ModelFileTypeConstants;
 import org.palladiosimulator.analyzer.slingshot.ui.workflow.launcher.configurer.AllocationModelField;
+import org.palladiosimulator.analyzer.slingshot.ui.workflow.launcher.configurer.MonitorRepositoryModelField;
 import org.palladiosimulator.analyzer.slingshot.ui.workflow.launcher.configurer.RequiredModelConfiguration;
 import org.palladiosimulator.analyzer.slingshot.ui.workflow.launcher.configurer.UsageModelField;
 
@@ -69,30 +68,26 @@ public class SimulationArchitectureModelsTab extends AbstractLaunchConfiguration
 	private final ModifyListener modifyTextListener;
 
 	public SimulationArchitectureModelsTab() {
-		this.modifyTextListener = new ModifyListener() {
-			@Override
-			public void modifyText(final ModifyEvent e) {
-				setDirty(true);
-				updateLaunchConfigurationDialog();
-			}
+		this.modifyTextListener = e -> {
+			SimulationArchitectureModelsTab.this.setDirty(true);
+			SimulationArchitectureModelsTab.this.updateLaunchConfigurationDialog();
 		};
 
 		// final ModelConfigurerRegister register = new ModelConfigurerRegister();
 		// this.configurers = register.getAllProviders();
-		this.configurers = new ArrayList<>();
-		this.configurers.add(new AllocationModelField());
-		this.configurers.add(new UsageModelField());
+		this.configurers = List.of(new AllocationModelField(), new UsageModelField(),
+				new MonitorRepositoryModelField());
 
 	}
 
 	@Override
 	public void createControl(final Composite parent) {
-		container = new Composite(parent, SWT.NONE);
-		setControl(container);
-		container.setLayout(new GridLayout());
+		this.container = new Composite(parent, SWT.NONE);
+		this.setControl(this.container);
+		this.container.setLayout(new GridLayout());
 
 		for (final RequiredModelConfiguration configurer : this.configurers) {
-			configurer.extendContainer(container, this);
+			configurer.extendContainer(this.container, this);
 		}
 
 	}
@@ -112,10 +107,10 @@ public class SimulationArchitectureModelsTab extends AbstractLaunchConfiguration
 	 * @return a non-null text field.
 	 */
 	public Text createFileInputSection(final String groupLabel, final String dialogTitle,
-	        final String[] fileExtensionRestrictions, final Composite parent, final ModifyListener modifyListener) {
+			final String[] fileExtensionRestrictions, final Composite parent, final ModifyListener modifyListener) {
 		final Text text = new Text(parent, SWT.SINGLE | SWT.BORDER);
 		TabHelper.createFileInputSection(parent, modifyListener, groupLabel, fileExtensionRestrictions, text,
-		        dialogTitle, getShell(), ModelFileTypeConstants.EMPTY_STRING);
+				dialogTitle, this.getShell(), ModelFileTypeConstants.EMPTY_STRING);
 		return text;
 	}
 
@@ -128,9 +123,9 @@ public class SimulationArchitectureModelsTab extends AbstractLaunchConfiguration
 	 *      ModifyListener)
 	 */
 	public Text createFileInputSection(final String groupLabel, final String dialogTitle,
-	        final String[] fileExtensionRestrictions, final Composite parent) {
+			final String[] fileExtensionRestrictions, final Composite parent) {
 		return this.createFileInputSection(groupLabel, dialogTitle, fileExtensionRestrictions, parent,
-		        modifyTextListener);
+				this.modifyTextListener);
 	}
 
 	@Override
@@ -144,7 +139,7 @@ public class SimulationArchitectureModelsTab extends AbstractLaunchConfiguration
 			try {
 				configurer.initializeForm(configuration);
 			} catch (final CoreException e) {
-				LaunchConfigPlugin.errorLogger(getName(), configurer.fieldName(), e.getMessage());
+				LaunchConfigPlugin.errorLogger(this.getName(), configurer.fieldName(), e.getMessage());
 			}
 		}
 	}
@@ -158,7 +153,7 @@ public class SimulationArchitectureModelsTab extends AbstractLaunchConfiguration
 
 	@Override
 	public boolean isValid(final ILaunchConfiguration launchConfig) {
-		setErrorMessage(null);
+		this.setErrorMessage(null);
 
 		return this.configurers.stream().allMatch(rmc -> rmc.isValid(launchConfig));
 	}

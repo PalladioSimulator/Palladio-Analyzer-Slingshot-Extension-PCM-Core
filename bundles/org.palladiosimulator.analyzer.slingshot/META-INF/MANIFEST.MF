@@ -22,7 +22,9 @@ Require-Bundle: org.palladiosimulator.pcm;bundle-version="4.1.0",
  org.palladiosimulator.monitorrepository,
  org.eclipse.emf.ecore,
  org.palladiosimulator.commons,
- org.eclipse.emf.common
+ org.eclipse.emf.common,
+ de.uka.ipd.sdq.simucomframework,
+ org.palladiosimulator.probeframework
 Export-Package: org.palladiosimulator.analyzer.slingshot.simulation,
  org.palladiosimulator.analyzer.slingshot.simulation.api,
  org.palladiosimulator.analyzer.slingshot.simulation.core.entities,
