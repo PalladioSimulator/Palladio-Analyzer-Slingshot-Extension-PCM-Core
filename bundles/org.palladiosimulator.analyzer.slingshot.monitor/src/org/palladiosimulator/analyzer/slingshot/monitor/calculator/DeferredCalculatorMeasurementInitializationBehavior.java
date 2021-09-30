@@ -14,6 +14,7 @@ import org.palladiosimulator.analyzer.slingshot.monitor.data.CalculatorRegistere
 import org.palladiosimulator.analyzer.slingshot.monitor.data.ProcessingTypeRevealed;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationScheduling;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.OnEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
 import org.palladiosimulator.edp2.models.measuringpoint.MeasuringPoint;
 import org.palladiosimulator.edp2.util.MetricDescriptionUtility;
@@ -25,6 +26,7 @@ import org.palladiosimulator.probeframework.calculator.IObservableCalculatorRegi
 
 import com.google.common.eventbus.Subscribe;
 
+@OnEvent(when = CalculatorRegistered.class, then = {})
 public class DeferredCalculatorMeasurementInitializationBehavior implements SimulationBehaviorExtension {
 
 	private final Map<String, Map<MetricDescription, Set<Supplier<IMeasurementSourceListener>>>> sourceListener = new HashMap<>();
@@ -42,26 +44,17 @@ public class DeferredCalculatorMeasurementInitializationBehavior implements Simu
 
 	@Subscribe
 	public ResultEvent<?> onCalculatorRegistered(final CalculatorRegistered register) {
-		if (this.sourceListener.containsKey(register.getEntity().getMeasuringPoint().getStringRepresentation())) {
+		final Calculator calculator = register.getEntity();
+
+		if (this.sourceListener.containsKey(calculator.getMeasuringPoint().getStringRepresentation())) {
 			final Map<MetricDescription, Set<Supplier<IMeasurementSourceListener>>> callbacks = this.sourceListener
-					.get(register.getEntity().getMeasuringPoint().getStringRepresentation());
+					.get(calculator.getMeasuringPoint().getStringRepresentation());
 			callbacks.keySet().stream()
-					.filter(metricDesc -> {
-						if (metricDesc.getId().equals(register.getEntity().getMetricDesciption().getId())
-								|| (metricDesc instanceof BaseMetricDescription
-										&& MetricDescriptionUtility.isBaseMetricDescriptionSubsumedByMetricDescription(
-												(BaseMetricDescription) metricDesc,
-												register.getEntity().getMetricDesciption()))) {
-							callbacks.get(metricDesc).stream()
-									.map(Supplier::get)
-									.forEach(source -> register.getEntity().addObserver(source));
-							return true;
-						}
-						return false;
-					})
+					.filter(metricDesc -> this.checkMetricDescriptionsAndInitializeSourceListeners(metricDesc,
+							calculator, callbacks))
 					.forEach(callbacks::remove);
 			if (callbacks.isEmpty()) {
-				this.sourceListener.remove(register.getEntity().getMeasuringPoint().getStringRepresentation());
+				this.sourceListener.remove(calculator.getMeasuringPoint().getStringRepresentation());
 			}
 		}
 
@@ -85,6 +78,27 @@ public class DeferredCalculatorMeasurementInitializationBehavior implements Simu
 		}
 
 		return ResultEvent.empty();
+	}
+
+	private boolean checkMetricDescriptionsAndInitializeSourceListeners(
+			final MetricDescription metricDescription,
+			final Calculator calculator,
+			final Map<MetricDescription, Set<Supplier<IMeasurementSourceListener>>> callbacks) {
+		if (this.isSameOrSubsumedMetric(metricDescription, calculator.getMetricDesciption())) {
+			callbacks.get(metricDescription).stream()
+					.map(Supplier::get)
+					.forEach(calculator::addObserver);
+			return true;
+		}
+		return false;
+	}
+
+	private boolean isSameOrSubsumedMetric(final MetricDescription metricDescription1,
+			final MetricDescription metricDescription2) {
+		return metricDescription1.getId().equals(metricDescription2.getId())
+				|| (metricDescription1 instanceof BaseMetricDescription
+						&& MetricDescriptionUtility.isBaseMetricDescriptionSubsumedByMetricDescription(
+								(BaseMetricDescription) metricDescription1, metricDescription2));
 	}
 
 	private Optional<Calculator> getBaseCalculator(final MetricDescription metricDescription, final MeasuringPoint mp) {

@@ -14,6 +14,8 @@ import org.eclipse.emf.ecore.EClass;
 import org.palladiosimulator.analyzer.slingshot.monitor.data.ProbeTaken;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.ModelPassedEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventCardinality;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.OnEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.Reified;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
 import org.palladiosimulator.monitorrepository.MeasurementSpecification;
@@ -28,6 +30,7 @@ import com.google.common.eventbus.Subscribe;
 
 import de.uka.ipd.sdq.simucomframework.model.SimuComModel;
 
+@OnEvent(when = ModelPassedEvent.class, whenReified = Entity.class, then = ProbeTaken.class, cardinality = EventCardinality.SINGLE)
 public class ProbeFrameworkRegistryBehavior implements SimulationBehaviorExtension {
 
 	private final SimuComModel simuComModel;

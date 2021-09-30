@@ -11,14 +11,18 @@ public final class ProcessingTypeRevealed extends AbstractEvent {
 	private final MetricDescription metricDescription;
 	private final MeasuringPoint measuringPoint;
 	private final ProcessingTypeListener measurementSourceListener;
+	private final boolean isSelfAdaptable;
 
 	public ProcessingTypeRevealed(final ProcessingType processingType, final MeasuringPoint measuringPoint,
 			final MetricDescription metricDescription,
-			final ProcessingTypeListener measurementSourceListener) {
+			final ProcessingTypeListener measurementSourceListener,
+			final boolean isSelfAdaptable) {
+		super(0);
 		this.processingType = processingType;
 		this.metricDescription = metricDescription;
 		this.measuringPoint = measuringPoint;
 		this.measurementSourceListener = measurementSourceListener;
+		this.isSelfAdaptable = isSelfAdaptable;
 	}
 
 	public ProcessingTypeRevealed(final ProcessingType processingType,
@@ -26,7 +30,8 @@ public final class ProcessingTypeRevealed extends AbstractEvent {
 		this(processingType,
 				processingType.getMeasurementSpecification().getMonitor().getMeasuringPoint(),
 				processingType.getMeasurementSpecification().getMetricDescription(),
-				processingTypeListener);
+				processingTypeListener,
+				processingType.getMeasurementSpecification().isTriggersSelfAdaptations());
 	}
 
 	/**
@@ -55,6 +60,10 @@ public final class ProcessingTypeRevealed extends AbstractEvent {
 	 */
 	public ProcessingTypeListener getMeasurementSourceListener() {
 		return this.measurementSourceListener;
+	}
+
+	public boolean isSelfAdaptable() {
+		return isSelfAdaptable;
 	}
 
 }
