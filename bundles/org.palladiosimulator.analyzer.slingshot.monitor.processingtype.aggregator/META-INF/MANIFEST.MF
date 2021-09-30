@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Aggregator
-Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.monitor.processingtype.aggregator
+Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.monitor.processingtype.aggregator;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.monitor.processingtype.aggregator
 Bundle-RequiredExecutionEnvironment: JavaSE-11

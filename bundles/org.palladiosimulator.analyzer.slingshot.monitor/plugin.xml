@@ -7,5 +7,14 @@
             module-definition="org.palladiosimulator.analyzer.slingshot.monitor.MonitoringModule">
       </slingshot-module>
    </extension>
+   <extension
+         point="org.palladiosimulator.analyzer.slingshot.extensionpoint.behavior">
+      <behavior-provider
+            baseClass="org.palladiosimulator.analyzer.slingshot.monitor.interpretation.MonitorModelBehavior">
+      </behavior-provider>
+      <behavior-provider
+            baseClass="org.palladiosimulator.analyzer.slingshot.monitor.calculator.DeferredCalculatorMeasurementInitializationBehavior">
+      </behavior-provider>
+   </extension>
 
 </plugin>
