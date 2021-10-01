@@ -64,7 +64,7 @@ public final class SlidingWindowRuntimeMeasurementsRecorder extends ProcessingTy
 	}
 
 	private NumericalBaseMetricDescription getDataMetric() {
-		return Arrays.stream(MetricDescriptionUtility.toBaseMetricDescriptions(this.getDataMetric()))
+		return Arrays.stream(MetricDescriptionUtility.toBaseMetricDescriptions(this.getMetricDescription()))
 				.filter(m -> !MetricDescriptionUtility.metricDescriptionIdsEqual(m, POINT_IN_TIME_METRIC))
 				.findAny()
 				.map(m -> (NumericalBaseMetricDescription) m)

@@ -10,23 +10,23 @@ import org.palladiosimulator.metricspec.MetricDescription;
 import org.palladiosimulator.probeframework.measurement.ProbeMeasurement;
 import org.palladiosimulator.probeframework.probes.Probe;
 
-public abstract class EventBasedProbe<E extends DESEvent, V, Q extends Quantity> extends Probe {
+public abstract class EventBasedProbe<V, Q extends Quantity> extends Probe {
 
-	private final Class<E> eventType;
-	private final EventDistinguisher<E> distinguisher;
+	private final Class<? extends DESEvent> eventType;
+	private final EventDistinguisher<? super DESEvent> distinguisher;
 
-	protected EventBasedProbe(final Class<E> eventType, final MetricDescription metricDesciption) {
+	protected EventBasedProbe(final Class<? extends DESEvent> eventType, final MetricDescription metricDesciption) {
 		this(eventType, metricDesciption, EventDistinguisher.DEFAULT_DISTINGUISHER);
 	}
 
-	public EventBasedProbe(final Class<E> eventType, final MetricDescription metricDescription,
-			final EventDistinguisher<E> distinguisher) {
+	public EventBasedProbe(final Class<? extends DESEvent> eventType, final MetricDescription metricDescription,
+			final EventDistinguisher<? super DESEvent> distinguisher) {
 		super(metricDescription);
 		this.eventType = eventType;
 		this.distinguisher = distinguisher;
 	}
 
-	public Class<E> getEventType() {
+	public Class<? extends DESEvent> getEventType() {
 		return this.eventType;
 	}
 
@@ -36,14 +36,13 @@ public abstract class EventBasedProbe<E extends DESEvent, V, Q extends Quantity>
 					+ "> cannot be used by the given event <" + this.eventType.getName() + ">");
 		}
 
-		final E concreteEvent = this.eventType.cast(event);
 		final BasicMeasurement<V, Q> resultMeasurement = new BasicMeasurement<>(
-				this.getMeasurement(concreteEvent), (BaseMetricDescription) this.getMetricDesciption());
+				this.getMeasurement(event), (BaseMetricDescription) this.getMetricDesciption());
 		final ProbeMeasurement probeMeasurement = new ProbeMeasurement(resultMeasurement, this,
-				this.distinguisher.apply(concreteEvent));
+				this.distinguisher.apply(event));
 		this.notifyMeasurementSourceListener(probeMeasurement);
 	}
 
-	public abstract Measure<V, Q> getMeasurement(final E event);
+	public abstract Measure<V, Q> getMeasurement(final DESEvent event);
 
 }

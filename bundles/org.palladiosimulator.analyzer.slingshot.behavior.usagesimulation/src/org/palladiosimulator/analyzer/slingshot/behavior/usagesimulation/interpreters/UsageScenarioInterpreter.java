@@ -1,5 +1,6 @@
 package org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.interpreters;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -16,6 +17,7 @@ import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.sce
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.scenariobehavior.UsageScenarioBehaviorContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.InnerScenarioBehaviorInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.InterArrivalUserInitiated;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UsageModelPassedElement;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserEntryRequested;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserInterpretationProgressed;
@@ -279,12 +281,17 @@ public class UsageScenarioInterpreter extends UsagemodelSwitch<Set<DESEvent>> {
 		if (eObject == null) {
 			throw new IllegalArgumentException("called interpretation on a null reference");
 		}
+
+		final Set<DESEvent> result = new HashSet<>();
 		final Set<DESEvent> returningEvents = super.doSwitch(eObject);
-		if (returningEvents == null) {
-			return Set.of();
-		} else {
-			return returningEvents;
+
+		result.add(new UsageModelPassedElement<>(eObject, this.userContext));
+
+		if (returningEvents != null) {
+			result.addAll(returningEvents);
 		}
+
+		return result;
 	}
 
 }

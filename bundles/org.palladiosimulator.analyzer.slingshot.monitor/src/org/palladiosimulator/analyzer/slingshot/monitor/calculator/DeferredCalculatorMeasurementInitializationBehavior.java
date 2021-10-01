@@ -27,6 +27,7 @@ import org.palladiosimulator.probeframework.calculator.IObservableCalculatorRegi
 import com.google.common.eventbus.Subscribe;
 
 @OnEvent(when = CalculatorRegistered.class, then = {})
+@OnEvent(when = ProcessingTypeRevealed.class, then = {})
 public class DeferredCalculatorMeasurementInitializationBehavior implements SimulationBehaviorExtension {
 
 	private final Map<String, Map<MetricDescription, Set<Supplier<IMeasurementSourceListener>>>> sourceListener = new HashMap<>();

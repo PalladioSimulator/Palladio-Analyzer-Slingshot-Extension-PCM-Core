@@ -1,8 +1,11 @@
 package org.palladiosimulator.analyzer.slingshot.monitor.interpretation;
 
+import org.palladiosimulator.analyzer.slingshot.monitor.data.MonitoringEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationScheduling;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.ConfigurationStarted;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventCardinality;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.OnEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
 import org.palladiosimulator.monitorrepository.MonitorRepository;
 import org.palladiosimulator.probeframework.ProbeFrameworkContext;
@@ -17,6 +20,7 @@ import com.google.inject.Inject;
  * 
  * @author Julijan Katic
  */
+@OnEvent(when = ConfigurationStarted.class, then = MonitoringEvent.class, cardinality = EventCardinality.MANY)
 public class MonitorModelBehavior implements SimulationBehaviorExtension {
 
 	/** The repository of monitors to interpret. */

@@ -6,13 +6,13 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.eclipse.emf.ecore.EObject;
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserFinished;
-import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserStarted;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UsageModelPassedElement;
 import org.palladiosimulator.analyzer.slingshot.monitor.data.CalculatorRegistered;
 import org.palladiosimulator.analyzer.slingshot.monitor.data.MonitorModelVisited;
 import org.palladiosimulator.analyzer.slingshot.monitor.data.ProbeTaken;
 import org.palladiosimulator.analyzer.slingshot.monitor.data.ProbeTakenEntity;
 import org.palladiosimulator.analyzer.slingshot.monitor.probes.EventCurrentSimulationTimeProbe;
+import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventCardinality;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.OnEvent;
@@ -20,8 +20,12 @@ import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
 import org.palladiosimulator.commons.emfutils.EMFLoadHelper;
 import org.palladiosimulator.edp2.models.measuringpoint.MeasuringPoint;
+import org.palladiosimulator.metricspec.MetricDescription;
+import org.palladiosimulator.metricspec.constants.MetricDescriptionConstants;
 import org.palladiosimulator.monitorrepository.MeasurementSpecification;
 import org.palladiosimulator.monitorrepository.MonitorRepository;
+import org.palladiosimulator.pcm.usagemodel.Start;
+import org.palladiosimulator.pcm.usagemodel.Stop;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 import org.palladiosimulator.probeframework.calculator.Calculator;
 import org.palladiosimulator.probeframework.calculator.DefaultCalculatorProbeSets;
@@ -38,8 +42,8 @@ import com.google.common.eventbus.Subscribe;
  *
  */
 @OnEvent(when = MonitorModelVisited.class, whenReified = MeasurementSpecification.class, then = CalculatorRegistered.class, cardinality = EventCardinality.SINGLE)
-@OnEvent(when = UserStarted.class, then = ProbeTaken.class, cardinality = EventCardinality.SINGLE)
-@OnEvent(when = UserFinished.class, then = ProbeTaken.class, cardinality = EventCardinality.SINGLE)
+@OnEvent(when = UsageModelPassedElement.class, whenReified = Start.class, then = ProbeTaken.class, cardinality = EventCardinality.SINGLE)
+@OnEvent(when = UsageModelPassedElement.class, whenReified = Stop.class, then = ProbeTaken.class, cardinality = EventCardinality.SINGLE)
 public class UsageModelMonitoring implements SimulationBehaviorExtension {
 
 	private final IGenericCalculatorFactory calculatorFactory;
@@ -63,7 +67,7 @@ public class UsageModelMonitoring implements SimulationBehaviorExtension {
 			final UserProbes userProbes = new UserProbes();
 			this.userProbesMap.put(scenario.getId(), userProbes);
 			final Calculator calculator = this.calculatorFactory.buildCalculator(
-					measurementSpecification.getMetricDescription(), measuringPoint,
+					getTuple(measurementSpecification.getMetricDescription()), measuringPoint,
 					DefaultCalculatorProbeSets.createStartStopProbeConfiguration(userProbes.userStartedProbe,
 							userProbes.userFinishedProbe));
 			return ResultEvent.of(new CalculatorRegistered(calculator));
@@ -73,8 +77,9 @@ public class UsageModelMonitoring implements SimulationBehaviorExtension {
 	}
 
 	@Subscribe
-	public ResultEvent<ProbeTaken> onUserStarted(final UserStarted userStarted) {
-		final UserProbes userProbes = this.userProbesMap.get(userStarted.getEntity().getScenario().getId());
+	public ResultEvent<ProbeTaken> onUsageScenarioStarted(
+			@Reified(Start.class) final UsageModelPassedElement<Start> userStarted) {
+		final UserProbes userProbes = this.userProbesMap.get(userStarted.getContext().getScenario().getId());
 		if (userProbes != null) {
 			userProbes.userStartedProbe.takeMeasurement(userStarted);
 			return ResultEvent
@@ -85,10 +90,11 @@ public class UsageModelMonitoring implements SimulationBehaviorExtension {
 	}
 
 	@Subscribe
-	public ResultEvent<ProbeTaken> onUserFinished(final UserFinished userFinished) {
-		final UserProbes userProbes = this.userProbesMap.get(userFinished.getEntity().getScenario().getId());
+	public ResultEvent<ProbeTaken> onUsageScenarioFinished(
+			@Reified(Stop.class) final UsageModelPassedElement<Stop> userStopped) {
+		final UserProbes userProbes = this.userProbesMap.get(userStopped.getContext().getScenario().getId());
 		if (userProbes != null) {
-			userProbes.userFinishedProbe.takeMeasurement(userFinished);
+			userProbes.userFinishedProbe.takeMeasurement(userStopped);
 			return ResultEvent
 					.of(new ProbeTaken(ProbeTakenEntity.builder().withProbe(userProbes.userFinishedProbe).build()));
 		} else {
@@ -96,10 +102,25 @@ public class UsageModelMonitoring implements SimulationBehaviorExtension {
 		}
 	}
 
+	private static MetricDescription getTuple(final MetricDescription metricDescription) {
+		if (MetricDescriptionConstants.RESPONSE_TIME_METRIC.getId().equals(metricDescription.getId())) {
+			return MetricDescriptionConstants.RESPONSE_TIME_METRIC_TUPLE;
+		}
+		return MetricDescriptionConstants.RESPONSE_TIME_METRIC_TUPLE;
+	}
+
 	private static final class UserProbes {
-		private final EventCurrentSimulationTimeProbe<UserStarted> userStartedProbe = new EventCurrentSimulationTimeProbe<>(
-				UserStarted.class, userStarted -> new RequestContext(userStarted.getEntity().getUser().getId()));
-		private final EventCurrentSimulationTimeProbe<UserFinished> userFinishedProbe = new EventCurrentSimulationTimeProbe<>(
-				UserFinished.class, userFinished -> new RequestContext(userFinished.getEntity().getUser().getId()));
+		private final EventCurrentSimulationTimeProbe userStartedProbe = new EventCurrentSimulationTimeProbe(
+				UsageModelPassedElement.class, this::passedElement);
+		private final EventCurrentSimulationTimeProbe userFinishedProbe = new EventCurrentSimulationTimeProbe(
+				UsageModelPassedElement.class, this::passedElement);
+
+		private RequestContext passedElement(final DESEvent desEvent) {
+			if (desEvent instanceof UsageModelPassedElement<?>) {
+				final UsageModelPassedElement<?> el = (UsageModelPassedElement<?>) desEvent;
+				return new RequestContext(el.getContext().getUser().getId());
+			}
+			return RequestContext.EMPTY_REQUEST_CONTEXT;
+		}
 	}
 }

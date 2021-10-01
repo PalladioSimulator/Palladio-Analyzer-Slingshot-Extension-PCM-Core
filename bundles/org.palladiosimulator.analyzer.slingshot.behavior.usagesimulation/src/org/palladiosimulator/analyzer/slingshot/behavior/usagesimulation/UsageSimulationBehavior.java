@@ -22,6 +22,9 @@ import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.sce
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.ClosedWorkloadUserInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.InnerScenarioBehaviorInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.InterArrivalUserInitiated;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UsageModelPassedElement;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UsageScenarioFinished;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UsageScenarioStarted;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserEntryRequested;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserRequestFinished;
@@ -57,17 +60,21 @@ import com.google.inject.Inject;
  * @author Julijan Katic
  */
 @OnEvent(when = SimulationStarted.class, then = { UserStarted.class,
-		InterArrivalUserInitiated.class }, cardinality = MANY)
+		InterArrivalUserInitiated.class, UsageModelPassedElement.class }, cardinality = MANY)
 @OnEvent(when = UserStarted.class, then = { UserFinished.class, UserEntryRequested.class, UserSlept.class,
-		UserWokeUp.class, InnerScenarioBehaviorInitiated.class }, cardinality = MANY)
+		UserWokeUp.class, InnerScenarioBehaviorInitiated.class, UsageScenarioStarted.class,
+		UsageModelPassedElement.class }, cardinality = MANY)
 @OnEvent(when = UserFinished.class, then = { UserStarted.class, InterArrivalUserInitiated.class,
-		ClosedWorkloadUserInitiated.class }, cardinality = MANY)
+		ClosedWorkloadUserInitiated.class, UsageScenarioFinished.class, UserFinished.class, UserSlept.class,
+		UserWokeUp.class, UsageModelPassedElement.class }, cardinality = MANY)
 @OnEvent(when = UserWokeUp.class, then = { UserFinished.class, UserEntryRequested.class, UserSlept.class,
-		UserWokeUp.class, InnerScenarioBehaviorInitiated.class }, cardinality = MANY)
+		UserWokeUp.class, InnerScenarioBehaviorInitiated.class, UsageModelPassedElement.class }, cardinality = MANY)
 @OnEvent(when = UserRequestFinished.class, then = { UserFinished.class, UserEntryRequested.class, UserSlept.class,
-		UserWokeUp.class, InnerScenarioBehaviorInitiated.class }, cardinality = MANY)
-@OnEvent(when = InnerScenarioBehaviorInitiated.class, then = { UserStarted.class }, cardinality = MANY)
-@OnEvent(when = ClosedWorkloadUserInitiated.class, then = UserStarted.class, cardinality = MANY)
+		UserWokeUp.class, InnerScenarioBehaviorInitiated.class, UsageModelPassedElement.class }, cardinality = MANY)
+@OnEvent(when = InnerScenarioBehaviorInitiated.class, then = { UserStarted.class,
+		UsageModelPassedElement.class }, cardinality = MANY)
+@OnEvent(when = ClosedWorkloadUserInitiated.class, then = { UserStarted.class,
+		UsageModelPassedElement.class }, cardinality = MANY)
 public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 
 	private final Logger LOGGER = Logger.getLogger(UsageSimulationBehavior.class);
@@ -219,7 +226,8 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 				.builder()
 				.withCurrentAction(firstAction)
 				.withThinkTime(new ThinkTime(workloadSpec.getThinkTime_ClosedWorkload()))
-				.withUsageScenarioBehaviorContext(scenarioContext);
+				.withUsageScenarioBehaviorContext(scenarioContext)
+				.withScenario(usageScenario);
 
 		for (int i = 0; i < workloadSpec.getPopulation(); i++) {
 			final UserInterpretationContext interpretationContext = partialInterpretationBuilder
@@ -247,7 +255,14 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 	public ResultEvent<DESEvent> onUserStarted(final UserStarted userStarted) {
 		userStarted.getEntity().getUser().getStack().createAndPushNewStackFrame();
 		final UsageScenarioInterpreter interpreter = new UsageScenarioInterpreter(userStarted.getEntity());
-		return ResultEvent.of(interpreter.doSwitch(userStarted.getEntity().getCurrentAction()));
+		final Set<DESEvent> result = new HashSet<>(interpreter.doSwitch(userStarted.getEntity().getCurrentAction()));
+
+		/* If we are the root behavior, add this event for monitoring. */
+		if (userStarted.getEntity().getParentContext().isEmpty()) {
+			result.add(new UsageScenarioStarted(userStarted.getEntity(), 0));
+		}
+
+		return ResultEvent.of(result);
 	}
 
 	/**
@@ -369,6 +384,7 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 			final ClosedWorkloadUserInterpretationContext closedContext = (ClosedWorkloadUserInterpretationContext) context;
 			resultSet.add(new ClosedWorkloadUserInitiated(context, closedContext.getThinkTime()));
 		}
+		resultSet.add(new UsageScenarioFinished(context, 0));
 	}
 
 	/**
