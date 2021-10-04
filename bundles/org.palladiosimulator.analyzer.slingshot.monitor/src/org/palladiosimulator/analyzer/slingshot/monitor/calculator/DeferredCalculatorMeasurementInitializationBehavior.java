@@ -26,13 +26,35 @@ import org.palladiosimulator.probeframework.calculator.IObservableCalculatorRegi
 
 import com.google.common.eventbus.Subscribe;
 
+/**
+ * A simulation behavior that will lazily add measurement source listeners to
+ * calculators when a new processing type has been revealed
+ * ({@link ProcessingTypeRevealed}).
+ * <p>
+ * In that way, ProcessingTypes and Calculators are decoupled and can be
+ * constructed on their own, and as soon as both appropriate instances are
+ * available, they will be connected.
+ * 
+ * @author Julijan Katic
+ */
 @OnEvent(when = CalculatorRegistered.class, then = {})
 @OnEvent(when = ProcessingTypeRevealed.class, then = {})
 public class DeferredCalculatorMeasurementInitializationBehavior implements SimulationBehaviorExtension {
 
+	/**
+	 * The map that holds lazy initializers. Maps Measuring Point's String
+	 * Representation to a Map of Metric-Descriptions mapping to a set of lazy
+	 * initalizers.
+	 */
 	private final Map<String, Map<MetricDescription, Set<Supplier<IMeasurementSourceListener>>>> sourceListener = new HashMap<>();
 
+	/** The calculator registry. */
 	private final IObservableCalculatorRegistry registry;
+
+	/**
+	 * The scheduling to add events from the outside. This is needed for
+	 * {@link ProcessingTypeMeasurementSourceListener}s.
+	 */
 	private final SimulationScheduling scheduling;
 
 	@Inject
@@ -81,6 +103,18 @@ public class DeferredCalculatorMeasurementInitializationBehavior implements Simu
 		return ResultEvent.empty();
 	}
 
+	/**
+	 * Checks whether the metric description is subsumed by the calculator's metric
+	 * description, and if so, initializes the measurement source listeners and adds
+	 * them to the calculator.
+	 * 
+	 * @param metricDescription The metric description to check.
+	 * @param calculator        The calculator, in which the measurement source
+	 *                          listener is possibly added.
+	 * @param callbacks         The map of the initializers.
+	 * @return true iff the metric description is subsumed by the calculator's
+	 *         metric description.
+	 */
 	private boolean checkMetricDescriptionsAndInitializeSourceListeners(
 			final MetricDescription metricDescription,
 			final Calculator calculator,
@@ -94,6 +128,13 @@ public class DeferredCalculatorMeasurementInitializationBehavior implements Simu
 		return false;
 	}
 
+	/**
+	 * Returns whether the first metric description is the same as or subsumes the
+	 * second metric description.
+	 * 
+	 * @return true iff the first is the same as or subsumes the second metric
+	 *         description.
+	 */
 	private boolean isSameOrSubsumedMetric(final MetricDescription metricDescription1,
 			final MetricDescription metricDescription2) {
 		return metricDescription1.getId().equals(metricDescription2.getId())
@@ -102,6 +143,18 @@ public class DeferredCalculatorMeasurementInitializationBehavior implements Simu
 								(BaseMetricDescription) metricDescription1, metricDescription2));
 	}
 
+	/**
+	 * Returns the calculator from the registry that is associated with the metric
+	 * description and the measuring point. If the metric description is a
+	 * {@link BaseMetricDescription}, then the subsumed metric descriptions are also
+	 * checked and the first calculator to be found is returned.
+	 * 
+	 * @param metricDescription The metric description.
+	 * @param mp                The measuring point.
+	 * @return An optional calculator that matches either the exact metric
+	 *         description or one of the subsumed ones and the measuring point. If
+	 *         such calculator is not found, a empty optional is returned.
+	 */
 	private Optional<Calculator> getBaseCalculator(final MetricDescription metricDescription, final MeasuringPoint mp) {
 		final Calculator baseCalculator = this.registry.getCalculatorByMeasuringPointAndMetricDescription(mp,
 				metricDescription);
