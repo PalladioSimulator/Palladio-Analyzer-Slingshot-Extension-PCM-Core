@@ -37,6 +37,15 @@ public interface SimulationEngine {
 	void scheduleEvent(DESEvent event, double delay);
 
 	/**
+	 * Schedules the event at the exact simulation time. If the time has been
+	 * reached, it will be published to the event bus.
+	 * 
+	 * @param event       The event to be scheduled.
+	 * @param pointInTime The point in time in which the event should occur.
+	 */
+	void scheduleEventAt(DESEvent event, double pointInTime);
+
+	/**
 	 * Returns the simulated time.
 	 * 
 	 * @return The current simulation time.

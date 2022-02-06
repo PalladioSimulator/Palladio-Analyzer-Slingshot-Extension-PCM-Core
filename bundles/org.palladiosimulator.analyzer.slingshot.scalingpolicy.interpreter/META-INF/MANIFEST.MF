@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Interpreter
+Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.scalingpolicy.interpreter;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.scalingpolicy.interpreter
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: ScalingMetaModel;bundle-version="1.0.0",
+ org.palladiosimulator.analyzer.slingshot;bundle-version="1.0.0",
+ org.palladiosimulator.analyzer.slingshot.scalingpolicy.data,
+ org.palladiosimulator.pcm,
+ org.apache.log4j;bundle-version="1.2.15",
+ org.palladiosimulator.analyzer.slingshot.common.utils;bundle-version="1.0.0"
+Export-Package: org.palladiosimulator.analyzer.slingshot.scalingpolicy.interpreter

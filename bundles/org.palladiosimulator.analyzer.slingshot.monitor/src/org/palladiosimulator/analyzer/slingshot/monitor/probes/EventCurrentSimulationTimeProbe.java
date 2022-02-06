@@ -10,6 +10,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.ModelPassedEvent;
 import org.palladiosimulator.metricspec.constants.MetricDescriptionConstants;
+import org.palladiosimulator.probeframework.measurement.ProbeMeasurement;
 import org.palladiosimulator.probeframework.measurement.RequestContext;
 
 /**
@@ -26,8 +27,8 @@ public final class EventCurrentSimulationTimeProbe extends EventBasedProbe<Doubl
 	 * 
 	 * @param eventType The type of the event.
 	 */
-	public EventCurrentSimulationTimeProbe(final Class<? extends DESEvent> eventType) {
-		super(eventType, MetricDescriptionConstants.POINT_IN_TIME_METRIC);
+	public EventCurrentSimulationTimeProbe() {
+		super(MetricDescriptionConstants.POINT_IN_TIME_METRIC);
 	}
 
 	/**
@@ -37,9 +38,9 @@ public final class EventCurrentSimulationTimeProbe extends EventBasedProbe<Doubl
 	 * @param distinguisher The distinguisher that instantiates a
 	 *                      {@link RequestContext}.
 	 */
-	public EventCurrentSimulationTimeProbe(final Class<? extends DESEvent> eventType,
+	public EventCurrentSimulationTimeProbe(
 			final EventDistinguisher<? super DESEvent> distinguisher) {
-		super(eventType, MetricDescriptionConstants.POINT_IN_TIME_METRIC, distinguisher);
+		super(MetricDescriptionConstants.POINT_IN_TIME_METRIC, distinguisher);
 	}
 
 	@Override
@@ -59,8 +60,14 @@ public final class EventCurrentSimulationTimeProbe extends EventBasedProbe<Doubl
 	 * @return A new EventCurrentSimulationTimeProbe from a ModelPassedEvent.
 	 */
 	public static <E extends EObject, F extends ModelPassedEvent<E>> EventCurrentSimulationTimeProbe modelPassedEventProbe(
-			final Class<F> eventType, final Function<F, String> transform) {
-		return new EventCurrentSimulationTimeProbe(eventType,
+			final Function<F, String> transform) {
+		return new EventCurrentSimulationTimeProbe(
 				event -> new RequestContext(transform.apply((F) event)));
+	}
+
+	@Override
+	protected ProbeMeasurement getProbeMeasurement(final DESEvent event) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

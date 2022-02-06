@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Data
+Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.scalingpolicy.data
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.scalingpolicy.data
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.palladiosimulator.analyzer.slingshot;bundle-version="1.0.0",
+ ScalingMetaModel
+Export-Package: org.palladiosimulator.analyzer.slingshot.scalingpolicy.data

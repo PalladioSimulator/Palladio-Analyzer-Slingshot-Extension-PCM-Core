@@ -106,14 +106,14 @@ public class UsageModelMonitoring implements SimulationBehaviorExtension {
 		if (MetricDescriptionConstants.RESPONSE_TIME_METRIC.getId().equals(metricDescription.getId())) {
 			return MetricDescriptionConstants.RESPONSE_TIME_METRIC_TUPLE;
 		}
-		return MetricDescriptionConstants.RESPONSE_TIME_METRIC_TUPLE;
+		return MetricDescriptionConstants.RESPONSE_TIME_METRIC_TUPLE; // TODO what should we return instead?
 	}
 
 	private static final class UserProbes {
 		private final EventCurrentSimulationTimeProbe userStartedProbe = new EventCurrentSimulationTimeProbe(
-				UsageModelPassedElement.class, this::passedElement);
+				this::passedElement);
 		private final EventCurrentSimulationTimeProbe userFinishedProbe = new EventCurrentSimulationTimeProbe(
-				UsageModelPassedElement.class, this::passedElement);
+				this::passedElement);
 
 		private RequestContext passedElement(final DESEvent desEvent) {
 			if (desEvent instanceof UsageModelPassedElement<?>) {

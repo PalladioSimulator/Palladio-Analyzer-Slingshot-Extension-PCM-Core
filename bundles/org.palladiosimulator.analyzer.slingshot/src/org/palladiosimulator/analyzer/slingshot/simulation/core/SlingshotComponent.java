@@ -51,11 +51,11 @@ public final class SlingshotComponent {
 	 */
 	public SlingshotComponent(final Builder builder) {
 		this.injector = Guice.createInjector(builder.modules);
-		this.scheduling = this.injector.getInstance(SimulationScheduling.class);
-		this.monitoring = this.injector.getInstance(SimulationMonitoring.class);
-		this.simulationEngine = this.injector.getInstance(SimulationEngine.class);
 		this.simulation = this.injector.getInstance(Simulation.class);
+		this.scheduling = this.injector.getInstance(SimulationScheduling.class);
+		this.simulationEngine = this.injector.getInstance(SimulationEngine.class);
 		this.dispatcher = this.injector.getInstance(EventDispatcher.class);
+		this.monitoring = this.injector.getInstance(SimulationMonitoring.class);
 	}
 
 	/**
@@ -85,7 +85,14 @@ public final class SlingshotComponent {
 
 	public static Builder builder() {
 		final ModuleLoader moduleLoader = new ModuleLoader();
-		return new Builder(moduleLoader.getAllProviders());
+		final List<Module> modules = moduleLoader.getAllProviders();
+		modules.forEach(module -> LOGGER.debug("Got Module: " + module.getClass().getName()));
+		if (modules.isEmpty()) {
+			LOGGER.error("Module list is empty!");
+		} else {
+			LOGGER.debug("Something very wierd is going on");
+		}
+		return new Builder(modules);
 	}
 
 	public EventDispatcher getDispatcher() {

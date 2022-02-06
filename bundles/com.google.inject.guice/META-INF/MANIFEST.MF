@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Guice
-Bundle-SymbolicName: com.google.inject.guice
+Bundle-SymbolicName: com.google.inject
 Bundle-Version: 4.2.3
 Bundle-ClassPath: guice-4.2.3.jar,
  aopalliance.jar,

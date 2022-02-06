@@ -10,8 +10,8 @@ public class SimulationWorkflowConfiguration extends AbstractPCMWorkflowRunConfi
 
 	private final ArchitecturalModelsConfiguration inputModels;
 	private final SimuComConfig simuConConfig;
-
 	private final String monitorRepositoryFile;
+	private final String spdFile;
 
 	public SimulationWorkflowConfiguration(final ArchitecturalModelsConfiguration architecturalModels,
 			final SimuComConfig config) {
@@ -28,6 +28,7 @@ public class SimulationWorkflowConfiguration extends AbstractPCMWorkflowRunConfi
 		this.setUsageModelFile(this.inputModels.getUsageModelFile());
 		this.setAllocationFiles(List.of(this.inputModels.getAllocationFile()));
 		this.monitorRepositoryFile = this.inputModels.getMonitorRepositoryFile();
+		this.spdFile = this.inputModels.getSpdFile();
 	}
 
 	@Override
@@ -48,6 +49,7 @@ public class SimulationWorkflowConfiguration extends AbstractPCMWorkflowRunConfi
 		// Only returns usage and allocation model files.
 		final List<String> modelFiles = super.getPCMModelFiles();
 		modelFiles.add(this.monitorRepositoryFile);
+		modelFiles.add(this.spdFile);
 		return modelFiles;
 	}
 

@@ -12,9 +12,14 @@ Require-Bundle: de.uka.ipd.sdq.workflow,
  org.palladiosimulator.pcm,
  org.palladiosimulator.analyzer.slingshot.common.serialization;bundle-version="1.0.0",
  org.palladiosimulator.analyzer.slingshot.common.constants;bundle-version="1.0.0",
- com.google.inject.guice,
+ com.google.inject,
  org.palladiosimulator.analyzer.slingshot.util.extensionpoint,
  de.uka.ipd.sdq.simulation,
  de.uka.ipd.sdq.simucomframework,
- org.palladiosimulator.monitorrepository
+ org.palladiosimulator.monitorrepository,
+ ScalingMetaModel,
+ org.palladiosimulator.analyzer.slingshot.driver,
+ org.palladiosimulator.analyzer.slingshot.engine,
+ org.palladiosimulator.analyzer.slingshot.event
 Export-Package: org.palladiosimulator.analyzer.slingshot.workflow.launcher
+Import-Package: org.palladiosimulator.analyzer.slingshot.monitor

@@ -9,10 +9,10 @@ public class SimulationDriverModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		super.configure();
-
-		this.bind(Simulation.class).to(SimulationDriver.class);
-		this.bind(SimulationScheduling.class).to(SimulationDriver.class);
+		this.bind(Simulation.class)
+				.to(SimulationDriver.class);
+		this.bind(SimulationScheduling.class)
+				.to(SimulationDriver.class);
 	}
 
 }

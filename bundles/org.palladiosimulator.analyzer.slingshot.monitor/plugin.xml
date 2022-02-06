@@ -2,12 +2,6 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="org.palladiosimulator.analyzer.slingshot.module">
-      <slingshot-module
-            module-definition="org.palladiosimulator.analyzer.slingshot.monitor.MonitoringModule">
-      </slingshot-module>
-   </extension>
-   <extension
          point="org.palladiosimulator.analyzer.slingshot.extensionpoint.behavior">
       <behavior-provider
             baseClass="org.palladiosimulator.analyzer.slingshot.monitor.interpretation.MonitorModelBehavior">
@@ -15,6 +9,12 @@
       <behavior-provider
             baseClass="org.palladiosimulator.analyzer.slingshot.monitor.calculator.DeferredCalculatorMeasurementInitializationBehavior">
       </behavior-provider>
+   </extension>
+   <extension
+         point="org.palladiosimulator.analyzer.slingshot.module">
+      <slingshot-module
+            module-definition="org.palladiosimulator.analyzer.slingshot.monitor.MonitoringModule">
+      </slingshot-module>
    </extension>
 
 </plugin>

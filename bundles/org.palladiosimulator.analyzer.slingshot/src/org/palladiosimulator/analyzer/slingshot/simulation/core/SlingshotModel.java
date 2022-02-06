@@ -13,6 +13,8 @@ import org.palladiosimulator.pcm.usagemodel.UsageModel;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
+import spd.SPD;
+
 /**
  * This class holds all the required models from the PCM simulation, but also
  * has the ability to let it extend with further models that might not be
@@ -30,6 +32,7 @@ public final class SlingshotModel extends AbstractModule {
 	private final UsageModel usageModel;
 	private final ResourceRepository resourceRepository;
 	private final MonitorRepository monitorRepository;
+	private final SPD spd;
 
 	@Generated("SparkTools")
 	private SlingshotModel(final Builder builder) {
@@ -40,6 +43,12 @@ public final class SlingshotModel extends AbstractModule {
 		this.usageModel = builder.usageModel;
 		this.resourceRepository = builder.resourceRepository;
 		this.monitorRepository = builder.monitorRepository;
+		this.spd = builder.spd;
+	}
+
+	@Provides
+	public SPD getSpd() {
+		return this.spd;
 	}
 
 	/**
@@ -117,6 +126,7 @@ public final class SlingshotModel extends AbstractModule {
 		private UsageModel usageModel;
 		private ResourceRepository resourceRepository;
 		private MonitorRepository monitorRepository;
+		private SPD spd;
 
 		private Builder() {
 		}
@@ -201,6 +211,17 @@ public final class SlingshotModel extends AbstractModule {
 			this.monitorRepository = monitorRepository;
 			return this;
 		}
+
+		public Builder withSpdFile(final SPD spd) {
+			this.spd = spd;
+			return this;
+		}
+	}
+
+	@Override
+	protected void configure() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

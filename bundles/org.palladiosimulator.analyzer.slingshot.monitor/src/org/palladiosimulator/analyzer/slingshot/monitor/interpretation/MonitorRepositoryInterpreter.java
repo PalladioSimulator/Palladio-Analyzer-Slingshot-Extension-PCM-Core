@@ -41,9 +41,13 @@ public final class MonitorRepositoryInterpreter extends MonitorRepositorySwitch<
 
 	@Override
 	public Set<MonitoringEvent> caseMonitor(final Monitor object) {
-		return object.getMeasurementSpecifications().stream()
+		final Set<MonitoringEvent> result = object.getMeasurementSpecifications().stream()
 				.flatMap(spec -> this.doSwitch(spec).stream())
 				.collect(Collectors.toSet());
+
+		result.add(new MonitorModelVisited<Monitor>(object));
+
+		return result;
 	}
 
 	@Override

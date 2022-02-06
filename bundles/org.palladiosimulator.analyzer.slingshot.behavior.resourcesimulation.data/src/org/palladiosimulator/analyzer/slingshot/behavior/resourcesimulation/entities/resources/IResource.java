@@ -1,4 +1,4 @@
-package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.resources;
+package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.resources;
 
 /**
  * Interface of any resource, be it active or passive. Each resource is uniquely

@@ -1,5 +1,6 @@
 package org.palladiosimulator.analyzer.slingshot.common.utils;
 
+import java.io.NotSerializableException;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -8,6 +9,7 @@ import org.eclipse.emf.common.util.EList;
 import org.palladiosimulator.pcm.core.PCMRandomVariable;
 import org.palladiosimulator.pcm.parameter.VariableCharacterisation;
 import org.palladiosimulator.pcm.parameter.VariableUsage;
+import org.palladiosimulator.pcm.stoex.api.StoExSerialiser;
 
 import de.uka.ipd.sdq.simucomframework.variables.EvaluationProxy;
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
@@ -17,7 +19,6 @@ import de.uka.ipd.sdq.simucomframework.variables.stackframe.SimulatedStackframe;
 import de.uka.ipd.sdq.stoex.AbstractNamedReference;
 import de.uka.ipd.sdq.stoex.NamespaceReference;
 import de.uka.ipd.sdq.stoex.VariableReference;
-import de.uka.ipd.sdq.stoex.analyser.visitors.StoExPrettyPrintVisitor;
 import de.uka.ipd.sdq.stoex.util.StoexSwitch;
 
 /*
@@ -31,6 +32,7 @@ import de.uka.ipd.sdq.stoex.util.StoexSwitch;
 public class SimulatedStackHelper {
 
 	private static final Logger LOGGER = Logger.getLogger(SimulatedStackHelper.class);
+	protected static final StoExSerialiser STOEX_SERIALISER = StoExSerialiser.createInstance();
 
 	/**
 	 * Adds parameters to given stack frame.
@@ -40,31 +42,35 @@ public class SimulatedStackHelper {
 	 * @param targetStackFrame
 	 */
 	public static final void addParameterToStackFrame(final SimulatedStackframe<Object> contextStackFrame,
-	        final EList<VariableUsage> parameter, final SimulatedStackframe<Object> targetStackFrame) {
+			final EList<VariableUsage> parameter, final SimulatedStackframe<Object> targetStackFrame) {
 		for (final VariableUsage variableUsage : parameter) {
 			for (final VariableCharacterisation variableCharacterisation : variableUsage
-			        .getVariableCharacterisation_VariableUsage()) {
+					.getVariableCharacterisation_VariableUsage()) {
 
 				final PCMRandomVariable randomVariable = variableCharacterisation
-				        .getSpecification_VariableCharacterisation();
+						.getSpecification_VariableCharacterisation();
 				final AbstractNamedReference namedReference = variableCharacterisation
-				        .getVariableUsage_VariableCharacterisation().getNamedReference__VariableUsage();
-				final String id = new StoExPrettyPrintVisitor()
-				        .doSwitch(namedReference)
-				        .toString() + "." + variableCharacterisation.getType().getLiteral();
+						.getVariableUsage_VariableCharacterisation().getNamedReference__VariableUsage();
+				final String id;
+				try {
+					id = STOEX_SERIALISER.serialise(namedReference) + "."
+							+ variableCharacterisation.getType().getLiteral();
+				} catch (final NotSerializableException e) {
+					throw new RuntimeException("Could not serialize reference name.", e);
+				}
 
 				if (SimulatedStackHelper.isInnerReference(namedReference)) {
 					targetStackFrame.addValue(id,
-					        new EvaluationProxy(randomVariable.getSpecification(), contextStackFrame.copyFrame()));
+							new EvaluationProxy(randomVariable.getSpecification(), contextStackFrame.copyFrame()));
 				} else {
 					targetStackFrame.addValue(id,
-					        StackContext.evaluateStatic(randomVariable.getSpecification(), contextStackFrame));
+							StackContext.evaluateStatic(randomVariable.getSpecification(), contextStackFrame));
 				}
 
 				if (LOGGER.isDebugEnabled()) {
 					try {
 						LOGGER.debug("Added value " + targetStackFrame.getValue(id) + " for id " + id
-						        + " to stackframe " + targetStackFrame);
+								+ " to stackframe " + targetStackFrame);
 					} catch (final ValueNotInFrameException e) {
 						throw new RuntimeException(e);
 					}
@@ -91,7 +97,7 @@ public class SimulatedStackHelper {
 			@Override
 			public Boolean caseNamespaceReference(final NamespaceReference object) {
 				return object.getReferenceName().equals("INNER")
-				        || this.doSwitch(object.getInnerReference_NamespaceReference());
+						|| this.doSwitch(object.getInnerReference_NamespaceReference());
 			}
 		};
 
@@ -107,7 +113,7 @@ public class SimulatedStackHelper {
 	 * @return the created stack frame.
 	 */
 	public static final SimulatedStackframe<Object> createAndPushNewStackFrame(final SimulatedStack<Object> stack,
-	        final EList<VariableUsage> parameter) {
+			final EList<VariableUsage> parameter) {
 		return createAndPushNewStackFrame(stack, parameter, null);
 	}
 
@@ -122,7 +128,7 @@ public class SimulatedStackHelper {
 	 * @return the created stack frame.
 	 */
 	public static SimulatedStackframe<Object> createAndPushNewStackFrame(final SimulatedStack<Object> stack,
-	        final EList<VariableUsage> parameter, final SimulatedStackframe<Object> parent) {
+			final EList<VariableUsage> parameter, final SimulatedStackframe<Object> parent) {
 		final SimulatedStackframe<Object> stackFrame;
 		if (parent == null) {
 			stackFrame = new SimulatedStackframe<Object>();

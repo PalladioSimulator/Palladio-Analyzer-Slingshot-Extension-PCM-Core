@@ -16,6 +16,7 @@ import org.palladiosimulator.analyzer.slingshot.common.constants.model.ModelFile
 import org.palladiosimulator.analyzer.slingshot.ui.workflow.launcher.configurer.AllocationModelField;
 import org.palladiosimulator.analyzer.slingshot.ui.workflow.launcher.configurer.MonitorRepositoryModelField;
 import org.palladiosimulator.analyzer.slingshot.ui.workflow.launcher.configurer.RequiredModelConfiguration;
+import org.palladiosimulator.analyzer.slingshot.ui.workflow.launcher.configurer.ScalingPolicyDefinitionModelField;
 import org.palladiosimulator.analyzer.slingshot.ui.workflow.launcher.configurer.UsageModelField;
 
 import de.uka.ipd.sdq.workflow.launchconfig.ImageRegistryHelper;
@@ -76,7 +77,7 @@ public class SimulationArchitectureModelsTab extends AbstractLaunchConfiguration
 		// final ModelConfigurerRegister register = new ModelConfigurerRegister();
 		// this.configurers = register.getAllProviders();
 		this.configurers = List.of(new AllocationModelField(), new UsageModelField(),
-				new MonitorRepositoryModelField());
+				new MonitorRepositoryModelField(), new ScalingPolicyDefinitionModelField());
 
 	}
 

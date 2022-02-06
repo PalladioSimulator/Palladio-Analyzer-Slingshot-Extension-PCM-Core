@@ -4,14 +4,15 @@ public class ArchitecturalModelsConfiguration {
 
 	private final String allocationFile;
 	private final String usageModelFile;
-	// Simulizar intergration
 	private final String monitorRepositoryFile;
+	private final String spdFile;
 
 	public ArchitecturalModelsConfiguration(final String usageModelFile, final String allocationFile,
-			final String monitorRepositoryFile) {
+			final String monitorRepositoryFile, final String spdFile) {
 		this.usageModelFile = usageModelFile;
 		this.monitorRepositoryFile = monitorRepositoryFile;
 		this.allocationFile = allocationFile;
+		this.spdFile = spdFile;
 	}
 
 	public String getMonitorRepositoryFile() {
@@ -32,4 +33,7 @@ public class ArchitecturalModelsConfiguration {
 		return this.usageModelFile;
 	}
 
+	public String getSpdFile() {
+		return this.spdFile;
+	}
 }

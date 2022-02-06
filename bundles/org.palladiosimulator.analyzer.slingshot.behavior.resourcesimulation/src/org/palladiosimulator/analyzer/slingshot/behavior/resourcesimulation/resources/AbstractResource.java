@@ -2,6 +2,8 @@ package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.res
 
 import java.util.Objects;
 
+import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.resources.IResource;
+
 import com.google.common.base.Preconditions;
 
 /**

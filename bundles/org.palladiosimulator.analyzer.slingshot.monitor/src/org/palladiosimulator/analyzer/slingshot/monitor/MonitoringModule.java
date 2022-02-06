@@ -23,7 +23,6 @@ public class MonitoringModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		super.configure();
 		this.bind(SimulationMonitoring.class).to(GeneralMonitor.class);
 	}
 

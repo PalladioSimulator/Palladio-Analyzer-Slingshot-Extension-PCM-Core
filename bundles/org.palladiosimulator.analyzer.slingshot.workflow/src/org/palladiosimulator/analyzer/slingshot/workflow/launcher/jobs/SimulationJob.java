@@ -20,6 +20,8 @@ import de.uka.ipd.sdq.workflow.jobs.IBlackboardInteractingJob;
 import de.uka.ipd.sdq.workflow.jobs.JobFailedException;
 import de.uka.ipd.sdq.workflow.jobs.UserCanceledException;
 import de.uka.ipd.sdq.workflow.mdsd.blackboard.MDSDBlackboard;
+import spd.SPD;
+import spd.SpdPackage;
 
 /**
  * This class is responsible for starting and monitoring the simulation. It
@@ -47,6 +49,10 @@ public class SimulationJob implements IBlackboardInteractingJob<MDSDBlackboard> 
 		final SlingshotModel model = this.loadModelFromBlackboard();
 
 		final SlingshotComponent component = SlingshotComponent.builder()
+//				.withModule(new SimulationDriverModule())
+//				.withModule(new SimulationEngineModule())
+//				.withModule(new EventDispatcherModule())
+//				.withModule(new MonitoringModule())
 				.withModule(model)
 				.withModule(new AbstractModule() {
 
@@ -59,6 +65,12 @@ public class SimulationJob implements IBlackboardInteractingJob<MDSDBlackboard> 
 					public PCMPartitionManager partitionManager() {
 						return new PCMPartitionManager(SimulationJob.this.blackboard);
 					}
+
+					@Override
+					protected void configure() {
+
+					}
+
 				})
 				.build();
 
@@ -80,6 +92,7 @@ public class SimulationJob implements IBlackboardInteractingJob<MDSDBlackboard> 
 				.withUsageModel(partition.getUsageModel())
 				.withMonitorinRepositoryFile((MonitorRepository) partition
 						.getElement(MonitorRepositoryPackage.eINSTANCE.getMonitorRepository()).get(0))
+				.withSpdFile((SPD) partition.getElement(SpdPackage.eINSTANCE.getSPD()).get(0))
 				.build();
 		return model;
 	}

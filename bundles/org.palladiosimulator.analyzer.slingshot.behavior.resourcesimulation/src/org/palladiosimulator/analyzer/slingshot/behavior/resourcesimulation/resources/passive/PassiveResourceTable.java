@@ -2,11 +2,14 @@ package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.res
 
 import java.util.Optional;
 
+import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.resources.IPassiveResource;
+import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.resources.IPassiveResourceTable;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.resources.AbstractResourceTable;
 import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.allocation.AllocationContext;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.repository.BasicComponent;
+import org.palladiosimulator.pcm.repository.PassiveResource;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 
@@ -18,7 +21,8 @@ import de.uka.ipd.sdq.simucomframework.variables.StackContext;
  *
  */
 public final class PassiveResourceTable
-		extends AbstractResourceTable<PassiveResourceCompoundKey, SimplePassiveResource> {
+		extends AbstractResourceTable<PassiveResourceCompoundKey, SimplePassiveResource>
+		implements IPassiveResourceTable {
 
 	/**
 	 * Builds the table with a given {@link Allocation}. The table will then be
@@ -63,6 +67,7 @@ public final class PassiveResourceTable
 	 * 
 	 * @return true if empty.
 	 */
+	@Override
 	public boolean isEmpty() {
 		return this.resources.isEmpty();
 	}
@@ -80,5 +85,12 @@ public final class PassiveResourceTable
 		}
 
 		return Optional.of(this.resources.get(id));
+	}
+
+	@Override
+	public Optional<? extends IPassiveResource> getPassiveResourceFromModelElement(
+			final PassiveResource passiveResource, final AssemblyContext assemblyContext) {
+		final PassiveResourceCompoundKey key = PassiveResourceCompoundKey.of(passiveResource, assemblyContext);
+		return this.getPassiveResource(key);
 	}
 }

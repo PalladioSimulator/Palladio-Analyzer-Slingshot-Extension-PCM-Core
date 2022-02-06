@@ -14,4 +14,3 @@ Require-Bundle: org.apache.log4j,
  org.palladiosimulator.analyzer.slingshot
 Export-Package: org.palladiosimulator.analyzer.slingshot.common.utils,
  org.palladiosimulator.analyzer.slingshot.common.utils.stoexproxy
-Import-Package: com.google.common.base

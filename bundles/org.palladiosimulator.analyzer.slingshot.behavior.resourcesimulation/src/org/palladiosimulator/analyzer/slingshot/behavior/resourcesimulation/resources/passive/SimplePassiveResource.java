@@ -6,9 +6,12 @@ import java.util.Queue;
 import java.util.Set;
 
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.jobs.WaitingJob;
+import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.resources.IPassiveResource;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.resources.AbstractResource;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.PassiveResourceAcquired;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
+import org.palladiosimulator.pcm.core.composition.AssemblyContext;
+import org.palladiosimulator.pcm.repository.PassiveResource;
 
 /**
  * A simple passive resource simulates a semaphore which holds a queue of
@@ -22,7 +25,7 @@ import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral
  * @author Julijan Katic
  *
  */
-public final class SimplePassiveResource extends AbstractResource {
+public final class SimplePassiveResource extends AbstractResource implements IPassiveResource {
 
 	/** The FIFO queue of waiting jobs to acquire next. */
 	private final Queue<WaitingJob> waitingJobs;
@@ -120,4 +123,18 @@ public final class SimplePassiveResource extends AbstractResource {
 		return new PassiveResourceAcquired(waitingJob.getRequest());
 	}
 
+	@Override
+	public long getCurrentlyAvailable() {
+		return this.available;
+	}
+
+	@Override
+	public PassiveResource getPCMPassiveResource() {
+		return ((PassiveResourceCompoundKey) this.getId()).getPassiveResource();
+	}
+
+	@Override
+	public AssemblyContext getAssemblyContext() {
+		return ((PassiveResourceCompoundKey) this.getId()).getAssemblyContext();
+	}
 }

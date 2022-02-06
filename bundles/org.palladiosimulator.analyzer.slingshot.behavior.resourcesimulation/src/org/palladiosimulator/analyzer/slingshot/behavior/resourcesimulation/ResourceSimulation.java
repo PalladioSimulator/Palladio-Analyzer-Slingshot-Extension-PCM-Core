@@ -5,6 +5,8 @@ import static org.palladiosimulator.analyzer.slingshot.simulation.extensions.beh
 import java.util.Optional;
 import java.util.UUID;
 
+import javax.inject.Inject;
+
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.jobs.Job;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.jobs.WaitingJob;
@@ -36,7 +38,6 @@ import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.repository.PassiveResource;
 
 import com.google.common.eventbus.Subscribe;
-import com.google.inject.Inject;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 

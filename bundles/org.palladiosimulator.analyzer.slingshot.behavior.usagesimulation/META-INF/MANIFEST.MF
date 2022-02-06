@@ -11,10 +11,10 @@ Require-Bundle: org.apache.log4j;bundle-version="1.2.15",
  org.palladiosimulator.analyzer.slingshot;bundle-version="1.0.0",
  org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.data;bundle-version="1.0.0",
  javax.inject,
- com.google.inject.guice,
  de.uka.ipd.sdq.simucomframework;bundle-version="4.3.0",
  org.palladiosimulator.analyzer.slingshot.common.utils,
- de.uka.ipd.sdq.probfunction.math
+ de.uka.ipd.sdq.probfunction.math,
+ com.google.inject
 Import-Package: com.google.common.eventbus
 Export-Package: org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation,
  org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.interpreters,
