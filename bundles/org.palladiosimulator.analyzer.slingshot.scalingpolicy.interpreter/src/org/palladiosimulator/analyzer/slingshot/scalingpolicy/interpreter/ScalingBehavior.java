@@ -58,9 +58,8 @@ public class ScalingBehavior implements SimulationBehaviorExtension {
 	public ResultEvent<?> onSimulationFinished(final SimulationFinished finished) {
 		this.spd.getScalingpolicy().stream()
 				.map(ScalingPolicy::getTargetgroup)
-				.map(TargetGroup.class::cast) // TODO: Change the model respectively so that there is only one
-												// definition of a TargetGroup
-				.map(TargetGroup::getResourceEnvironment)
+				.map(TargetGroup.class::cast)
+				.map(TargetGroupTable.instance()::getEnvironment)
 				.forEach(resourceEnvironment -> {
 					LOGGER.info("Saving resource environment: " + resourceEnvironment.getEntityName());
 					final Resource resource = resourceEnvironment.eResource();

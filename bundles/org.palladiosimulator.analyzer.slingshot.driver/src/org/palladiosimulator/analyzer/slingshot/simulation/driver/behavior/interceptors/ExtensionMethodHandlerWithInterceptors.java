@@ -1,6 +1,5 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.driver.behavior.interceptors;
 
-import java.lang.reflect.Method;
 import java.util.List;
 
 import org.aopalliance.intercept.MethodInterceptor;
@@ -9,8 +8,6 @@ import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationScheduling;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.HandlerInterrupted;
 
-import javassist.util.proxy.MethodHandler;
-
 /**
  * A MethodHandler to add interceptors to the extensions, so that the behavior
  * of extensions undergoes through the workflow of interceptors.
@@ -18,7 +15,7 @@ import javassist.util.proxy.MethodHandler;
  * @author Floriment Klinaku
  *
  */
-public class ExtensionMethodHandlerWithInterceptors implements MethodHandler, MethodInterceptor {
+public class ExtensionMethodHandlerWithInterceptors implements MethodInterceptor {
 
 	private static final Logger LOGGER = Logger.getLogger(ExtensionMethodHandlerWithInterceptors.class);
 
@@ -36,33 +33,6 @@ public class ExtensionMethodHandlerWithInterceptors implements MethodHandler, Me
 			final SimulationScheduling scheduling) {
 		this.myInterceptors = interceptors;
 		this.scheduling = scheduling;
-	}
-
-	/**
-	 * @deprecated since we use guice instead of javassist. TODO: Delete this
-	 *             method.
-	 */
-	@Override
-	@Deprecated
-	public Object invoke(final Object extension, final Method method, final Method proceed, final Object[] args)
-			throws Throwable {
-
-		LOGGER.info(String.format("+++ Intercepting the extension method: %s#%s +++",
-				extension.getClass().getSimpleName(), method.getName()));
-
-		for (final Interceptor interceptor : this.myInterceptors) {
-			interceptor.preIntercept(extension, method, args);
-		}
-
-		final Object result = proceed.invoke(extension, args); // execute the original method.
-
-		for (final Interceptor interceptor : this.myInterceptors) {
-			interceptor.postIntercept(extension, method, args, result);
-		}
-
-		LOGGER.info("+++ Interception Ended +++");
-
-		return result;
 	}
 
 	@Override

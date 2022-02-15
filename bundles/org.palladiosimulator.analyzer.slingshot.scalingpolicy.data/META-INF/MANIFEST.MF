@@ -8,3 +8,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.palladiosimulator.analyzer.slingshot;bundle-version="1.0.0",
  ScalingMetaModel
 Export-Package: org.palladiosimulator.analyzer.slingshot.scalingpolicy.data
+Import-Package: com.google.common.base

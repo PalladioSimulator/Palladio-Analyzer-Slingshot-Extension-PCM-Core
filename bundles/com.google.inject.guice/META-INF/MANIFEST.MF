@@ -48,5 +48,4 @@ Export-Package: com.google.common.annotations,
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: com.google.inject.guice
 Require-Bundle: com.google.guava;bundle-version="27.1.0",
- javax.inject;bundle-version="1.0.0",
- javassist;bundle-version="3.27.0"
+ javax.inject;bundle-version="1.0.0"

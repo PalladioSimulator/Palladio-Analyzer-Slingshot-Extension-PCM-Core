@@ -14,7 +14,7 @@ public class PCMFileLoader {
 		EMFResourceSetInitializerHelper.initEMF();
 	}
 
-	public static <T> T load(final Path filePath) {
+	public static <T extends EObject> T load(final Path filePath) {
 		final URI uri = createSuitedURI(filePath);
 		return load(uri);
 	}

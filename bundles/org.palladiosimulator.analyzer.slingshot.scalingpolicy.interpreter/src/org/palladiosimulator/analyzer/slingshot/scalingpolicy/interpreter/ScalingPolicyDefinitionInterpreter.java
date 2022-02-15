@@ -12,6 +12,9 @@ import spd.util.SpdSwitch;
 
 public class ScalingPolicyDefinitionInterpreter extends SpdSwitch<Set<AbstractTriggerEvent>> {
 
+	public ScalingPolicyDefinitionInterpreter() {
+	}
+
 	@Override
 	public Set<AbstractTriggerEvent> caseSPD(final SPD spd) {
 		return spd.getScalingpolicy().stream()
@@ -24,6 +27,7 @@ public class ScalingPolicyDefinitionInterpreter extends SpdSwitch<Set<AbstractTr
 		final Set<AbstractTriggerEvent> result = new HashSet<>();
 
 		final ScalingTriggerInterpreter scalingTriggerInterpreter = new ScalingTriggerInterpreter(object);
+
 		result.addAll(scalingTriggerInterpreter.doSwitch(object.getScalingtrigger()));
 
 		return result;

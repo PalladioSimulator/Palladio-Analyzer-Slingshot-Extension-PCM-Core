@@ -21,18 +21,30 @@
 		<module>org.palladiosimulator.analyzer.slingshot.ui</module>
 		<module>org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation</module>
 		<module>org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.data</module>
+		<module>org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.monitor</module>
 		<module>org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation</module>
 		<module>org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.data</module>
+		<module>org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.monitor</module>
 		<module>org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation</module>
 		<module>org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.data</module>
 		<module>org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor</module>
         <module>org.palladiosimulator.analyzer.slingshot.annotationprocessor.util</module>
-        <module>org.palladiosimulator.analyzer.slingshot.module.models</module>
         <module>org.palladiosimulator.analyzer.slingshot.util.extensionpoint</module>
         <module>org.palladiosimulator.analyzer.slingshot.behavior.generalsimulationconfiguration</module>
         <module>com.google.inject.guice</module>
         <module>javassist</module>
         <module>com.google.auto.service</module>
+        <module>org.palladiosimulator.analyzer.slingshot.monitor</module>
+        <module>org.palladiosimulator.analyzer.slingshot.monitor.data</module>
+        <module>org.palladiosimulator.analyzer.slingshot.monitor.processingtype.aggregator</module>
+        <module>org.palladiosimulator.analyzer.slingshot.monitor.processingtype.feedthrough</module>
+        <module>org.palladiosimulator.analyzer.slingshot.monitor.processingtype.map</module>
+        <module>org.palladiosimulator.analyzer.slingshot.monitor.processingtype.timedriven</module>
+        <module>org.palladiosimulator.analyzer.slingshot.scalingpolicy.data</module>
+        <module>org.palladiosimulator.analyzer.slingshot.scalingpolicy.interpreter</module>
+        <module>org.palladiosimulator.analyzer.slingshot.driver</module>
+        <module>org.palladiosimulator.analyzer.slingshot.engine</module>
+        <module>org.palladiosimulator.analyzer.slingshot.event</module>
 	</modules>
 	<dependencies>
 		<dependency>

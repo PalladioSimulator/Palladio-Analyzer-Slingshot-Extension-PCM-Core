@@ -13,10 +13,8 @@
 	<modules>
         <module>org.palladiosimulator.analyzer.slingshot.annotationprocessor.test.utils</module>
         <module>org.palladiosimulator.analyzer.slingshot.behavior.annotationprocessor.test</module>
-        <module>org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.test</module>
         <module>org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.test</module>
         <module>org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.test</module>
-        <module>org.palladiosimulator.analyzer.slingshot.module.model.test</module>
     </modules>
 	
 </project>

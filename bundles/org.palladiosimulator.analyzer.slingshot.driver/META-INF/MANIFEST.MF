@@ -6,7 +6,6 @@ Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.driver
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.apache.log4j;bundle-version="1.2.15",
- javassist,
  org.palladiosimulator.analyzer.slingshot.util.extensionpoint;bundle-version="1.0.0",
  de.uka.ipd.sdq.simucomframework,
  org.palladiosimulator.analyzer.slingshot.monitor.data,
