@@ -14,12 +14,7 @@ public interface DESEvent {
 	String getId();
 
 	/**
-	 * @return The delay, i.e. how much time to wait until
-	 */
-	double getDelay();
-
-	/**
-	 * @return the current simulation time for this event.
+	 * @return the simulation time for this event.
 	 */
 	double time();
 
@@ -27,4 +22,9 @@ public interface DESEvent {
 	 * Resets the simulation time in the event.
 	 */
 	void setTime(double time);
+	
+	/**
+	 * @return The delay, i.e. how much time to wait until
+	 */
+	double getDelay();
 }

@@ -1,7 +1,9 @@
 package org.palladiosimulator.analyzer.slingshot.scalingpolicy.data;
 
-import spd.AdjustmentType;
-import spd.ScalingTrigger;
+import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.result.AdjustmentResult;
+
+import spd.adjustmenttype.AdjustmentType;
+import spd.scalingtrigger.ScalingTrigger;
 import spd.targetgroup.TargetGroup;
 
 public final class TriggerContext {
@@ -18,9 +20,11 @@ public final class TriggerContext {
 		this.executor = builder.executor;
 	}
 
-	public void executeTrigger() {
+	public AdjustmentResult executeTrigger() {
 		if (this.executor != null && this.targetGroup != null) {
-			this.executor.onTrigger(this.targetGroup);
+			return this.executor.onTrigger(this);
+		} else {
+			throw new IllegalStateException("Either the executor or the target group is not given.");
 		}
 	}
 
@@ -58,6 +62,7 @@ public final class TriggerContext {
 		private ScalingTrigger scalingTrigger;
 		private AdjustmentType adjustmentType;
 		private AdjustmentExecutor executor;
+	
 
 		private Builder() {
 		}
@@ -81,7 +86,7 @@ public final class TriggerContext {
 			this.executor = executor;
 			return this;
 		}
-
+	
 		public TriggerContext build() {
 			return new TriggerContext(this);
 		}

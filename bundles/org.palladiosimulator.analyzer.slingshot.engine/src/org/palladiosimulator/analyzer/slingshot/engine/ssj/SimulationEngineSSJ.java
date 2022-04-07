@@ -6,6 +6,7 @@ import javax.inject.Singleton;
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.EventDispatcher;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationEngine;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.entities.SimulationInformation;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.ConcreteTimeEvent;
@@ -30,14 +31,13 @@ public final class SimulationEngineSSJ implements SimulationEngine {
 	private final EventDispatcher eventDispatcher;
 
 	private final Simulator simulator;
-
-	// private final SimulationMonitoring simulationMonitoring;
+	private final SimulationInformationSSJ simulationInformationSSJ;
 
 	@Inject
 	public SimulationEngineSSJ(final EventDispatcher eventDispatcher) {
 		this.eventDispatcher = eventDispatcher;
-		// this.simulationMonitoring = simulationMonitoring;
 		this.simulator = new Simulator();
+		this.simulationInformationSSJ = new SimulationInformationSSJ(this.simulator);
 	}
 
 	@Override
@@ -94,6 +94,11 @@ public final class SimulationEngineSSJ implements SimulationEngine {
 	public void registerEventListener(final Object eventListener) {
 		this.eventDispatcher.register(Preconditions.checkNotNull(eventListener, "Event-listeners must not be null!"));
 	}
+	
+	@Override
+	public SimulationInformation getSimulationInformation() {
+		return this.simulationInformationSSJ;
+	}
 
 	private final class SSJEvent extends Event {
 
@@ -117,6 +122,7 @@ public final class SimulationEngineSSJ implements SimulationEngine {
 			this.event.setTime(SimulationEngineSSJ.this.simulator.time());
 
 			SimulationEngineSSJ.this.eventDispatcher.post(this.event);
+			SimulationEngineSSJ.this.simulationInformationSSJ.increaseNumberOfProcessedEvents();
 
 			// simulationMonitoring.publishProbeEvent(event);
 
@@ -125,6 +131,7 @@ public final class SimulationEngineSSJ implements SimulationEngine {
 				 * In this case, no events should be published again afterwards.
 				 */
 				SimulationEngineSSJ.this.eventDispatcher.freez();
+				SimulationEngineSSJ.this.simulator.stop();
 			}
 		}
 

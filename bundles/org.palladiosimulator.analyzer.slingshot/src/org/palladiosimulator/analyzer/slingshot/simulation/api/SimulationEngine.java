@@ -1,5 +1,6 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.api;
 
+import org.palladiosimulator.analyzer.slingshot.simulation.core.entities.SimulationInformation;
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 
 import com.google.common.eventbus.EventBus;
@@ -65,6 +66,14 @@ public interface SimulationEngine {
 	 * @param eventListener The object containing different event listeners.
 	 */
 	void registerEventListener(Object eventListener);
+	
+	/**
+	 * Returns the current information of the current simulation run,
+	 * such as simulation time and number of dispatched events.
+	 * 
+	 * @return The current simulation information.
+	 */
+	SimulationInformation getSimulationInformation();
 
 	/**
 	 * Sets the exception handler for this engine. Everytime an exception is thrown

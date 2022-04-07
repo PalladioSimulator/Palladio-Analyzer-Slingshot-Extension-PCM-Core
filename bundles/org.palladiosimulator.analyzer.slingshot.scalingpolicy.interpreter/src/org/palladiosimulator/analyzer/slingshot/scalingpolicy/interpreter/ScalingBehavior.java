@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.palladiosimulator.analyzer.slingshot.common.utils.ResourceUtils;
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.AbstractTriggerEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.entities.SimulationInformation;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.ConfigurationStarted;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationFinished;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
@@ -29,15 +30,17 @@ public class ScalingBehavior implements SimulationBehaviorExtension {
 	private static final Logger LOGGER = Logger.getLogger(ScalingBehavior.class);
 
 	private final SPD spd;
+	private final SimulationInformation simulationInformation;
 
 	@Inject
-	public ScalingBehavior(final SPD spd) {
+	public ScalingBehavior(final SPD spd, final SimulationInformation simulationInformation) {
 		this.spd = Objects.requireNonNull(spd);
+		this.simulationInformation = simulationInformation;
 	}
 
 	@Subscribe
 	public ResultEvent<?> onSimulationStarted(final ConfigurationStarted configurationStarted) {
-		final var interpreter = new ScalingPolicyDefinitionInterpreter();
+		final var interpreter = new ScalingPolicyDefinitionInterpreter(simulationInformation);
 		return ResultEvent.of(interpreter.doSwitch(this.spd));
 	}
 
