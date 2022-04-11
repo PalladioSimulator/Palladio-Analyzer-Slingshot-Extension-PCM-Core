@@ -27,14 +27,18 @@ public class ScalingTriggerInterpreter extends ScalingtriggerSwitch<Set<Abstract
 	private final ScalingPolicy parent;
 	private final SimulationInformation information;
 
+	private final AdjustmentTypeInterpreter adjustmentTypeInterpreter;
+
 	public ScalingTriggerInterpreter(final ScalingPolicy parent, final SimulationInformation information) {
 		this.parent = parent;
 		this.information = information;
+
+		this.adjustmentTypeInterpreter = new AdjustmentTypeInterpreter(information);
 	}
 
 	@Override
 	public Set<AbstractTriggerEvent> casePointInTimeTrigger(final PointInTimeTrigger object) {
-		final AdjustmentExecutor executor = (new AdjustmentTypeInterpreter(information)).doSwitch(this.parent.getAdjustmenttype());
+		final AdjustmentExecutor executor = this.adjustmentTypeInterpreter.doSwitch(this.parent.getAdjustmenttype());
 		final TriggerContext context = TriggerContext.builder()
 				.withAdjustmentExecutor(executor)
 				.withTargetGroup((TargetGroup) this.parent.getTargetgroup())
@@ -44,60 +48,58 @@ public class ScalingTriggerInterpreter extends ScalingtriggerSwitch<Set<Abstract
 	}
 
 	@Override
-	public Set<AbstractTriggerEvent> caseCPUUtilizationTrigger(CPUUtilizationTrigger object) {
+	public Set<AbstractTriggerEvent> caseCPUUtilizationTrigger(final CPUUtilizationTrigger object) {
 		// TODO Auto-generated method stub
 		return super.caseCPUUtilizationTrigger(object);
 	}
 
 	@Override
-	public Set<AbstractTriggerEvent> caseRAMUtilizationTrigger(RAMUtilizationTrigger object) {
+	public Set<AbstractTriggerEvent> caseRAMUtilizationTrigger(final RAMUtilizationTrigger object) {
 		// TODO Auto-generated method stub
 		return super.caseRAMUtilizationTrigger(object);
 	}
 
 	@Override
-	public Set<AbstractTriggerEvent> caseHDDUtilizationTrigger(HDDUtilizationTrigger object) {
+	public Set<AbstractTriggerEvent> caseHDDUtilizationTrigger(final HDDUtilizationTrigger object) {
 		// TODO Auto-generated method stub
 		return super.caseHDDUtilizationTrigger(object);
 	}
 
 	@Override
-	public Set<AbstractTriggerEvent> caseIdleTimeTrigger(IdleTimeTrigger object) {
+	public Set<AbstractTriggerEvent> caseIdleTimeTrigger(final IdleTimeTrigger object) {
 		// TODO Auto-generated method stub
 		return super.caseIdleTimeTrigger(object);
 	}
 
 	@Override
-	public Set<AbstractTriggerEvent> caseTaskCountTrigger(TaskCountTrigger object) {
+	public Set<AbstractTriggerEvent> caseTaskCountTrigger(final TaskCountTrigger object) {
 		// TODO Auto-generated method stub
 		return super.caseTaskCountTrigger(object);
 	}
 
 	@Override
-	public Set<AbstractTriggerEvent> caseNetworkUtilizationTrigger(NetworkUtilizationTrigger object) {
+	public Set<AbstractTriggerEvent> caseNetworkUtilizationTrigger(final NetworkUtilizationTrigger object) {
 		// TODO Auto-generated method stub
 		return super.caseNetworkUtilizationTrigger(object);
 	}
 
 	@Override
-	public Set<AbstractTriggerEvent> caseResponseTimeTrigger(ResponseTimeTrigger object) {
+	public Set<AbstractTriggerEvent> caseResponseTimeTrigger(final ResponseTimeTrigger object) {
 		// TODO Auto-generated method stub
 		return super.caseResponseTimeTrigger(object);
 	}
 
 	@Override
-	public Set<AbstractTriggerEvent> caseResourceUtilizationBasedTrigger(ResourceUtilizationBasedTrigger object) {
+	public Set<AbstractTriggerEvent> caseResourceUtilizationBasedTrigger(final ResourceUtilizationBasedTrigger object) {
 		// TODO Auto-generated method stub
 		return super.caseResourceUtilizationBasedTrigger(object);
 	}
 
 	@Override
 	public Set<AbstractTriggerEvent> caseProcessingResourceUtilizationBasedTrigger(
-			ProcessingResourceUtilizationBasedTrigger object) {
+			final ProcessingResourceUtilizationBasedTrigger object) {
 		// TODO Auto-generated method stub
 		return super.caseProcessingResourceUtilizationBasedTrigger(object);
 	}
-	
-	
 
 }

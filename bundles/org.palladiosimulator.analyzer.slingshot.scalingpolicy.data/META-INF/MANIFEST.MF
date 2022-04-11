@@ -9,4 +9,5 @@ Require-Bundle: org.palladiosimulator.analyzer.slingshot;bundle-version="1.0.0",
  ScalingMetaModel
 Export-Package: org.palladiosimulator.analyzer.slingshot.scalingpolicy.data,
  org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.result
-Import-Package: com.google.common.base
+Import-Package: com.google.common.base,
+ com.google.common.collect

@@ -16,83 +16,95 @@ import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.TriggerContex
  *
  */
 public final class AdjustmentResult {
-	
+
 	public static final AdjustmentResult EMPTY_RESULT = new AdjustmentResult();
-	
+
 	private final String id;
 	private final TriggerContext context;
-	private final boolean success;
+	private final AdjustmentResultReason adjustmentResultReason;
 	private final List<ModelChange> changes;
-	
+	private final List<ConstraintResult> constraintResults;
+
 	private AdjustmentResult(final Builder builder) {
 		this.context = builder.context;
-		this.success = builder.success;
+		this.adjustmentResultReason = builder.reason;
 		this.changes = builder.changes;
 		this.id = UUID.randomUUID().toString();
+		this.constraintResults = builder.constraintResults;
 	}
-	
+
 	private AdjustmentResult() {
 		this.id = "";
 		this.context = null;
-		this.success = true;
+		this.adjustmentResultReason = AdjustmentResultReason.SUCCESS;
 		this.changes = Collections.emptyList();
+		this.constraintResults = null;
 	}
-	
+
 	public TriggerContext getContext() {
-		return context;
+		return this.context;
 	}
 
 	public boolean isSuccess() {
-		return success;
+		return this.adjustmentResultReason == AdjustmentResultReason.SUCCESS;
 	}
 
 	public List<ModelChange> getChanges() {
-		return changes;
+		return this.changes;
+	}
+
+	public AdjustmentResultReason getReason() {
+		return this.adjustmentResultReason;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id);
+		return Objects.hash(this.id);
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
+	public boolean equals(final Object obj) {
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (this.getClass() != obj.getClass()) {
 			return false;
-		AdjustmentResult other = (AdjustmentResult) obj;
-		return Objects.equals(id, other.id);
+		}
+		final AdjustmentResult other = (AdjustmentResult) obj;
+		return Objects.equals(this.id, other.id);
 	}
 
 	public static Builder builder() {
 		return new Builder();
 	}
-	
+
 	public static final class Builder {
 		private TriggerContext context;
-		private boolean success;
-		private List<ModelChange> changes; 
-		
-		private Builder() {}
-		
+		private AdjustmentResultReason reason = AdjustmentResultReason.SUCCESS;
+		private List<ModelChange> changes;
+		private List<ConstraintResult> constraintResults;
+
+		private Builder() {
+		}
+
 		public Builder withTriggerContext(final TriggerContext context) {
 			this.context = context;
 			return this;
 		}
-		
-		public Builder success(final boolean success) {
-			this.success = success;
+
+		public Builder success(final AdjustmentResultReason reason) {
+			this.reason = Objects.requireNonNull(reason);
 			return this;
 		}
-		
+
 		public Builder withChanges(final List<ModelChange> changes) {
 			this.changes = Objects.requireNonNull(changes);
 			return this;
 		}
-		
+
 		public Builder addChange(final ModelChange change) {
 			if (this.changes == null) {
 				this.changes = new LinkedList<>();
@@ -100,10 +112,18 @@ public final class AdjustmentResult {
 			this.changes.add(change);
 			return this;
 		}
-		
+
+		public Builder addConstraint(final ConstraintResult constraintResult) {
+			if (this.constraintResults == null) {
+				this.constraintResults = new LinkedList<>();
+			}
+			this.constraintResults.add(constraintResult);
+			return this;
+		}
+
 		public AdjustmentResult build() {
 			return new AdjustmentResult(this);
 		}
 	}
-	
+
 }

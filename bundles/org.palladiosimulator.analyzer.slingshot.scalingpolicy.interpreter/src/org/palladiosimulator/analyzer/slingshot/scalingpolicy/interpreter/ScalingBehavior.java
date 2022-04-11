@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.palladiosimulator.analyzer.slingshot.common.utils.ResourceUtils;
+import org.palladiosimulator.analyzer.slingshot.monitor.data.MeasurementMade;
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.AbstractTriggerEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.entities.SimulationInformation;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.ConfigurationStarted;
@@ -25,6 +26,7 @@ import spd.targetgroup.TargetGroup;
 @OnEvent(when = AbstractTriggerEvent.class, then = {})
 @OnEvent(when = ConfigurationStarted.class, then = AbstractTriggerEvent.class, cardinality = EventCardinality.MANY)
 @OnEvent(when = SimulationFinished.class, then = {})
+@OnEvent(when = MeasurementMade.class, then = AbstractTriggerEvent.class, cardinality = EventCardinality.MANY)
 public class ScalingBehavior implements SimulationBehaviorExtension {
 
 	private static final Logger LOGGER = Logger.getLogger(ScalingBehavior.class);
@@ -40,7 +42,7 @@ public class ScalingBehavior implements SimulationBehaviorExtension {
 
 	@Subscribe
 	public ResultEvent<?> onSimulationStarted(final ConfigurationStarted configurationStarted) {
-		final var interpreter = new ScalingPolicyDefinitionInterpreter(simulationInformation);
+		final var interpreter = new ScalingPolicyDefinitionInterpreter(this.simulationInformation);
 		return ResultEvent.of(interpreter.doSwitch(this.spd));
 	}
 
@@ -50,6 +52,13 @@ public class ScalingBehavior implements SimulationBehaviorExtension {
 	@Subscribe
 	public ResultEvent<?> onTrigger(final AbstractTriggerEvent trigger) {
 		trigger.getContext().executeTrigger();
+		return ResultEvent.empty();
+	}
+
+	public ResultEvent<?> onMeasurementMade(final MeasurementMade measurementMade) {
+		// TODO: Connect to Scaling Policy:
+		// Currently, some of the information in the MeasurementMade event is missing
+		// that is needed for SPD.
 		return ResultEvent.empty();
 	}
 

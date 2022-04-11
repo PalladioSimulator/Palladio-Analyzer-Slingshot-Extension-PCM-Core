@@ -1,8 +1,7 @@
-package org.palladiosimulator.analyzer.slingshot.scalingpolicy.interpreter;
+package org.palladiosimulator.analyzer.slingshot.scalingpolicy.data;
 
 import java.util.function.Function;
 
-import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.TriggerContext;
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.result.ConstraintResult;
 
 /**
