@@ -1,7 +1,10 @@
 package org.palladiosimulator.analyzer.slingshot.monitor.recorder.decorators;
 
 import org.palladiosimulator.analyzer.slingshot.monitor.EventBasedMeasurementObserver;
+import org.palladiosimulator.analyzer.slingshot.monitor.data.SlingshotMeasuringValue;
 import org.palladiosimulator.edp2.models.measuringpoint.MeasuringPoint;
+import org.palladiosimulator.measurementframework.MeasuringValue;
+import org.palladiosimulator.measurementframework.listener.IMeasurementSourceListener;
 import org.palladiosimulator.metricspec.MetricDescription;
 import org.palladiosimulator.probeframework.calculator.Calculator;
 import org.palladiosimulator.probeframework.calculator.CalculatorProbeSet;
@@ -19,13 +22,25 @@ public final class MonitoringAttachingCalculatorFactoryDecorator implements IGen
 	}
 
 	@Override
-	public Calculator buildCalculator(final MetricDescription arg0, final MeasuringPoint arg1,
-			final CalculatorProbeSet arg2) {
-		return this.setupCalculator(this.delegator.buildCalculator(arg0, arg1, arg2));
+	public Calculator buildCalculator(final MetricDescription metricDescription, final MeasuringPoint measuringPoint,
+			final CalculatorProbeSet calculatorProbeSet) {
+		return this.setupCalculator(this.delegator.buildCalculator(metricDescription, measuringPoint, calculatorProbeSet));
 	}
 
 	private Calculator setupCalculator(final Calculator calculator) {
-		calculator.addObserver(this.observer);
+		calculator.addObserver(new IMeasurementSourceListener() {
+			
+			public void preUnregister() {
+				observer.preUnregister();
+			}
+			
+			public void newMeasurementAvailable(final MeasuringValue newMeasurement) {
+				final SlingshotMeasuringValue measuringValue = new SlingshotMeasuringValue(newMeasurement, calculator.getMeasuringPoint());
+				observer.newMeasurementAvailable(measuringValue);
+			}
+			
+		});
 		return calculator;
 	}
+
 }

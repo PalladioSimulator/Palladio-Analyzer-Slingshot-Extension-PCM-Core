@@ -10,7 +10,6 @@ Require-Bundle: org.palladiosimulator.analyzer.slingshot.behavior.usagesimulatio
  org.palladiosimulator.probeframework;bundle-version="5.0.0",
  org.palladiosimulator.analyzer.slingshot;bundle-version="1.0.0",
  org.palladiosimulator.metricspec;bundle-version="5.0.0",
- org.palladiosimulator.simulizar.measuringpoint;bundle-version="5.0.1",
  org.palladiosimulator.edp2;bundle-version="5.0.0",
  org.palladiosimulator.pcm.edp2.measuringpoint,
  org.palladiosimulator.analyzer.workflow,

@@ -39,7 +39,7 @@ public final class EventCurrentSimulationTimeProbe extends EventBasedProbe<Doubl
 	 *                      {@link RequestContext}.
 	 */
 	public EventCurrentSimulationTimeProbe(
-			final EventDistinguisher<? super DESEvent> distinguisher) {
+			final EventDistinguisher distinguisher) {
 		super(MetricDescriptionConstants.POINT_IN_TIME_METRIC, distinguisher);
 	}
 
@@ -65,9 +65,4 @@ public final class EventCurrentSimulationTimeProbe extends EventBasedProbe<Doubl
 				event -> new RequestContext(transform.apply((F) event)));
 	}
 
-	@Override
-	protected ProbeMeasurement getProbeMeasurement(final DESEvent event) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

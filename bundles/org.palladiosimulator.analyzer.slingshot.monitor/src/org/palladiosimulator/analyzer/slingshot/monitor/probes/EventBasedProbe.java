@@ -4,7 +4,9 @@ import javax.measure.Measure;
 import javax.measure.quantity.Quantity;
 
 import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
+import org.palladiosimulator.edp2.models.ExperimentData.Measurement;
 import org.palladiosimulator.measurementframework.BasicMeasurement;
+import org.palladiosimulator.measurementframework.MeasuringValue;
 import org.palladiosimulator.metricspec.BaseMetricDescription;
 import org.palladiosimulator.metricspec.MetricDescription;
 import org.palladiosimulator.probeframework.measurement.ProbeMeasurement;
@@ -22,11 +24,8 @@ import org.palladiosimulator.probeframework.probes.Probe;
  */
 public abstract class EventBasedProbe<V, Q extends Quantity> extends Probe {
 
-	/** The explicit Event type. */
-	// private final Class<? extends DESEvent> eventType;
-
 	/** The distinguisher that is used for creating {@link RequestContext}s. */
-	private final EventDistinguisher<? super DESEvent> distinguisher;
+	private final EventDistinguisher distinguisher;
 
 	/**
 	 * Constructs an event-based probe with
@@ -48,20 +47,10 @@ public abstract class EventBasedProbe<V, Q extends Quantity> extends Probe {
 	 *                         {@link RequestContext}s.
 	 */
 	public EventBasedProbe(final MetricDescription metricDescription,
-			final EventDistinguisher<? super DESEvent> distinguisher) {
+			final EventDistinguisher distinguisher) {
 		super(metricDescription);
-		// this.eventType = eventType;
 		this.distinguisher = distinguisher;
 	}
-
-	/**
-	 * Returns the event type this probe "listens" to.
-	 * 
-	 * @return The event type.
-	 */
-//	public Class<? extends DESEvent> getEventType() {
-//		return this.eventType;
-//	}
 
 	/**
 	 * Takes a measurement of the event type. The passed event must be of the given
@@ -76,13 +65,6 @@ public abstract class EventBasedProbe<V, Q extends Quantity> extends Probe {
 	 * @see #getMeasurement(DESEvent)
 	 */
 	public void takeMeasurement(final DESEvent event) {
-//		if (!event.getClass().equals(this.eventType)) {
-//			throw new IllegalArgumentException("This probe <" + this.getClass().getName()
-//					+ "> cannot be used by the given event <" + this.eventType.getName() + ">");
-//		}
-
-		final BasicMeasurement<V, Q> resultMeasurement = new BasicMeasurement<>(
-				this.getMeasurement(event), (BaseMetricDescription) this.getMetricDesciption());
 		final ProbeMeasurement probeMeasurement = this.getProbeMeasurement(event);
 		this.notifyMeasurementSourceListener(probeMeasurement);
 	}
@@ -96,9 +78,13 @@ public abstract class EventBasedProbe<V, Q extends Quantity> extends Probe {
 	 */
 	public abstract Measure<V, Q> getMeasurement(final DESEvent event);
 
-	protected abstract ProbeMeasurement getProbeMeasurement(final DESEvent event);
+	protected ProbeMeasurement getProbeMeasurement(final DESEvent event) {
+		final BasicMeasurement<V, Q> resultMeasurement = new BasicMeasurement<>(
+				this.getMeasurement(event), (BaseMetricDescription) this.getMetricDesciption());
+		return new ProbeMeasurement(resultMeasurement, this, this.getDistinguisher().apply(event));
+	}
 
-	public EventDistinguisher<? super DESEvent> getDistinguisher() {
+	public EventDistinguisher getDistinguisher() {
 		return this.distinguisher;
 	}
 }

@@ -12,6 +12,7 @@ import org.palladiosimulator.measurementframework.measureprovider.IMeasureProvid
 import org.palladiosimulator.measurementframework.measureprovider.MeasurementListMeasureProvider;
 import org.palladiosimulator.metricspec.MetricDescription;
 import org.palladiosimulator.probeframework.measurement.ProbeMeasurement;
+import org.palladiosimulator.probeframework.measurement.RequestContext;
 
 public class EventBasedProbeList<V, Q extends Quantity> extends EventBasedProbe<V, Q> {
 
@@ -22,7 +23,7 @@ public class EventBasedProbeList<V, Q extends Quantity> extends EventBasedProbe<
 	}
 
 	public EventBasedProbeList(final MetricDescription metricDescription,
-			final EventDistinguisher<? super DESEvent> distinguisher,
+			final EventDistinguisher distinguisher,
 			final List<EventBasedProbe<?, ?>> probes) {
 		super(metricDescription, distinguisher);
 		this.probes = probes;
@@ -48,6 +49,6 @@ public class EventBasedProbeList<V, Q extends Quantity> extends EventBasedProbe<
 		}
 
 		final IMeasureProvider measureProvider = new MeasurementListMeasureProvider(measuringValue);
-		return new ProbeMeasurement(measureProvider, this, this.getDistinguisher().apply(event));
+		return new ProbeMeasurement(measureProvider, this, (RequestContext) this.getDistinguisher().apply(event));
 	}
 }

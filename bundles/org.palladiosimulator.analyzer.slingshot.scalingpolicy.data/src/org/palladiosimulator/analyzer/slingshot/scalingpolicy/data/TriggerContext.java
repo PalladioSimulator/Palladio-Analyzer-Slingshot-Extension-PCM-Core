@@ -1,8 +1,11 @@
 package org.palladiosimulator.analyzer.slingshot.scalingpolicy.data;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import org.eclipse.emf.ecore.EObject;
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.result.AdjustmentResult;
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.result.AdjustmentResultReason;
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.result.ConstraintResult;
@@ -17,8 +20,13 @@ public final class TriggerContext {
 	private final ScalingTrigger scalingTrigger;
 	private final AdjustmentType adjustmentType;
 	private final AdjustmentExecutor executor;
+	private final EObject affectedObject;
 
 	private final List<PolicyConstraintPredicate> constraints;
+	
+	private Map<String, Object> parameters;
+	
+	private final List<AdjustmentResult> results = new LinkedList<>();
 
 	private TriggerContext(final Builder builder) {
 		this.targetGroup = builder.targetGroup;
@@ -26,6 +34,7 @@ public final class TriggerContext {
 		this.adjustmentType = builder.adjustmentType;
 		this.executor = builder.executor;
 		this.constraints = builder.predicates;
+		this.affectedObject = builder.affectedObject;
 	}
 
 	/**
@@ -36,22 +45,28 @@ public final class TriggerContext {
 	 * 
 	 * @return
 	 */
-	public AdjustmentResult executeTrigger() {
+	public AdjustmentResult executeTrigger(final Map<String, Object> parameters) {
+		this.setParameters(parameters);
 		for (final PolicyConstraintPredicate predicate : this.constraints) {
 			final ConstraintResult result = predicate.apply(this);
 			if (!result.isSuccess()) {
-				return AdjustmentResult.builder()
+				return this.recordResult(AdjustmentResult.builder()
 						.addConstraint(result)
 						.success(AdjustmentResultReason.UNFULFILLED_CONSTRAINT)
-						.build();
+						.build());
 			}
 		}
-
+		
 		if (this.executor != null && this.targetGroup != null) {
-			return this.executor.onTrigger(this);
+			return this.recordResult(this.executor.onTrigger(this));
 		} else {
 			throw new IllegalStateException("Either the executor or the target group is not given.");
 		}
+	}
+	
+	
+	public AdjustmentResult executeTrigger() {
+		return this.executeTrigger(Collections.emptyMap());
 	}
 
 	/**
@@ -74,6 +89,18 @@ public final class TriggerContext {
 	public final AdjustmentType getAdjustmentType() {
 		return this.adjustmentType;
 	}
+	
+	public EObject getAffectedObject() {
+		return this.affectedObject;
+	}
+	
+	public void setParameters(final Map<String, Object> parameters) {
+		this.parameters = parameters;
+	}
+	
+	public Map<String, Object> getParameters() {
+		return Collections.unmodifiableMap(this.parameters);
+	}
 
 	/**
 	 * Returns the specified executor of this trigger context. DO NOT use this to
@@ -84,6 +111,12 @@ public final class TriggerContext {
 	 */
 	public final AdjustmentExecutor getAdjustmentExecutor() {
 		return this.executor;
+	}
+	
+	private AdjustmentResult recordResult(final AdjustmentResult result) {
+		assert result != null;
+		this.results.add(result);
+		return result;
 	}
 
 	public static Builder builder() {
@@ -96,7 +129,8 @@ public final class TriggerContext {
 		private AdjustmentType adjustmentType;
 		private AdjustmentExecutor executor;
 		private final List<PolicyConstraintPredicate> predicates = new LinkedList<>();
-
+		private EObject affectedObject;
+		
 		private Builder() {
 		}
 
@@ -127,6 +161,11 @@ public final class TriggerContext {
 
 		public Builder withConstraint(final PolicyConstraintPredicate predicate) {
 			this.predicates.add(predicate);
+			return this;
+		}
+		
+		public Builder withAffectedObject(final EObject affectedObject) {
+			this.affectedObject = affectedObject;
 			return this;
 		}
 

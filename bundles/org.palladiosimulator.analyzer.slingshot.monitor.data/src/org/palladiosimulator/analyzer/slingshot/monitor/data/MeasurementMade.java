@@ -9,9 +9,9 @@ import org.palladiosimulator.measurementframework.MeasuringValue;
  * 
  * @author Julijan Katic
  */
-public final class MeasurementMade extends AbstractEntityChangedEvent<MeasuringValue> {
+public final class MeasurementMade extends AbstractEntityChangedEvent<SlingshotMeasuringValue> {
 
-	public MeasurementMade(final MeasuringValue entity) {
+	public MeasurementMade(final SlingshotMeasuringValue entity) {
 		super(entity, 0);
 	}
 

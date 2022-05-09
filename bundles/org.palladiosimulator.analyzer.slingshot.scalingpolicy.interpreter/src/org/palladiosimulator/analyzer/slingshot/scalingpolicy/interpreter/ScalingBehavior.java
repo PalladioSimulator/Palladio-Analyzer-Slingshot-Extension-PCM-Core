@@ -9,6 +9,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.palladiosimulator.analyzer.slingshot.common.utils.ResourceUtils;
 import org.palladiosimulator.analyzer.slingshot.monitor.data.MeasurementMade;
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.AbstractTriggerEvent;
+import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.TriggerContext;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.entities.SimulationInformation;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.ConfigurationStarted;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationFinished;
@@ -33,6 +34,7 @@ public class ScalingBehavior implements SimulationBehaviorExtension {
 
 	private final SPD spd;
 	private final SimulationInformation simulationInformation;
+	private final MonitorTriggerMapper monitorTriggerMapper = new MonitorTriggerMapper();
 
 	@Inject
 	public ScalingBehavior(final SPD spd, final SimulationInformation simulationInformation) {
@@ -42,7 +44,7 @@ public class ScalingBehavior implements SimulationBehaviorExtension {
 
 	@Subscribe
 	public ResultEvent<?> onSimulationStarted(final ConfigurationStarted configurationStarted) {
-		final var interpreter = new ScalingPolicyDefinitionInterpreter(this.simulationInformation);
+		final var interpreter = new ScalingPolicyDefinitionInterpreterLegacy(this.simulationInformation);
 		return ResultEvent.of(interpreter.doSwitch(this.spd));
 	}
 
@@ -56,9 +58,9 @@ public class ScalingBehavior implements SimulationBehaviorExtension {
 	}
 
 	public ResultEvent<?> onMeasurementMade(final MeasurementMade measurementMade) {
-		// TODO: Connect to Scaling Policy:
-		// Currently, some of the information in the MeasurementMade event is missing
-		// that is needed for SPD.
+		final TriggerContext context = this.monitorTriggerMapper.get(measurementMade.getEntity().getMetricDesciption().getId());
+		// TODO: Check if context is null
+		context.executeTrigger();
 		return ResultEvent.empty();
 	}
 

@@ -1,105 +1,66 @@
 package org.palladiosimulator.analyzer.slingshot.scalingpolicy.interpreter;
 
-import java.util.Set;
+import javax.measure.Measure;
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Duration;
+import javax.measure.quantity.Quantity;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 
-import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.AbstractTriggerEvent;
-import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.AdjustmentExecutor;
+import org.palladiosimulator.analyzer.slingshot.monitor.data.SlingshotMeasuringValue;
+import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.MeasuringPointTriggerContextMapper;
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.PointInTimeTriggered;
+import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.ScalingTriggerPredicate;
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.TriggerContext;
-import org.palladiosimulator.analyzer.slingshot.simulation.core.entities.SimulationInformation;
+import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationEngine;
+import org.palladiosimulator.metricspec.MetricDescription;
+import org.palladiosimulator.metricspec.constants.MetricDescriptionConstants;
 
-import spd.ScalingPolicy;
 import spd.scalingtrigger.CPUUtilizationTrigger;
-import spd.scalingtrigger.HDDUtilizationTrigger;
-import spd.scalingtrigger.IdleTimeTrigger;
-import spd.scalingtrigger.NetworkUtilizationTrigger;
 import spd.scalingtrigger.PointInTimeTrigger;
-import spd.scalingtrigger.ProcessingResourceUtilizationBasedTrigger;
-import spd.scalingtrigger.RAMUtilizationTrigger;
-import spd.scalingtrigger.ResourceUtilizationBasedTrigger;
-import spd.scalingtrigger.ResponseTimeTrigger;
-import spd.scalingtrigger.TaskCountTrigger;
+import spd.scalingtrigger.THRESHOLDDIRECTION;
 import spd.scalingtrigger.util.ScalingtriggerSwitch;
-import spd.targetgroup.TargetGroup;
 
-public class ScalingTriggerInterpreter extends ScalingtriggerSwitch<Set<AbstractTriggerEvent>> {
+public class ScalingTriggerInterpreter extends ScalingtriggerSwitch<ScalingTriggerPredicate> {
 
-	private final ScalingPolicy parent;
-	private final SimulationInformation information;
-
-	private final AdjustmentTypeInterpreter adjustmentTypeInterpreter;
-
-	public ScalingTriggerInterpreter(final ScalingPolicy parent, final SimulationInformation information) {
-		this.parent = parent;
-		this.information = information;
-
-		this.adjustmentTypeInterpreter = new AdjustmentTypeInterpreter(information);
+	private final SimulationEngine engine;
+	private final TriggerContext context;
+	
+	public ScalingTriggerInterpreter(SimulationEngine engine, TriggerContext context) {
+		this.engine = engine;
+		this.context = context;
 	}
 
 	@Override
-	public Set<AbstractTriggerEvent> casePointInTimeTrigger(final PointInTimeTrigger object) {
-		final AdjustmentExecutor executor = this.adjustmentTypeInterpreter.doSwitch(this.parent.getAdjustmenttype());
-		final TriggerContext context = TriggerContext.builder()
-				.withAdjustmentExecutor(executor)
-				.withTargetGroup((TargetGroup) this.parent.getTargetgroup())
-				.build();
-
-		return Set.of(new PointInTimeTriggered(context, object.getPointInTime()));
+	public ScalingTriggerPredicate casePointInTimeTrigger(PointInTimeTrigger object) {
+		engine.scheduleEvent(new PointInTimeTriggered(context, object.getPointInTime()));
+		return ScalingTriggerPredicate.ALWAYS;
 	}
 
 	@Override
-	public Set<AbstractTriggerEvent> caseCPUUtilizationTrigger(final CPUUtilizationTrigger object) {
-		// TODO Auto-generated method stub
-		return super.caseCPUUtilizationTrigger(object);
+	public ScalingTriggerPredicate caseCPUUtilizationTrigger(CPUUtilizationTrigger object) {
+		final double threshold = object.getThreshold();
+		final double violationWindow = object.getViolationWindow();
+		final THRESHOLDDIRECTION thresholdDirection = object.getThresholdDirection();
+		
+		return MeasuringPointTriggerContextMapper.instance().wrap(context, measurementMade -> {
+			final SlingshotMeasuringValue value = measurementMade.getEntity();
+			final MetricDescription metricDescription = value.getMetricDesciption();
+			
+			if (value.isCompatibleWith(MetricDescriptionConstants.RESOURCE_DEMAND_METRIC_TUPLE)) {
+				// i.e. metricDescription == RESOURCE_DEMAND_METRIC_TUPLE
+				Measure<Double,Dimensionless> measurementValue = value.getMeasureForMetric(metricDescription);
+				final double actualValue = measurementValue.doubleValue(Unit.ONE);
+				
+				// Either it should exceed or undercut, as specified in the thresholdDirection.
+				return (thresholdDirection == THRESHOLDDIRECTION.EXCEDEED && actualValue > threshold + violationWindow) ||
+					(thresholdDirection == THRESHOLDDIRECTION.UNDERCUT && actualValue < threshold - violationWindow);	
+			}
+			
+			return false; // default: Do not trigger.
+		});
 	}
-
-	@Override
-	public Set<AbstractTriggerEvent> caseRAMUtilizationTrigger(final RAMUtilizationTrigger object) {
-		// TODO Auto-generated method stub
-		return super.caseRAMUtilizationTrigger(object);
-	}
-
-	@Override
-	public Set<AbstractTriggerEvent> caseHDDUtilizationTrigger(final HDDUtilizationTrigger object) {
-		// TODO Auto-generated method stub
-		return super.caseHDDUtilizationTrigger(object);
-	}
-
-	@Override
-	public Set<AbstractTriggerEvent> caseIdleTimeTrigger(final IdleTimeTrigger object) {
-		// TODO Auto-generated method stub
-		return super.caseIdleTimeTrigger(object);
-	}
-
-	@Override
-	public Set<AbstractTriggerEvent> caseTaskCountTrigger(final TaskCountTrigger object) {
-		// TODO Auto-generated method stub
-		return super.caseTaskCountTrigger(object);
-	}
-
-	@Override
-	public Set<AbstractTriggerEvent> caseNetworkUtilizationTrigger(final NetworkUtilizationTrigger object) {
-		// TODO Auto-generated method stub
-		return super.caseNetworkUtilizationTrigger(object);
-	}
-
-	@Override
-	public Set<AbstractTriggerEvent> caseResponseTimeTrigger(final ResponseTimeTrigger object) {
-		// TODO Auto-generated method stub
-		return super.caseResponseTimeTrigger(object);
-	}
-
-	@Override
-	public Set<AbstractTriggerEvent> caseResourceUtilizationBasedTrigger(final ResourceUtilizationBasedTrigger object) {
-		// TODO Auto-generated method stub
-		return super.caseResourceUtilizationBasedTrigger(object);
-	}
-
-	@Override
-	public Set<AbstractTriggerEvent> caseProcessingResourceUtilizationBasedTrigger(
-			final ProcessingResourceUtilizationBasedTrigger object) {
-		// TODO Auto-generated method stub
-		return super.caseProcessingResourceUtilizationBasedTrigger(object);
-	}
-
+	
+	
+	
 }

@@ -2,7 +2,9 @@ package org.palladiosimulator.analyzer.slingshot.monitor;
 
 import org.palladiosimulator.analyzer.slingshot.monitor.data.MeasurementMade;
 import org.palladiosimulator.analyzer.slingshot.monitor.data.ProcessingTypeListener;
+import org.palladiosimulator.analyzer.slingshot.monitor.data.SlingshotMeasuringValue;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationScheduling;
+import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.measurementframework.MeasuringValue;
 import org.palladiosimulator.measurementframework.listener.IMeasurementSourceListener;
 import org.palladiosimulator.monitorrepository.ProcessingType;
@@ -64,9 +66,14 @@ public final class ProcessingTypeMeasurementSourceListener implements IMeasureme
 	 */
 	@Override
 	public void newMeasurementAvailable(final MeasuringValue newMeasurement) {
-		this.delegate.onMeasurementMade(new MeasurementMade(newMeasurement))
-				.getEventsForScheduling()
-				.forEach(this.scheduling::scheduleForSimulation);
+		if (!(newMeasurement instanceof SlingshotMeasuringValue)) {
+			throw new IllegalArgumentException("MeasuringValue must carry a measuring point!");
+		}
+		
+		final SlingshotMeasuringValue measuringValue = (SlingshotMeasuringValue) newMeasurement;
+		this.delegate.onMeasurementMade(new MeasurementMade(measuringValue))
+			.getEventsForScheduling()
+			.forEach(event -> this.scheduling.scheduleForSimulation((DESEvent) event));
 	}
 
 	/**

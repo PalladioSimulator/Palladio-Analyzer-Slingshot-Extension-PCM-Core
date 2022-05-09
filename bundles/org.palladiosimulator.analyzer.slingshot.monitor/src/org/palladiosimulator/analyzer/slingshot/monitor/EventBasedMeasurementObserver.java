@@ -3,6 +3,7 @@ package org.palladiosimulator.analyzer.slingshot.monitor;
 import javax.inject.Inject;
 
 import org.palladiosimulator.analyzer.slingshot.monitor.data.MeasurementMade;
+import org.palladiosimulator.analyzer.slingshot.monitor.data.SlingshotMeasuringValue;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationScheduling;
 import org.palladiosimulator.measurementframework.MeasuringValue;
 import org.palladiosimulator.measurementframework.listener.IMeasurementSourceListener;
@@ -27,8 +28,11 @@ public class EventBasedMeasurementObserver implements IMeasurementSourceListener
 	}
 
 	@Override
-	public void newMeasurementAvailable(final MeasuringValue arg0) {
-		this.simulationScheduling.scheduleForSimulation(new MeasurementMade(arg0));
+	public void newMeasurementAvailable(final MeasuringValue measuringValue) {
+		if (!(measuringValue instanceof SlingshotMeasuringValue)) {
+			throw new IllegalArgumentException("The measuring value must carry a measuring point in order for it to work.");
+		}
+		this.simulationScheduling.scheduleForSimulation(new MeasurementMade((SlingshotMeasuringValue) measuringValue));
 	}
 
 	@Override

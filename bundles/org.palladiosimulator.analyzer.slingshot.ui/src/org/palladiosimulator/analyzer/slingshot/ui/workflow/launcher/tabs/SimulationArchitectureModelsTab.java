@@ -78,7 +78,7 @@ public class SimulationArchitectureModelsTab extends AbstractLaunchConfiguration
 		// this.configurers = register.getAllProviders();
 		this.configurers = List.of(new AllocationModelField(), new UsageModelField(),
 				new MonitorRepositoryModelField(), new ScalingPolicyDefinitionModelField());
-
+		//this.configurers = List.of(new AllocationModelField(), new UsageModelField());
 	}
 
 	@Override

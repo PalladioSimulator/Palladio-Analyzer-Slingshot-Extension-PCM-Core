@@ -8,6 +8,7 @@ import javax.measure.quantity.Quantity;
 import org.palladiosimulator.analyzer.slingshot.monitor.data.MeasurementMade;
 import org.palladiosimulator.analyzer.slingshot.monitor.data.MeasurementUpdated;
 import org.palladiosimulator.analyzer.slingshot.monitor.data.ProcessingTypeListener;
+import org.palladiosimulator.analyzer.slingshot.monitor.data.SlingshotMeasuringValue;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationScheduling;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
 import org.palladiosimulator.edp2.models.measuringpoint.MeasuringPoint;
@@ -37,8 +38,10 @@ public final class SlidingWindowRuntimeMeasurementsRecorder extends ProcessingTy
 	public void newMeasurementAvailable(final MeasuringValue newMeasurement) {
 		final Measure<Double, Quantity> measure = newMeasurement.getMeasureForMetric(this.dataMetric);
 		measure.doubleValue(this.dataMetric.getDefaultUnit());
+		
+		final SlingshotMeasuringValue newMeasuringValue = new SlingshotMeasuringValue(newMeasurement, this.getMeasuringPoint());
 
-		this.scheduling.scheduleForSimulation(new MeasurementMade(newMeasurement));
+		this.scheduling.scheduleForSimulation(new MeasurementMade(newMeasuringValue));
 	}
 
 	@Override

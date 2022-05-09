@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import org.palladiosimulator.analyzer.slingshot.monitor.ProcessingTypeMeasurementSourceListener;
 import org.palladiosimulator.analyzer.slingshot.monitor.data.CalculatorRegistered;
 import org.palladiosimulator.analyzer.slingshot.monitor.data.ProcessingTypeRevealed;
+import org.palladiosimulator.analyzer.slingshot.monitor.util.SlingshotCalculatorWrapper;
 import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationScheduling;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.OnEvent;
@@ -89,15 +90,16 @@ public class DeferredCalculatorMeasurementInitializationBehavior implements Simu
 		final Optional<Calculator> baseCalculator = this.getBaseCalculator(
 				processingTypeRevealed.getMetricDescription(), processingTypeRevealed.getMeasuringPoint());
 		if (baseCalculator.isPresent()) {
-			baseCalculator.get().addObserver(
+			baseCalculator.get().addObserver(SlingshotCalculatorWrapper.wrap(baseCalculator.get(),
 					new ProcessingTypeMeasurementSourceListener(this.scheduling,
-							processingTypeRevealed.getMeasurementSourceListener()));
+							processingTypeRevealed.getMeasurementSourceListener())));
 		} else {
 			this.sourceListener.computeIfAbsent(processingTypeRevealed.getMeasuringPoint().getStringRepresentation(),
 					s -> new HashMap<>())
 					.computeIfAbsent(processingTypeRevealed.getMetricDescription(), d -> new HashSet<>())
-					.add(() -> new ProcessingTypeMeasurementSourceListener(this.scheduling,
-							processingTypeRevealed.getMeasurementSourceListener()));
+					.add(() -> SlingshotCalculatorWrapper.wrap(processingTypeRevealed.getMeasuringPoint(), 
+							new ProcessingTypeMeasurementSourceListener(this.scheduling,
+									processingTypeRevealed.getMeasurementSourceListener())));
 		}
 
 		return ResultEvent.empty();

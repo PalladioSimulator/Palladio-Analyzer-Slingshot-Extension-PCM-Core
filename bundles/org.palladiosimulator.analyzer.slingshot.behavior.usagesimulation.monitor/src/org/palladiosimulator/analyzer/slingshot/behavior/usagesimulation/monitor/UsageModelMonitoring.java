@@ -111,11 +111,11 @@ public class UsageModelMonitoring implements SimulationBehaviorExtension {
 
 	private static final class UserProbes {
 		private final EventCurrentSimulationTimeProbe userStartedProbe = new EventCurrentSimulationTimeProbe(
-				this::passedElement);
+				UserProbes::passedElement);
 		private final EventCurrentSimulationTimeProbe userFinishedProbe = new EventCurrentSimulationTimeProbe(
-				this::passedElement);
+				UserProbes::passedElement);
 
-		private RequestContext passedElement(final DESEvent desEvent) {
+		private static RequestContext passedElement(final DESEvent desEvent) {
 			if (desEvent instanceof UsageModelPassedElement<?>) {
 				final UsageModelPassedElement<?> el = (UsageModelPassedElement<?>) desEvent;
 				return new RequestContext(el.getContext().getUser().getId());

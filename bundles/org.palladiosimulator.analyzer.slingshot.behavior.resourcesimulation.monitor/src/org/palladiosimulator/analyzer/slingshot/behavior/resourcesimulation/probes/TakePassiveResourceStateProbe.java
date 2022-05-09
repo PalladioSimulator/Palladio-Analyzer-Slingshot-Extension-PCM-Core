@@ -17,7 +17,7 @@ public class TakePassiveResourceStateProbe extends EventBasedProbe<Long, Dimensi
 
 	public TakePassiveResourceStateProbe(
 			final IPassiveResource passiveResource,
-			final EventDistinguisher<? super DESEvent> distinguisher) {
+			final EventDistinguisher distinguisher) {
 		super(MetricDescriptionConstants.STATE_OF_PASSIVE_RESOURCE_METRIC, distinguisher);
 		this.passiveResource = passiveResource;
 	}
@@ -31,12 +31,6 @@ public class TakePassiveResourceStateProbe extends EventBasedProbe<Long, Dimensi
 	@Override
 	public Measure<Long, Dimensionless> getMeasurement(final DESEvent event) {
 		return Measure.valueOf(this.passiveResource.getCurrentlyAvailable(), Dimensionless.UNIT);
-	}
-
-	@Override
-	protected ProbeMeasurement getProbeMeasurement(final DESEvent event) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

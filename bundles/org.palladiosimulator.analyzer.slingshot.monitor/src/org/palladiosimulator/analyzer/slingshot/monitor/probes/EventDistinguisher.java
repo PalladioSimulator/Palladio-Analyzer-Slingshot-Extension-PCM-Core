@@ -14,7 +14,7 @@ import org.palladiosimulator.probeframework.measurement.RequestContext;
  * @param <E>
  */
 @FunctionalInterface
-public interface EventDistinguisher<E extends DESEvent> extends Function<E, RequestContext> {
+public interface EventDistinguisher extends Function<DESEvent, RequestContext> {
 
 	@SuppressWarnings("rawtypes")
 	public static final EventDistinguisher DEFAULT_DISTINGUISHER = event -> RequestContext.EMPTY_REQUEST_CONTEXT;

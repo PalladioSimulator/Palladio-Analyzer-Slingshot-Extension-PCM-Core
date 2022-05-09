@@ -11,7 +11,7 @@ import com.google.common.collect.ImmutableList;
 import spd.policyconstraint.PolicyConstraint;
 
 public final class ConstraintResult {
-
+	
 	private final PolicyConstraint constraint;
 
 	private final boolean success;
@@ -47,6 +47,10 @@ public final class ConstraintResult {
 
 	public static Builder builder() {
 		return new Builder();
+	}
+	
+	public static Builder builder(final PolicyConstraint constraint) {
+		return builder().withConstraint(constraint);
 	}
 
 	public static final class Builder {

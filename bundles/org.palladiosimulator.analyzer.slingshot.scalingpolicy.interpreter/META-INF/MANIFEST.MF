@@ -12,5 +12,6 @@ Require-Bundle: ScalingMetaModel;bundle-version="1.0.0",
  org.apache.log4j;bundle-version="1.2.15",
  org.palladiosimulator.analyzer.slingshot.common.utils;bundle-version="1.0.0",
  org.palladiosimulator.analyzer.slingshot.common.serialization,
- org.palladiosimulator.analyzer.slingshot.monitor.data
+ org.palladiosimulator.analyzer.slingshot.monitor.data,
+ org.palladiosimulator.monitorrepository
 Export-Package: org.palladiosimulator.analyzer.slingshot.scalingpolicy.interpreter

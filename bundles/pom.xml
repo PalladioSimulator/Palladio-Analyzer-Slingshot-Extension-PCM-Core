@@ -45,6 +45,10 @@
         <module>org.palladiosimulator.analyzer.slingshot.driver</module>
         <module>org.palladiosimulator.analyzer.slingshot.engine</module>
         <module>org.palladiosimulator.analyzer.slingshot.event</module>
+        
+        <!-- The following modules are here defined since SPD is not in a public P2 yet
+        	 When SPD is public, remove them and define it in the target platform instead. -->
+        <module>spd-meta-model-3</module>	 
 	</modules>
 	<dependencies>
 		<dependency>

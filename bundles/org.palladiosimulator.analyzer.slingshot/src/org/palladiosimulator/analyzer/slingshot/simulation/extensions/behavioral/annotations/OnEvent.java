@@ -48,7 +48,7 @@ public @interface OnEvent {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Documented
 	@Target(TYPE)
-	@interface OnEvents {
+	public @interface OnEvents {
 		OnEvent[] value();
 	}
 
