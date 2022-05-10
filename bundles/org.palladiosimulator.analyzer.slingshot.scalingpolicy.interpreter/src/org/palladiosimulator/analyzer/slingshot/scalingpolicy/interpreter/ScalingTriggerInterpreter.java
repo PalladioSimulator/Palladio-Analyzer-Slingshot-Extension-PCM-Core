@@ -2,9 +2,6 @@ package org.palladiosimulator.analyzer.slingshot.scalingpolicy.interpreter;
 
 import javax.measure.Measure;
 import javax.measure.quantity.Dimensionless;
-import javax.measure.quantity.Duration;
-import javax.measure.quantity.Quantity;
-import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 
 import org.palladiosimulator.analyzer.slingshot.monitor.data.SlingshotMeasuringValue;
@@ -25,42 +22,43 @@ public class ScalingTriggerInterpreter extends ScalingtriggerSwitch<ScalingTrigg
 
 	private final SimulationEngine engine;
 	private final TriggerContext context;
-	
-	public ScalingTriggerInterpreter(SimulationEngine engine, TriggerContext context) {
+
+	public ScalingTriggerInterpreter(final SimulationEngine engine,
+			final TriggerContext context) {
 		this.engine = engine;
 		this.context = context;
 	}
 
 	@Override
-	public ScalingTriggerPredicate casePointInTimeTrigger(PointInTimeTrigger object) {
-		engine.scheduleEvent(new PointInTimeTriggered(context, object.getPointInTime()));
+	public ScalingTriggerPredicate casePointInTimeTrigger(final PointInTimeTrigger object) {
+		this.engine.scheduleEvent(new PointInTimeTriggered(this.context, object.getPointInTime()));
 		return ScalingTriggerPredicate.ALWAYS;
 	}
 
 	@Override
-	public ScalingTriggerPredicate caseCPUUtilizationTrigger(CPUUtilizationTrigger object) {
+	public ScalingTriggerPredicate caseCPUUtilizationTrigger(final CPUUtilizationTrigger object) {
 		final double threshold = object.getThreshold();
 		final double violationWindow = object.getViolationWindow();
 		final THRESHOLDDIRECTION thresholdDirection = object.getThresholdDirection();
-		
-		return MeasuringPointTriggerContextMapper.instance().wrap(context, measurementMade -> {
+
+		return MeasuringPointTriggerContextMapper.instance().wrap(this.context, measurementMade -> {
 			final SlingshotMeasuringValue value = measurementMade.getEntity();
 			final MetricDescription metricDescription = value.getMetricDesciption();
-			
+
 			if (value.isCompatibleWith(MetricDescriptionConstants.RESOURCE_DEMAND_METRIC_TUPLE)) {
 				// i.e. metricDescription == RESOURCE_DEMAND_METRIC_TUPLE
-				Measure<Double,Dimensionless> measurementValue = value.getMeasureForMetric(metricDescription);
+				final Measure<Double, Dimensionless> measurementValue = value.getMeasureForMetric(metricDescription);
 				final double actualValue = measurementValue.doubleValue(Unit.ONE);
-				
+
 				// Either it should exceed or undercut, as specified in the thresholdDirection.
-				return (thresholdDirection == THRESHOLDDIRECTION.EXCEDEED && actualValue > threshold + violationWindow) ||
-					(thresholdDirection == THRESHOLDDIRECTION.UNDERCUT && actualValue < threshold - violationWindow);	
+				return (thresholdDirection == THRESHOLDDIRECTION.EXCEDEED && actualValue > threshold + violationWindow)
+						||
+						(thresholdDirection == THRESHOLDDIRECTION.UNDERCUT
+								&& actualValue < threshold - violationWindow);
 			}
-			
+
 			return false; // default: Do not trigger.
 		});
 	}
-	
-	
-	
+
 }

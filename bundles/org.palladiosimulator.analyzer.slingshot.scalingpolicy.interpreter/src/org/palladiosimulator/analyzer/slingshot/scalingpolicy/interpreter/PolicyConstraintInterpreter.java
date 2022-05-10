@@ -12,8 +12,18 @@ import spd.policyconstraint.ThrashingConstraint;
 import spd.policyconstraint.util.PolicyconstraintSwitch;
 
 public class PolicyConstraintInterpreter extends PolicyconstraintSwitch<PolicyConstraintPredicate> {
-	
+
 	private SimulationInformation information;
+
+	private final boolean modifyIfPossible;
+
+	public PolicyConstraintInterpreter(final boolean modifyIfPossible) {
+		this.modifyIfPossible = modifyIfPossible;
+	}
+
+	public PolicyConstraintInterpreter() {
+		this(true);
+	}
 
 	@Override
 	public PolicyConstraintPredicate caseTargetGroupSizeConstraint(final TargetGroupSizeConstraint object) {
@@ -36,36 +46,29 @@ public class PolicyConstraintInterpreter extends PolicyconstraintSwitch<PolicyCo
 	}
 
 	@Override
-	public PolicyConstraintPredicate caseIntervallConstraint(IntervallConstraint object) {
+	public PolicyConstraintPredicate caseIntervallConstraint(final IntervallConstraint object) {
 		final int duration = object.getIntervallDuration();
 		final int offset = object.getOffset();
-		
+
 		return triggerContext -> ConstraintResult.builder(object)
-					.withReason("Simulation time out of intervall.", () -> information.currentSimulationTime() < offset + duration)
-					.build();
-	
+				.withReason("Simulation time out of intervall.",
+						() -> this.information.currentSimulationTime() < offset + duration)
+				.build();
+
 	}
 
 	@Override
-	public PolicyConstraintPredicate caseCooldownConstraint(CooldownConstraint object) {
+	public PolicyConstraintPredicate caseCooldownConstraint(final CooldownConstraint object) {
 		// TODO Auto-generated method stub
-		return triggerContext -> {
-			
-			return ConstraintResult.builder(object)
-					.build();
-		};
+		return triggerContext -> ConstraintResult.builder(object)
+				.build();
 	}
 
 	@Override
-	public PolicyConstraintPredicate caseThrashingConstraint(ThrashingConstraint object) {
+	public PolicyConstraintPredicate caseThrashingConstraint(final ThrashingConstraint object) {
 		// TODO Auto-generated method stub
-		return triggerContext -> {
-			
-			return ConstraintResult.builder(object)
-					.build();
-		};
+		return triggerContext -> ConstraintResult.builder(object)
+				.build();
 	}
-	
-	
 
 }

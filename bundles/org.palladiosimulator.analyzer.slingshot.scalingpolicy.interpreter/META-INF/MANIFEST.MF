@@ -13,5 +13,7 @@ Require-Bundle: ScalingMetaModel;bundle-version="1.0.0",
  org.palladiosimulator.analyzer.slingshot.common.utils;bundle-version="1.0.0",
  org.palladiosimulator.analyzer.slingshot.common.serialization,
  org.palladiosimulator.analyzer.slingshot.monitor.data,
- org.palladiosimulator.monitorrepository
+ org.palladiosimulator.monitorrepository,
+ org.palladiosimulator.commons,
+ org.palladiosimulator.pcm.edp2.measuringpoint
 Export-Package: org.palladiosimulator.analyzer.slingshot.scalingpolicy.interpreter
