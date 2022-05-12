@@ -18,6 +18,7 @@ import org.palladiosimulator.monitorrepository.Monitor;
 import org.palladiosimulator.monitorrepository.MonitorRepository;
 import org.palladiosimulator.monitorrepository.MonitorRepositoryFactory;
 import org.palladiosimulator.pcm.allocation.Allocation;
+import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.resourceenvironment.LinkingResource;
 import org.palladiosimulator.pcm.resourceenvironment.ProcessingResourceSpecification;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
@@ -43,11 +44,19 @@ import spd.adjustmenttype.AdjustmentType;
  */
 public abstract class AbstractAdjustmentExecutor<E extends AdjustmentType> implements AdjustmentExecutor {
 
+	/** The actual model element */
 	private final E adjustmentType;
+
+	/** An object that contains the current simulation information. */
 	private final SimulationInformation simulationInformation;
+
+	/** The builder for the adjustment result. */
 	private AdjustmentResult.Builder adjustmentResultBuilder;
 
+	/** The allocation model since it'll be manipulated as well. */
 	private final Allocation allocation;
+
+	/** The monitor repository model since it'll be manipulated as well. */
 	private final MonitorRepository monitorRepository;
 
 	@Deprecated
@@ -55,6 +64,21 @@ public abstract class AbstractAdjustmentExecutor<E extends AdjustmentType> imple
 		this(adjustmentType, simulationInformation, null, null);
 	}
 
+	/**
+	 * Constructs an adjustment executor.
+	 * 
+	 * The simulation information is needed for tracability, i.e. constructing
+	 * {@link AdjustmentResult}. The allocation model is needed since new assembly
+	 * contexts need to be created for each (new) resource containers. The monitor
+	 * repository is needed to add new Monitors and MeasuringPoints to new copies,
+	 * if the original were monitored.
+	 * 
+	 * @param adjustmentType        The model element for this executor.
+	 * @param simulationInformation The current state of the simulation.
+	 * @param allocation            The allocation model for adding new contexts.
+	 * @param monitorRepository     The monitor model for adding new measuring
+	 *                              points and corresponding monitors.
+	 */
 	AbstractAdjustmentExecutor(final E adjustmentType, final SimulationInformation simulationInformation,
 			final Allocation allocation, final MonitorRepository monitorRepository) {
 		this.adjustmentType = Objects.requireNonNull(adjustmentType);
@@ -63,10 +87,28 @@ public abstract class AbstractAdjustmentExecutor<E extends AdjustmentType> imple
 		this.monitorRepository = monitorRepository;
 	}
 
+	/**
+	 * Returns the actual model element in SPD for the adjustment type.
+	 * 
+	 * @return The non-{@code null} model element.
+	 */
 	protected E getAdjustmentType() {
 		return this.adjustmentType;
 	}
 
+	/**
+	 * Copies all resource containers of one environment {@code times} times into
+	 * the {@code destination}. This also includes copying of the
+	 * {@link AssemblyContext}s and {@link MeasuringPoint}s that are inside the
+	 * resource containers.
+	 * 
+	 * Each copy is traced inside the adjustment result.
+	 * 
+	 * @param environment The model element from where to copy the containers
+	 * @param destination The destination of the copy action.
+	 * @param times       A non-negative number telling how many times the copy
+	 *                    action should be performed.
+	 */
 	protected void copyContainers(final ResourceEnvironment environment,
 			final Collection<? super ResourceContainer> destination,
 			final int times) {
@@ -74,11 +116,11 @@ public abstract class AbstractAdjustmentExecutor<E extends AdjustmentType> imple
 		final Collection<ResourceContainer> containers = environment.getResourceContainer_ResourceEnvironment();
 		for (int i = 0; i < times; i++) {
 			containers.forEach(container -> {
-				final ResourceContainer copy = EcoreUtil.copy(container); // TODO: Also copy assembly contexts
+				final ResourceContainer copy = EcoreUtil.copy(container);
 				copy.setId(EcoreUtil.generateUUID()); // Generate new ID, otherwise old ID will be copied as well
 				this.connectToLinkingResources(environment.getLinkingResources__ResourceEnvironment(), container, copy);
 				destination.add(copy);
-				this.copyAssemblyContexts(copy);
+				this.copyAllocationContexts(copy);
 				this.copyMeasuringPoints(copy);
 				this.adjustmentResultBuilder().addChange(ModelChange.builder()
 						.withModelChangeAction(ModelChangeAction.ADDITION)
@@ -119,6 +161,8 @@ public abstract class AbstractAdjustmentExecutor<E extends AdjustmentType> imple
 
 		copyMonitor.getMeasurementSpecifications().addAll(EcoreUtil.copyAll(monitor.getMeasurementSpecifications()));
 		copyMonitor.getMeasurementSpecifications().forEach(spec -> spec.setMonitor(copyMonitor));
+
+		this.adjustmentResultBuilder().addNewMonitor(copyMonitor);
 	}
 
 	protected MeasuringPoint copyActiveResourceSpec(final ProcessingResourceSpecification spec,
@@ -136,7 +180,7 @@ public abstract class AbstractAdjustmentExecutor<E extends AdjustmentType> imple
 		return copyMeasuringPoint;
 	}
 
-	protected void copyAssemblyContexts(final ResourceContainer container) {
+	protected void copyAllocationContexts(final ResourceContainer container) {
 		if (this.allocation == null) {
 			return;
 		}
@@ -148,6 +192,7 @@ public abstract class AbstractAdjustmentExecutor<E extends AdjustmentType> imple
 				.forEach(copiedContext -> {
 					copiedContext.setResourceContainer_AllocationContext(container);
 					this.allocation.getAllocationContexts_Allocation().add(copiedContext);
+					this.adjustmentResultBuilder().addNewAllocationContext(copiedContext);
 				});
 	}
 

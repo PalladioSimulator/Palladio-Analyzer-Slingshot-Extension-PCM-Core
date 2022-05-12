@@ -7,6 +7,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.TriggerContext;
+import org.palladiosimulator.monitorrepository.Monitor;
+import org.palladiosimulator.pcm.allocation.AllocationContext;
 
 /**
  * Instances of this class contains all the results and information about an
@@ -22,8 +24,11 @@ public final class AdjustmentResult {
 	private final String id;
 	private final TriggerContext context;
 	private final AdjustmentResultReason adjustmentResultReason;
+
 	private final List<ModelChange> changes;
 	private final List<ConstraintResult> constraintResults;
+	private final List<Monitor> newMonitors;
+	private final List<AllocationContext> newAllocationContexts;
 
 	private AdjustmentResult(final Builder builder) {
 		this.context = builder.context;
@@ -31,6 +36,8 @@ public final class AdjustmentResult {
 		this.changes = builder.changes;
 		this.id = UUID.randomUUID().toString();
 		this.constraintResults = builder.constraintResults;
+		this.newMonitors = builder.newMonitors;
+		this.newAllocationContexts = builder.newAllocationContexts;
 	}
 
 	private AdjustmentResult() {
@@ -39,6 +46,8 @@ public final class AdjustmentResult {
 		this.adjustmentResultReason = AdjustmentResultReason.SUCCESS;
 		this.changes = Collections.emptyList();
 		this.constraintResults = null;
+		this.newMonitors = Collections.emptyList();
+		this.newAllocationContexts = Collections.emptyList();
 	}
 
 	public TriggerContext getContext() {
@@ -86,6 +95,8 @@ public final class AdjustmentResult {
 		private AdjustmentResultReason reason = AdjustmentResultReason.SUCCESS;
 		private List<ModelChange> changes;
 		private List<ConstraintResult> constraintResults;
+		private List<Monitor> newMonitors;
+		private List<AllocationContext> newAllocationContexts;
 
 		private Builder() {
 		}
@@ -118,6 +129,22 @@ public final class AdjustmentResult {
 				this.constraintResults = new LinkedList<>();
 			}
 			this.constraintResults.add(constraintResult);
+			return this;
+		}
+
+		public Builder addNewMonitor(final Monitor monitor) {
+			if (this.newMonitors == null) {
+				this.newMonitors = new LinkedList<>();
+			}
+			this.newMonitors.add(monitor);
+			return this;
+		}
+
+		public Builder addNewAllocationContext(final AllocationContext copiedContext) {
+			if (this.newAllocationContexts == null) {
+				this.newAllocationContexts = new LinkedList<>();
+			}
+			this.newAllocationContexts.add(copiedContext);
 			return this;
 		}
 
