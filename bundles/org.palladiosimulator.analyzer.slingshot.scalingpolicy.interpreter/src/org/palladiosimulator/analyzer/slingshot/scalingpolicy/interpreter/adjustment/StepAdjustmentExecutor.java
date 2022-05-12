@@ -3,6 +3,7 @@ package org.palladiosimulator.analyzer.slingshot.scalingpolicy.interpreter.adjus
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.TriggerContext;
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.result.AdjustmentResult;
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.interpreter.TargetGroupTable;
@@ -24,6 +25,8 @@ import spd.targetgroup.TargetGroup;
  */
 public final class StepAdjustmentExecutor extends AbstractAdjustmentExecutor<StepAdjustment> {
 
+	private static final Logger LOGGER = Logger.getLogger(StepAdjustmentExecutor.class);
+	
 	public StepAdjustmentExecutor(final StepAdjustment adjustmentType,
 			final SimulationInformation simulationInformation,
 			final Allocation allocation, final MonitorRepository monitorRepository) {
@@ -43,7 +46,7 @@ public final class StepAdjustmentExecutor extends AbstractAdjustmentExecutor<Ste
 						* this.getAdjustmentType().getStepValue());
 
 		this.copyContainers(environment, newResourceContainers, this.getAdjustmentType().getStepValue());
-
+		LOGGER.info("Copied!");
 		environment.getResourceContainer_ResourceEnvironment().addAll(newResourceContainers);
 		return this.adjustmentResult();
 	}

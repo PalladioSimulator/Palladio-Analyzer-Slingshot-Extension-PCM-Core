@@ -31,7 +31,9 @@ public class ScalingTriggerInterpreter extends ScalingtriggerSwitch<ScalingTrigg
 
 	@Override
 	public ScalingTriggerPredicate casePointInTimeTrigger(final PointInTimeTrigger object) {
-		this.engine.scheduleEvent(new PointInTimeTriggered(this.context, object.getPointInTime()));
+		this.engine.scheduleEventAt(
+				new PointInTimeTriggered(this.context, object.getPointInTime()),
+				object.getPointInTime());
 		return ScalingTriggerPredicate.ALWAYS;
 	}
 

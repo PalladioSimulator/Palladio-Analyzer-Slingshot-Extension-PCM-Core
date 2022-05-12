@@ -1,5 +1,6 @@
 package org.palladiosimulator.analyzer.slingshot.scalingpolicy.interpreter;
 
+import java.util.List;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -13,6 +14,7 @@ import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.TriggerContex
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.events.AdjustmentNotMade;
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.events.ModelAdjusted;
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.result.AdjustmentResult;
+import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationEngine;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.entities.SimulationInformation;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.ConfigurationStarted;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationFinished;
@@ -20,8 +22,11 @@ import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventCardinality;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.OnEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
+import org.palladiosimulator.commons.emfutils.EMFLoadHelper;
+import org.palladiosimulator.monitorrepository.Monitor;
 import org.palladiosimulator.monitorrepository.MonitorRepository;
 import org.palladiosimulator.pcm.allocation.Allocation;
+import org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -45,24 +50,43 @@ public class ScalingBehavior implements SimulationBehaviorExtension {
 
 	private final Allocation allocation;
 	private final MonitorRepository monitorRepository;
+	
+	private final SimulationEngine engine;
 
 	@Inject
 	public ScalingBehavior(final SPD spd,
 			final SimulationInformation simulationInformation,
 			final Allocation allocation,
-			final MonitorRepository monitorRepository) {
+			final MonitorRepository monitorRepository,
+			final SimulationEngine engine) {
 		this.spd = Objects.requireNonNull(spd);
 		this.simulationInformation = simulationInformation;
 		this.allocation = allocation;
 		this.monitorRepository = monitorRepository;
+		this.engine = engine;
 	}
 
 	@Subscribe
 	public ResultEvent<?> onSimulationStarted(final ConfigurationStarted configurationStarted) {
 		final var interpreter = new ScalingPolicyDefinitionInterpreter(this.simulationInformation, this.allocation,
-				this.monitorRepository);
-		interpreter.doSwitch(this.spd);
+				this.monitorRepository, this.monitorTriggerMapper, this.engine);
+		final List<TriggerContext> contexts = interpreter.doSwitch(this.spd);
+		this.mapMonitorsToContexts(contexts);
 		return ResultEvent.empty();
+	}
+
+	private void mapMonitorsToContexts(List<TriggerContext> contexts) {
+		contexts.forEach(context -> {
+			final ResourceEnvironment environment = TargetGroupTable.instance().getEnvironment(context.getTargetGroup());
+			environment.getResourceContainer_ResourceEnvironment().forEach(container -> {
+				// TODO: Look at this more exactly
+				this.monitorRepository.getMonitors().stream()
+					.map(Monitor::getMeasuringPoint)
+					.filter(measuringPoint -> measuringPoint.getResourceURIRepresentation().equals(EMFLoadHelper.getResourceFragment(container)))
+					.findAny()
+					.ifPresent(measuringPoint -> this.monitorTriggerMapper.put(measuringPoint.getStringRepresentation(), context));
+			});
+		});
 	}
 
 	/**
@@ -78,9 +102,16 @@ public class ScalingBehavior implements SimulationBehaviorExtension {
 
 	@Subscribe
 	public ResultEvent<?> onMeasurementMade(final MeasurementMade measurementMade) {
-		final TriggerContext context = this.monitorTriggerMapper
-				.get(measurementMade.getEntity().getMetricDesciption().getId());
-		return this.adjustmentResult(context);
+		final String measuringPointId = measurementMade.getEntity().getMeasuringPoint().getStringRepresentation();
+		final TriggerContext context = this.monitorTriggerMapper.get(measuringPointId);
+		
+		if (context == null) {
+			// Something happened.
+			LOGGER.info("Context couldn't be found by measuring point: " + measuringPointId);
+			return ResultEvent.empty();
+		} else {
+			return this.adjustmentResult(context);	
+		}
 	}
 
 	/**

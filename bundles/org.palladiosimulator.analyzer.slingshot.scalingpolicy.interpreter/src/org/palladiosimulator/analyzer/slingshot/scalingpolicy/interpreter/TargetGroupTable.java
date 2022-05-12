@@ -8,6 +8,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.palladiosimulator.analyzer.slingshot.common.serialization.load.PCMFileLoader;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment;
 
+import spd.palladio.PCMResourceEnvironment;
 import spd.targetgroup.TargetGroup;
 
 /**
@@ -42,6 +43,12 @@ public final class TargetGroupTable {
 		if (this.resourceEnvironment.containsKey(group)) {
 			return this.resourceEnvironment.get(group);
 		}
+		final PCMResourceEnvironment pcmResourceEnvironment = group.getPCM_ResourceEnvironment();
+		
+		if (pcmResourceEnvironment == null) {
+			throw new NullPointerException("PCM resource environment is somehow null!! WTF");
+		}
+		
 		final String resourceEnvironmentId = group.getPCM_ResourceEnvironment().getName();
 
 		final EObject object = PCMFileLoader.load(Paths.get(resourceEnvironmentId));

@@ -74,6 +74,7 @@ public final class SimulationEngineSSJ implements SimulationEngine {
 		Preconditions.checkArgument(pointInTime >= this.getTime(),
 				"You can only specify events to be scheduled"
 						+ " at an exact point in time in the future, not in the past.");
+		LOGGER.info("The following event will be dispatched exactly at " + pointInTime + " simulation time units: " + event.getClass().getSimpleName());
 		final Event simulationEvent = new SSJEvent(event);
 		simulationEvent.setTime(pointInTime + event.getDelay());
 		this.simulator.getEventList().add(simulationEvent); // Since the exact time was given, we have to do it
