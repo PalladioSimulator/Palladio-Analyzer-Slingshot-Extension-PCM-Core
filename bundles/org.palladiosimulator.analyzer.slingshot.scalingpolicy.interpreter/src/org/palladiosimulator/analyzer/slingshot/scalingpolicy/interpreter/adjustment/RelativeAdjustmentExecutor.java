@@ -40,7 +40,7 @@ public final class RelativeAdjustmentExecutor extends AbstractAdjustmentExecutor
 
 		if (adding <= 0) {
 			LOGGER.info("No new adjustment."); // TODO: Throw an exception that nothing changed?
-			return AdjustmentResult.EMPTY_RESULT;
+			return AdjustmentResult.NO_TRIGGER;
 		}
 
 		for (int i = 0; i < adding; i++) {

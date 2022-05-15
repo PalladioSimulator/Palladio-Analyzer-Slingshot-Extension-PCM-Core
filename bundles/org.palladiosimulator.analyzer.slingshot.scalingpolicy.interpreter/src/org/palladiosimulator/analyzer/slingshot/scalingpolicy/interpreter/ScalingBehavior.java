@@ -97,7 +97,7 @@ public class ScalingBehavior implements SimulationBehaviorExtension {
 	 */
 	@Subscribe
 	public ResultEvent<?> onTrigger(final AbstractTriggerEvent trigger) {
-		return this.adjustmentResult(trigger.getContext());
+		return this.adjustmentResult(trigger.getContext(), null);
 	}
 
 	@Subscribe
@@ -110,7 +110,7 @@ public class ScalingBehavior implements SimulationBehaviorExtension {
 			LOGGER.info("Context couldn't be found by measuring point: " + measuringPointId);
 			return ResultEvent.empty();
 		} else {
-			return this.adjustmentResult(context);	
+			return this.adjustmentResult(context, measurementMade);	
 		}
 	}
 
@@ -133,8 +133,8 @@ public class ScalingBehavior implements SimulationBehaviorExtension {
 		return ResultEvent.empty();
 	}
 
-	private ResultEvent<?> adjustmentResult(final TriggerContext context) {
-		final AdjustmentResult result = context.executeTrigger();
+	private ResultEvent<?> adjustmentResult(final TriggerContext context, final MeasurementMade measurementMade) {
+		final AdjustmentResult result = context.executeTrigger(measurementMade);
 
 		if (result.isSuccess()) {
 			return ResultEvent.of(new ModelAdjusted(result));

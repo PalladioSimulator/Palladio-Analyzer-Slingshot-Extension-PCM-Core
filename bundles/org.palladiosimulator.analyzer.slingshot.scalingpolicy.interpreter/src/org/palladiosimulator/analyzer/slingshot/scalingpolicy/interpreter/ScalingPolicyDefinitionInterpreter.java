@@ -15,12 +15,13 @@ import org.palladiosimulator.pcm.allocation.Allocation;
 import spd.SPD;
 import spd.ScalingPolicy;
 import spd.adjustmenttype.AdjustmentType;
+import spd.scalingtrigger.ScalingTrigger;
 import spd.targetgroup.TargetGroup;
 import spd.util.SpdSwitch;
 
 /**
- * The scaling policy definition interpreter creates a {@link TriggerContext}
- * for each scaling policy and registers it into a MonitorTargetGroupMapper.
+ * The scaling policy definition interpreter creates a {@link TriggerContext} for 
+ * each scaling policy and registers it into a MonitorTargetGroupMapper.
  * 
  * @author Julijan Katic
  *
@@ -62,17 +63,21 @@ public class ScalingPolicyDefinitionInterpreter extends SpdSwitch<List<TriggerCo
 		final AdjustmentExecutor adjustmentExecutor = adjustmentTypeInterpreter
 				.doSwitch(scalingPolicy.getAdjustmenttype());
 
-		final TriggerContext context = triggerContextBuilder.withAdjustmentExecutor(adjustmentExecutor)
+		final TriggerContext.Builder contextBuilder = triggerContextBuilder.withAdjustmentExecutor(adjustmentExecutor)
 				.withAdjustmentType((AdjustmentType) scalingPolicy.getAdjustmenttype())
-				.withTargetGroup((TargetGroup) scalingPolicy.getTargetgroup())
-				//.withScalingTrigger(scalingPolicy.getScalingtrigger()) TODO add trigger
-				.build();
+				.withTargetGroup((TargetGroup) scalingPolicy.getTargetgroup());
 		
-		final ScalingTriggerInterpreter scalingTriggerInterpreter = new ScalingTriggerInterpreter(this.engine, context);
-		ScalingTriggerPredicate scalingTriggerPredicate = scalingTriggerInterpreter.doSwitch(scalingPolicy.getScalingtrigger());
+		final ScalingTriggerInterpreter scalingTriggerInterpreter = new ScalingTriggerInterpreter(this.engine, contextBuilder);
+		final ScalingTriggerPredicate scalingTriggerPredicate = scalingTriggerInterpreter.doSwitch(scalingPolicy.getScalingtrigger());
+		contextBuilder.withScalingTriggerPredicate(scalingTriggerPredicate)
+					  .withScalingTrigger((ScalingTrigger) scalingPolicy.getScalingtrigger());
 		
+		final PolicyConstraintInterpreter policyConstraintInterpreter = new PolicyConstraintInterpreter();
+		scalingPolicy.getPolicyconstraint().stream()
+			.map(constraint -> policyConstraintInterpreter.doSwitch(constraint))
+			.forEach(triggerContextBuilder::withConstraint);
 
-		return List.of(context);
+		return List.of(contextBuilder.build());
 	}
 
 }

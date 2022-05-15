@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.TriggerContext;
@@ -19,7 +20,10 @@ import org.palladiosimulator.pcm.allocation.AllocationContext;
  */
 public final class AdjustmentResult {
 
-	public static final AdjustmentResult EMPTY_RESULT = new AdjustmentResult();
+	public static final AdjustmentResult NO_TRIGGER = AdjustmentResult.builder()
+			.withId("")
+			.success(AdjustmentResultReason.NO_TRIGGER)
+			.build();
 
 	private final String id;
 	private final TriggerContext context;
@@ -33,21 +37,11 @@ public final class AdjustmentResult {
 	private AdjustmentResult(final Builder builder) {
 		this.context = builder.context;
 		this.adjustmentResultReason = builder.reason;
-		this.changes = builder.changes;
-		this.id = UUID.randomUUID().toString();
-		this.constraintResults = builder.constraintResults;
-		this.newMonitors = builder.newMonitors;
-		this.newAllocationContexts = builder.newAllocationContexts;
-	}
-
-	private AdjustmentResult() {
-		this.id = "";
-		this.context = null;
-		this.adjustmentResultReason = AdjustmentResultReason.SUCCESS;
-		this.changes = Collections.emptyList();
-		this.constraintResults = null;
-		this.newMonitors = Collections.emptyList();
-		this.newAllocationContexts = Collections.emptyList();
+		this.changes = Optional.ofNullable(builder.changes).orElseGet(() -> Collections.emptyList());
+		this.id = Optional.ofNullable(builder.id).orElseGet(() -> UUID.randomUUID().toString());
+		this.constraintResults = Optional.ofNullable(builder.constraintResults).orElseGet(() -> Collections.emptyList());
+		this.newMonitors = Optional.ofNullable(builder.newMonitors).orElseGet(() -> Collections.emptyList());
+		this.newAllocationContexts = Optional.ofNullable(builder.newAllocationContexts).orElseGet(() -> Collections.emptyList());
 	}
 
 	public TriggerContext getContext() {
@@ -91,6 +85,7 @@ public final class AdjustmentResult {
 	}
 
 	public static final class Builder {
+		private String id;
 		private TriggerContext context;
 		private AdjustmentResultReason reason = AdjustmentResultReason.SUCCESS;
 		private List<ModelChange> changes;
@@ -103,6 +98,11 @@ public final class AdjustmentResult {
 
 		public Builder withTriggerContext(final TriggerContext context) {
 			this.context = context;
+			return this;
+		}
+		
+		private Builder withId(final String id) {
+			this.id = id;
 			return this;
 		}
 

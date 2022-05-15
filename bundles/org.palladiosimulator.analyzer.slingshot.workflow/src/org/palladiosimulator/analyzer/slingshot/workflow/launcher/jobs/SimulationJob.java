@@ -49,10 +49,6 @@ public class SimulationJob implements IBlackboardInteractingJob<MDSDBlackboard> 
 		final SlingshotModel model = this.loadModelFromBlackboard();
 
 		final SlingshotComponent component = SlingshotComponent.builder()
-//				.withModule(new SimulationDriverModule())
-//				.withModule(new SimulationEngineModule())
-//				.withModule(new EventDispatcherModule())
-//				.withModule(new MonitoringModule())
 				.withModule(model)
 				.withModule(new AbstractModule() {
 

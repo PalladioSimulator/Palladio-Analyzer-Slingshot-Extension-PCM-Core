@@ -44,7 +44,7 @@ public final class AbsoluteAdjustmentExecutor extends AbstractAdjustmentExecutor
 
 		if (goal == currentSize) {
 			LOGGER.info("Goal value has already been achieved.");
-			return AdjustmentResult.EMPTY_RESULT;
+			return AdjustmentResult.NO_TRIGGER;
 		} else if (goal > currentSize) {
 			final int delta = goal - currentSize;
 			this.increase(resourceEnvironment, delta);

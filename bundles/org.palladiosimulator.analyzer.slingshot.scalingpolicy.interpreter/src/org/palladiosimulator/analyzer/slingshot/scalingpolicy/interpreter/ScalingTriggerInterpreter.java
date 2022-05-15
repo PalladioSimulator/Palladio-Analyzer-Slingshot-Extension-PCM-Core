@@ -21,19 +21,19 @@ import spd.scalingtrigger.util.ScalingtriggerSwitch;
 public class ScalingTriggerInterpreter extends ScalingtriggerSwitch<ScalingTriggerPredicate> {
 
 	private final SimulationEngine engine;
-	private final TriggerContext context;
+	private final TriggerContext.Builder contextBuilder;
 
 	public ScalingTriggerInterpreter(final SimulationEngine engine,
-			final TriggerContext context) {
+			final TriggerContext.Builder contextBuilder) {
 		this.engine = engine;
-		this.context = context;
+		this.contextBuilder = contextBuilder;
 	}
 
 	@Override
 	public ScalingTriggerPredicate casePointInTimeTrigger(final PointInTimeTrigger object) {
-		this.engine.scheduleEventAt(
-				new PointInTimeTriggered(this.context, object.getPointInTime()),
-				object.getPointInTime());
+		this.contextBuilder.onBuild(context -> {
+			this.engine.scheduleEventAt(new PointInTimeTriggered(context, object.getPointInTime()), object.getPointInTime());
+		});
 		return ScalingTriggerPredicate.ALWAYS;
 	}
 
@@ -43,7 +43,7 @@ public class ScalingTriggerInterpreter extends ScalingtriggerSwitch<ScalingTrigg
 		final double violationWindow = object.getViolationWindow();
 		final THRESHOLDDIRECTION thresholdDirection = object.getThresholdDirection();
 
-		return MeasuringPointTriggerContextMapper.instance().wrap(this.context, measurementMade -> {
+		return MeasuringPointTriggerContextMapper.instance().wrap((measurementMade, context) -> {
 			final SlingshotMeasuringValue value = measurementMade.getEntity();
 			final MetricDescription metricDescription = value.getMetricDesciption();
 

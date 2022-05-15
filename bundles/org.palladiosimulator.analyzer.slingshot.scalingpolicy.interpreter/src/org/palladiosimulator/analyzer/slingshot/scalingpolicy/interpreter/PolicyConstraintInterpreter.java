@@ -1,7 +1,11 @@
 package org.palladiosimulator.analyzer.slingshot.scalingpolicy.interpreter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.PolicyConstraintPredicate;
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.result.ConstraintResult;
+import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.result.ConstraintResult.Modifier;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.entities.SimulationInformation;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment;
 
@@ -35,13 +39,32 @@ public class PolicyConstraintInterpreter extends PolicyconstraintSwitch<PolicyCo
 			final ResourceEnvironment environment = TargetGroupTable.instance()
 					.getEnvironment(triggerContext.getTargetGroup());
 			final int size = environment.getResourceContainer_ResourceEnvironment().size();
+			
+			// TODO: Export magic values to constants
+			final Map<String, Object> modifyParameters = new HashMap<>();
+			modifyParameters.put("currentTargetGroupSize", size);
+			modifyParameters.put("maxTargetGroupSize", maxSize);
+			modifyParameters.put("minTargetGroupSize", minSize);
+			
+			final Modifier modifier;
+			
+			if (this.modifyIfPossible) {
+				modifier = () -> triggerContext.getAdjustmentExecutor().modifyValues(modifyParameters);
+			} else {
+				modifier = null;
+			}
+			
 
 			return ConstraintResult.builder()
 					.withConstraint(object)
-					.withReason("Target Group exceeded", () -> size < maxSize)
-					.withReason("Target Group too small", () -> size > minSize)
+					.withModifiableReason("Target Group exceeded", 
+							() -> size < maxSize, 
+							modifier)
+					.withModifiableReason("Target Group too small", 
+							() -> size > minSize,
+							modifier) 
 					.build();
-		}; // TODO: Modifying constraints
+		};
 
 	}
 

@@ -1,9 +1,9 @@
 package org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.result;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
 import com.google.common.collect.ImmutableList;
@@ -22,13 +22,19 @@ public final class ConstraintResult {
 
 		boolean currentResult = true;
 		final List<String> currentReasons = new LinkedList<>();
-		for (final Map.Entry<BooleanSupplier, String> reasonSupplier : builder.reasons.entrySet()) {
-			final boolean supplierResult = reasonSupplier.getKey().getAsBoolean();
-			if (!supplierResult) {
-				currentResult = false;
-				currentReasons.add(reasonSupplier.getValue());
+		
+		if (builder.modifyReasons != null) {
+			for (final ConstraintReason constraintReason : builder.modifyReasons) {
+				if (!constraintReason.predicate.getAsBoolean()) {
+					constraintReason.modifier
+									.ifPresentOrElse(
+											Modifier::modify, 
+											() -> currentReasons.add(constraintReason.reason)
+									);
+				}
 			}
 		}
+		
 		this.success = currentResult;
 		this.reasons = ImmutableList.copyOf(currentReasons);
 	}
@@ -55,16 +61,21 @@ public final class ConstraintResult {
 
 	public static final class Builder {
 		private PolicyConstraint constraint;
-		private Map<BooleanSupplier, String> reasons;
-
+		private List<ConstraintReason> modifyReasons;
+		
 		private Builder() {
 		}
 
 		public Builder withReason(final String reason, final BooleanSupplier predicate) {
-			if (this.reasons == null) {
-				this.reasons = new HashMap<>();
+			this.withModifiableReason(reason, predicate, null);
+			return this;
+		}
+		
+		public Builder withModifiableReason(final String reason, final BooleanSupplier predicate, final Modifier modifier) {
+			if (this.modifyReasons == null) {
+				this.modifyReasons = new LinkedList<>();
 			}
-			this.reasons.put(predicate, reason);
+			this.modifyReasons.add(new ConstraintReason(reason, predicate, modifier));
 			return this;
 		}
 
@@ -76,5 +87,26 @@ public final class ConstraintResult {
 		public ConstraintResult build() {
 			return new ConstraintResult(this);
 		}
+	}
+	
+	private static final class ConstraintReason {
+		
+		private final String reason;
+		private final BooleanSupplier predicate;
+		private final Optional<Modifier> modifier;
+		
+		private ConstraintReason(String reason, BooleanSupplier predicate, Modifier modifier) {
+			super();
+			this.reason = Objects.requireNonNull(reason);
+			this.predicate = Objects.requireNonNull(predicate);
+			this.modifier = Optional.ofNullable(modifier);
+		}
+		
+		
+	}
+	
+	@FunctionalInterface
+	public interface Modifier {
+		void modify();
 	}
 }

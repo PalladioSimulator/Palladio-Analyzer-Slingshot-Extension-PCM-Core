@@ -4,8 +4,10 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.eclipse.emf.ecore.EObject;
+import org.palladiosimulator.analyzer.slingshot.monitor.data.MeasurementMade;
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.result.AdjustmentResult;
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.result.AdjustmentResultReason;
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.result.ConstraintResult;
@@ -22,6 +24,7 @@ public final class TriggerContext {
 	private final AdjustmentExecutor executor;
 	private final EObject affectedObject;
 
+	private final ScalingTriggerPredicate scalingTriggerPredicate;
 	private final List<PolicyConstraintPredicate> constraints;
 	
 	private Map<String, Object> parameters;
@@ -35,6 +38,7 @@ public final class TriggerContext {
 		this.executor = builder.executor;
 		this.constraints = builder.predicates;
 		this.affectedObject = builder.affectedObject;
+		this.scalingTriggerPredicate = builder.scalingTriggerPredicate;
 	}
 
 	/**
@@ -45,8 +49,13 @@ public final class TriggerContext {
 	 * 
 	 * @return
 	 */
-	public AdjustmentResult executeTrigger(final Map<String, Object> parameters) {
+	public AdjustmentResult executeTrigger(final MeasurementMade measurementMade) {
 		this.setParameters(parameters);
+		
+		if (measurementMade != null && !this.scalingTriggerPredicate.isTriggering(measurementMade, this)) {
+			return AdjustmentResult.NO_TRIGGER;
+		}
+		
 		for (final PolicyConstraintPredicate predicate : this.constraints) {
 			final ConstraintResult result = predicate.apply(this);
 			if (!result.isSuccess()) {
@@ -64,9 +73,8 @@ public final class TriggerContext {
 		}
 	}
 	
-	
 	public AdjustmentResult executeTrigger() {
-		return this.executeTrigger(Collections.emptyMap());
+		return this.executeTrigger(null);
 	}
 
 	/**
@@ -126,10 +134,12 @@ public final class TriggerContext {
 	public static final class Builder {
 		private TargetGroup targetGroup;
 		private ScalingTrigger scalingTrigger;
+		private ScalingTriggerPredicate scalingTriggerPredicate;
 		private AdjustmentType adjustmentType;
 		private AdjustmentExecutor executor;
 		private final List<PolicyConstraintPredicate> predicates = new LinkedList<>();
 		private EObject affectedObject;
+		private final List<Consumer<TriggerContext>> afterBuilders = new LinkedList<>();
 		
 		private Builder() {
 		}
@@ -168,9 +178,24 @@ public final class TriggerContext {
 			this.affectedObject = affectedObject;
 			return this;
 		}
+		
+		public Builder withScalingTriggerPredicate(final ScalingTriggerPredicate scalingTriggerPredicate) {
+			this.scalingTriggerPredicate = scalingTriggerPredicate;
+			return this;
+		}
+		
+		public Builder onBuild(final Consumer<TriggerContext> onBuild) {
+			if (onBuild != null) {
+				this.afterBuilders.add(onBuild);
+			}
+			return this;
+		}
 
 		public TriggerContext build() {
-			return new TriggerContext(this);
+			final TriggerContext result = new TriggerContext(this);
+			this.afterBuilders.forEach(onBuilder -> onBuilder.accept(result));
+			return result;
 		}
+		
 	}
 }

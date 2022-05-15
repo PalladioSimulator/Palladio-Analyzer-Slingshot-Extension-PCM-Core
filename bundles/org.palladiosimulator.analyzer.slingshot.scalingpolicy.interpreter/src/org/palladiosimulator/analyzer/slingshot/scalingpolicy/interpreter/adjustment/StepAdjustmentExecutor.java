@@ -2,6 +2,7 @@ package org.palladiosimulator.analyzer.slingshot.scalingpolicy.interpreter.adjus
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.TriggerContext;
@@ -27,11 +28,13 @@ public final class StepAdjustmentExecutor extends AbstractAdjustmentExecutor<Ste
 
 	private static final Logger LOGGER = Logger.getLogger(StepAdjustmentExecutor.class);
 	
+	private int stepValue;
+	
 	public StepAdjustmentExecutor(final StepAdjustment adjustmentType,
 			final SimulationInformation simulationInformation,
 			final Allocation allocation, final MonitorRepository monitorRepository) {
 		super(adjustmentType, simulationInformation, allocation, monitorRepository);
-		// TODO Auto-generated constructor stub
+		this.stepValue = this.getAdjustmentType().getStepValue();
 	}
 
 	@Override
@@ -41,14 +44,43 @@ public final class StepAdjustmentExecutor extends AbstractAdjustmentExecutor<Ste
 		final TargetGroup targetGroup = triggerContext.getTargetGroup();
 		final ResourceEnvironment environment = TargetGroupTable.instance().getEnvironment(targetGroup);
 
-		final List<ResourceContainer> newResourceContainers = new ArrayList<>(
-				environment.getResourceContainer_ResourceEnvironment().size()
-						* this.getAdjustmentType().getStepValue());
-
-		this.copyContainers(environment, newResourceContainers, this.getAdjustmentType().getStepValue());
-		LOGGER.info("Copied!");
-		environment.getResourceContainer_ResourceEnvironment().addAll(newResourceContainers);
+		if (this.stepValue > 0) {
+			final List<ResourceContainer> newResourceContainers = new ArrayList<>(
+					environment.getResourceContainer_ResourceEnvironment().size()
+							* this.stepValue);
+	
+			this.copyContainers(environment, newResourceContainers, this.stepValue);
+			LOGGER.info("Copied!");
+			environment.getResourceContainer_ResourceEnvironment().addAll(newResourceContainers);
+		} else if (this.stepValue < 0) {
+			this.deleteContainers(environment, null, -stepValue);
+			LOGGER.info("Deleted!");
+		}
+		
 		return this.adjustmentResult();
 	}
-
+	
+	@Override
+	public void modifyValues(final Map<String, Object> valuesToModify) {
+		if (valuesToModify.containsKey("currentTargetGroupSize")) {
+			final int currentTargetGroupSize = (Integer) valuesToModify.get("currentTargetGroupSize");
+			
+			if (valuesToModify.containsKey("maxTargetGroupSize")) {
+				final int maxTargetGroupSize = (Integer) valuesToModify.get("maxTargetGroupSize");
+				
+				if (this.stepValue + currentTargetGroupSize > maxTargetGroupSize) {
+					this.stepValue = maxTargetGroupSize - currentTargetGroupSize;
+					// TODO: Trace this change.
+				}
+			}
+			
+			if (valuesToModify.containsKey("minTargetGroupSize")) {
+				final int minTargetGroupSize = (Integer) valuesToModify.get("minTargetGroupSize");
+				
+				if (currentTargetGroupSize + this.stepValue < minTargetGroupSize) {
+					this.stepValue = minTargetGroupSize - currentTargetGroupSize;
+				}
+			}
+		}
+	}
 }

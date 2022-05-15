@@ -12,9 +12,10 @@ public class SimulationWorkflowConfiguration extends AbstractPCMWorkflowRunConfi
 	private final SimuComConfig simuConConfig;
 	private final String monitorRepositoryFile;
 	private final String spdFile;
+	private final String logFileName;
 
 	public SimulationWorkflowConfiguration(final ArchitecturalModelsConfiguration architecturalModels,
-			final SimuComConfig config) {
+			final SimuComConfig config, final SlingshotSpecificWorkflowConfiguration slingshotConfig) {
 		this.inputModels = architecturalModels;
 		this.simuConConfig = config; // TODO
 
@@ -29,6 +30,7 @@ public class SimulationWorkflowConfiguration extends AbstractPCMWorkflowRunConfi
 		this.setAllocationFiles(List.of(this.inputModels.getAllocationFile()));
 		this.monitorRepositoryFile = this.inputModels.getMonitorRepositoryFile();
 		this.spdFile = this.inputModels.getSpdFile();
+		this.logFileName = slingshotConfig.getLogFileName();
 	}
 
 	@Override
@@ -55,5 +57,9 @@ public class SimulationWorkflowConfiguration extends AbstractPCMWorkflowRunConfi
 
 	public SimuComConfig getConfiguration() {
 		return this.simuConConfig;
+	}
+	
+	public String getLogFileName() {
+		return this.logFileName;
 	}
 }

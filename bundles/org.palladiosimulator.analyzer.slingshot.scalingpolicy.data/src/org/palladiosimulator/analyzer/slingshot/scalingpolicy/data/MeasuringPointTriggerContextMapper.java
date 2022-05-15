@@ -19,12 +19,12 @@ public final class MeasuringPointTriggerContextMapper {
 		map.put(measuringPoint.getStringRepresentation(), context);
 	}
 	
-	public ScalingTriggerPredicate wrap(final TriggerContext context, final ScalingTriggerPredicate predicate) {
-		return measurementMade -> {
+	public ScalingTriggerPredicate wrap(final ScalingTriggerPredicate predicate) {
+		return (measurementMade, context) -> {
 			final MeasuringPoint point = measurementMade.getEntity().getMeasuringPoint();
 			final TriggerContext mappedContext = map.get(point.getStringRepresentation());
 			if (mappedContext.equals(context)) {
-				return predicate.isTriggering(measurementMade);
+				return predicate.isTriggering(measurementMade, context);
 			} else {
 				return false;
 			}

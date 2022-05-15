@@ -5,6 +5,7 @@ import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.palladiosimulator.analyzer.slingshot.ui.workflow.launcher.tabs.SimulationArchitectureModelsTab;
+import org.palladiosimulator.analyzer.slingshot.ui.workflow.launcher.tabs.SlingshotSpecificTab;
 
 import de.uka.ipd.sdq.codegen.simucontroller.runconfig.SimuComConfigurationTab;
 import de.uka.ipd.sdq.codegen.simucontroller.runconfig.SimuConfigurationTab;
@@ -28,6 +29,7 @@ public class LaunchSimulationTabGroup extends AbstractLaunchConfigurationTabGrou
 		// Assemble the tab pages:
 		final ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
 				new SimulationArchitectureModelsTab(),
+				new SlingshotSpecificTab(),
 				new SimuComConfigurationTab(),
 				new SimuConfigurationTab(),
 				new DebugEnabledCommonTab()
