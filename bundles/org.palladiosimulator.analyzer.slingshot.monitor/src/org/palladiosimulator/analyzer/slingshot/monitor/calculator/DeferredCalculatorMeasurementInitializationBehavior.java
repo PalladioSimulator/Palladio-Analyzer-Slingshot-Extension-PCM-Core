@@ -2,6 +2,8 @@ package org.palladiosimulator.analyzer.slingshot.monitor.calculator;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -73,10 +75,12 @@ public class DeferredCalculatorMeasurementInitializationBehavior implements Simu
 		if (this.sourceListener.containsKey(calculator.getMeasuringPoint().getStringRepresentation())) {
 			final Map<MetricDescription, Set<Supplier<IMeasurementSourceListener>>> callbacks = this.sourceListener
 					.get(calculator.getMeasuringPoint().getStringRepresentation());
+			final List<MetricDescription> callbacksToRemove = new LinkedList<>();
 			callbacks.keySet().stream()
 					.filter(metricDesc -> this.checkMetricDescriptionsAndInitializeSourceListeners(metricDesc,
 							calculator, callbacks))
-					.forEach(callbacks::remove);
+					.forEach(callbacksToRemove::add);
+			callbacksToRemove.forEach(callbacks::remove);
 			if (callbacks.isEmpty()) {
 				this.sourceListener.remove(calculator.getMeasuringPoint().getStringRepresentation());
 			}
@@ -97,7 +101,7 @@ public class DeferredCalculatorMeasurementInitializationBehavior implements Simu
 			this.sourceListener.computeIfAbsent(processingTypeRevealed.getMeasuringPoint().getStringRepresentation(),
 					s -> new HashMap<>())
 					.computeIfAbsent(processingTypeRevealed.getMetricDescription(), d -> new HashSet<>())
-					.add(() -> SlingshotCalculatorWrapper.wrap(processingTypeRevealed.getMeasuringPoint(), 
+					.add(() -> SlingshotCalculatorWrapper.wrap(processingTypeRevealed.getMeasuringPoint(),
 							new ProcessingTypeMeasurementSourceListener(this.scheduling,
 									processingTypeRevealed.getMeasurementSourceListener())));
 		}

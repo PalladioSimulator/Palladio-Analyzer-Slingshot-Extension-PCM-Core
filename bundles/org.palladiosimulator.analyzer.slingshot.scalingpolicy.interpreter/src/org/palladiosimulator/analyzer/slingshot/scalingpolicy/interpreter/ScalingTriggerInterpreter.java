@@ -13,12 +13,12 @@ import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationEngine;
 import org.palladiosimulator.metricspec.MetricDescription;
 import org.palladiosimulator.metricspec.constants.MetricDescriptionConstants;
 
-import spd.scalingtrigger.CPUUtilizationTrigger;
-import spd.scalingtrigger.PointInTimeTrigger;
-import spd.scalingtrigger.THRESHOLDDIRECTION;
-import spd.scalingtrigger.util.ScalingtriggerSwitch;
+import de.unistuttgart.slingshot.spd.triggers.CPUUtilizationTrigger;
+import de.unistuttgart.slingshot.spd.triggers.PointInTimeTrigger;
+import de.unistuttgart.slingshot.spd.triggers.THRESHOLDDIRECTION;
+import de.unistuttgart.slingshot.spd.triggers.util.TriggersSwitch;
 
-public class ScalingTriggerInterpreter extends ScalingtriggerSwitch<ScalingTriggerPredicate> {
+public class ScalingTriggerInterpreter extends TriggersSwitch<ScalingTriggerPredicate> {
 
 	private final SimulationEngine engine;
 	private final TriggerContext.Builder contextBuilder;
@@ -32,7 +32,8 @@ public class ScalingTriggerInterpreter extends ScalingtriggerSwitch<ScalingTrigg
 	@Override
 	public ScalingTriggerPredicate casePointInTimeTrigger(final PointInTimeTrigger object) {
 		this.contextBuilder.onBuild(context -> {
-			this.engine.scheduleEventAt(new PointInTimeTriggered(context, object.getPointInTime()), object.getPointInTime());
+			this.engine.scheduleEventAt(new PointInTimeTriggered(context, object.getPointInTime()),
+					object.getPointInTime());
 		});
 		return ScalingTriggerPredicate.ALWAYS;
 	}

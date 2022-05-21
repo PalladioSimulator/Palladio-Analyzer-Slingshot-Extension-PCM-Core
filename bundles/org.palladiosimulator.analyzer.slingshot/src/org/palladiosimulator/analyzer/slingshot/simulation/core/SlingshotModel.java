@@ -13,7 +13,7 @@ import org.palladiosimulator.pcm.usagemodel.UsageModel;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
-import spd.SPD;
+import de.unistuttgart.slingshot.spd.SPD;
 
 /**
  * This class holds all the required models from the PCM simulation, but also

@@ -14,8 +14,8 @@ import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment;
 
-import spd.adjustmenttype.StepAdjustment;
-import spd.targetgroup.TargetGroup;
+import de.unistuttgart.slingshot.spd.adjustments.StepAdjustment;
+import de.unistuttgart.slingshot.spd.targets.TargetGroup;
 
 /**
  * Copies exactly the number of times specified in the
@@ -27,9 +27,9 @@ import spd.targetgroup.TargetGroup;
 public final class StepAdjustmentExecutor extends AbstractAdjustmentExecutor<StepAdjustment> {
 
 	private static final Logger LOGGER = Logger.getLogger(StepAdjustmentExecutor.class);
-	
+
 	private int stepValue;
-	
+
 	public StepAdjustmentExecutor(final StepAdjustment adjustmentType,
 			final SimulationInformation simulationInformation,
 			final Allocation allocation, final MonitorRepository monitorRepository) {
@@ -48,35 +48,35 @@ public final class StepAdjustmentExecutor extends AbstractAdjustmentExecutor<Ste
 			final List<ResourceContainer> newResourceContainers = new ArrayList<>(
 					environment.getResourceContainer_ResourceEnvironment().size()
 							* this.stepValue);
-	
+
 			this.copyContainers(environment, newResourceContainers, this.stepValue);
 			LOGGER.info("Copied!");
 			environment.getResourceContainer_ResourceEnvironment().addAll(newResourceContainers);
 		} else if (this.stepValue < 0) {
-			this.deleteContainers(environment, null, -stepValue);
+			this.deleteContainers(environment, -this.stepValue);
 			LOGGER.info("Deleted!");
 		}
-		
+
 		return this.adjustmentResult();
 	}
-	
+
 	@Override
 	public void modifyValues(final Map<String, Object> valuesToModify) {
 		if (valuesToModify.containsKey("currentTargetGroupSize")) {
 			final int currentTargetGroupSize = (Integer) valuesToModify.get("currentTargetGroupSize");
-			
+
 			if (valuesToModify.containsKey("maxTargetGroupSize")) {
 				final int maxTargetGroupSize = (Integer) valuesToModify.get("maxTargetGroupSize");
-				
+
 				if (this.stepValue + currentTargetGroupSize > maxTargetGroupSize) {
 					this.stepValue = maxTargetGroupSize - currentTargetGroupSize;
 					// TODO: Trace this change.
 				}
 			}
-			
+
 			if (valuesToModify.containsKey("minTargetGroupSize")) {
 				final int minTargetGroupSize = (Integer) valuesToModify.get("minTargetGroupSize");
-				
+
 				if (currentTargetGroupSize + this.stepValue < minTargetGroupSize) {
 					this.stepValue = minTargetGroupSize - currentTargetGroupSize;
 				}

@@ -1,10 +1,10 @@
 package org.palladiosimulator.analyzer.slingshot.scalingpolicy.interpreter.adjustment;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.util.EcoreUtil;
@@ -20,6 +20,7 @@ import org.palladiosimulator.monitorrepository.Monitor;
 import org.palladiosimulator.monitorrepository.MonitorRepository;
 import org.palladiosimulator.monitorrepository.MonitorRepositoryFactory;
 import org.palladiosimulator.pcm.allocation.Allocation;
+import org.palladiosimulator.pcm.allocation.AllocationContext;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.resourceenvironment.LinkingResource;
 import org.palladiosimulator.pcm.resourceenvironment.ProcessingResourceSpecification;
@@ -30,7 +31,7 @@ import org.palladiosimulator.pcmmeasuringpoint.PcmmeasuringpointFactory;
 
 import com.google.common.base.Preconditions;
 
-import spd.adjustmenttype.AdjustmentType;
+import de.unistuttgart.slingshot.spd.adjustments.AdjustmentType;
 
 /**
  * This class also provides methods for copying resources containers, linking
@@ -97,7 +98,7 @@ public abstract class AbstractAdjustmentExecutor<E extends AdjustmentType> imple
 	protected E getAdjustmentType() {
 		return this.adjustmentType;
 	}
-	
+
 	@Override
 	public void modifyValues(final Map<String, Object> valuesToModify) {
 		// Do nothing in standard case.
@@ -120,60 +121,82 @@ public abstract class AbstractAdjustmentExecutor<E extends AdjustmentType> imple
 			final Collection<? super ResourceContainer> destination,
 			final int times) {
 		Preconditions.checkArgument(times >= 0, "Only a positive number is allowed.");
-		final Collection<ResourceContainer> containers = environment.getResourceContainer_ResourceEnvironment();
 		for (int i = 0; i < times; i++) {
-			containers.forEach(container -> {
-				final ResourceContainer copy = EcoreUtil.copy(container);
-				copy.setId(EcoreUtil.generateUUID()); // Generate new ID, otherwise old ID will be copied as well
-				this.connectToLinkingResources(environment.getLinkingResources__ResourceEnvironment(), container, copy);
-				this.copyAllocationContexts(container, copy);
-				this.copyMeasuringPoints(copy);
-				destination.add(copy);
-				this.adjustmentResultBuilder().addChange(ModelChange.builder()
-						.withModelChangeAction(ModelChangeAction.ADDITION)
-						.withModelElement(copy)
-						.atSimulationTime(this.simulationInformation.currentSimulationTime())
-						.build());
-			});
+			final ResourceContainer container = this.getRandomContainer(environment);
+			this.copyContainer(container, environment, destination, 1);
 		}
 	}
 
+	protected void copyContainer(final ResourceContainer containerToCopy, final ResourceEnvironment environment,
+			final Collection<? super ResourceContainer> destination, final int times) {
+		Preconditions.checkArgument(times >= 0, "Only a positive number is allowed.");
+		for (int i = 0; i < times; ++i) {
+			final ResourceContainer copy = EcoreUtil.copy(containerToCopy);
+			copy.setId(EcoreUtil.generateUUID()); // Generate new ID, otherwise old ID will be copied as well
+			this.connectToLinkingResources(environment.getLinkingResources__ResourceEnvironment(), containerToCopy,
+					copy);
+			this.copyAllocationContexts(containerToCopy, copy);
+			containerToCopy.getActiveResourceSpecifications_ResourceContainer()
+					.forEach(spec -> this.copyActiveResourceSpec(spec, copy));
+			destination.add(copy);
+			this.adjustmentResultBuilder().addChange(ModelChange.builder()
+					.withModelChangeAction(ModelChangeAction.ADDITION)
+					.withModelElement(copy)
+					.atSimulationTime(this.simulationInformation.currentSimulationTime())
+					.build());
+		}
+	}
+
+	protected ResourceContainer getRandomContainer(final ResourceEnvironment environment) {
+		if (environment.getResourceContainer_ResourceEnvironment().isEmpty()) {
+			return null; // TODO: THrow exception?
+		}
+		final int upperBound = environment.getResourceContainer_ResourceEnvironment().size() - 1;
+		final int index = (int) (Math.random() * (upperBound + 1));
+		return environment.getResourceContainer_ResourceEnvironment().get(index);
+	}
+
 	/**
-	 * Copies all the measuring points and monitors that are present in this container.
-	 * Note that each {@link Monitor} points to exactly one {@link MeasuringPoint}.
-	 * The new copies are also present in the {@link MonitorRepository} and {@link MeasuringpointRepository},
-	 * which are model files.
+	 * Copies all the measuring points and monitors that are present in this
+	 * container. Note that each {@link Monitor} points to exactly one
+	 * {@link MeasuringPoint}. The new copies are also present in the
+	 * {@link MonitorRepository} and {@link MeasuringpointRepository}, which are
+	 * model files.
 	 * 
-	 * Currently, the only measuring points that are being copied are measuring points pointing
-	 * to a {@link ProcessingResourceSpecification}.
+	 * Currently, the only measuring points that are being copied are measuring
+	 * points pointing to a {@link ProcessingResourceSpecification}.
 	 * 
-	 * @param container The copied container in which the new measuring points should be copied into.
+	 * @param container The copied container in which the new measuring points
+	 *                  should be copied into.
 	 * @see #copyMonitor(Monitor, MeasuringPoint)
-	 * @see #copyActiveResourceSpec(ProcessingResourceSpecification, ResourceContainer, MeasuringPoint)
+	 * @see #copyActiveResourceSpec(ProcessingResourceSpecification,
+	 *      ResourceContainer, MeasuringPoint)
 	 */
-	protected void copyMeasuringPoints(final ResourceContainer container) {
-		final List<Monitor> monitors = this.monitorRepository.getMonitors();
-		for (final Monitor monitor : monitors) {
-			final MeasuringPoint measuringPoint = monitor.getMeasuringPoint();
-			final Optional<ProcessingResourceSpecification> spec = container
-					.getActiveResourceSpecifications_ResourceContainer()
-					.stream()
-					.filter(s -> measuringPoint.getResourceURIRepresentation().equals(EMFLoadHelper.getResourceURI(s)))
-					.findFirst();
+//	protected void copyMeasuringPoints(final ResourceContainer container) {
+//		final List<Monitor> monitors = this.monitorRepository.getMonitors();
+//		for (final Monitor monitor : monitors) {
+//			final MeasuringPoint measuringPoint = monitor.getMeasuringPoint();
+//			final Optional<ProcessingResourceSpecification> spec = container
+//					.getActiveResourceSpecifications_ResourceContainer()
+//					.stream()
+//					.filter(s -> measuringPoint.getResourceURIRepresentation().equals(EMFLoadHelper.getResourceURI(s)))
+//					.findFirst();
+//
+//			if (spec.isPresent()) {
+//				final MeasuringPoint copyMeasuringPoint = this.copyActiveResourceSpec(spec.get(), container,
+//						measuringPoint);
+//				this.copyMonitor(monitor, copyMeasuringPoint);
+//			}
+//		}
+//	}
 
-			if (spec.isPresent()) {
-				final MeasuringPoint copyMeasuringPoint = this.copyActiveResourceSpec(spec.get(), container,
-						measuringPoint);
-				this.copyMonitor(monitor, copyMeasuringPoint);
-			}
-		}
-	}
-	
 	/**
-	 * Copies the monitor into the {@link MonitorRepository} and connects it to {@link MeasuringPoint}.
+	 * Copies the monitor into the {@link MonitorRepository} and connects it to
+	 * {@link MeasuringPoint}.
 	 * 
-	 * @param monitor The monitor to copy.
-	 * @param measuringPoint The measuring point to be linked by the monitor copy. This measuring point should already be a copy.
+	 * @param monitor        The monitor to copy.
+	 * @param measuringPoint The measuring point to be linked by the monitor copy.
+	 *                       This measuring point should already be a copy.
 	 */
 	protected void copyMonitor(final Monitor monitor, final MeasuringPoint measuringPoint) {
 		final Monitor copyMonitor = MonitorRepositoryFactory.eINSTANCE.createMonitor();
@@ -204,9 +227,8 @@ public abstract class AbstractAdjustmentExecutor<E extends AdjustmentType> imple
 	 *                       copied spec.
 	 * @return The copied measuring point.
 	 */
-	protected ActiveResourceMeasuringPoint copyActiveResourceSpec(final ProcessingResourceSpecification spec,
-			final ResourceContainer copy,
-			final MeasuringPoint measuringPoint) {
+	protected void copyActiveResourceSpec(final ProcessingResourceSpecification spec,
+			final ResourceContainer copy) {
 		assert copy.getActiveResourceSpecifications_ResourceContainer().contains(spec);
 
 		final ProcessingResourceSpecification specCopy = EcoreUtil.copy(spec);
@@ -215,12 +237,21 @@ public abstract class AbstractAdjustmentExecutor<E extends AdjustmentType> imple
 		copy.getActiveResourceSpecifications_ResourceContainer().remove(spec);
 		copy.getActiveResourceSpecifications_ResourceContainer().add(specCopy);
 
-		final ActiveResourceMeasuringPoint copyMeasuringPoint = PcmmeasuringpointFactory.eINSTANCE
-				.createActiveResourceMeasuringPoint();
-		copyMeasuringPoint.setActiveResource(specCopy);
-		measuringPoint.getMeasuringPointRepository().getMeasuringPoints().add(copyMeasuringPoint);
+		this.monitorRepository.getMonitors().stream()
+				.filter(monitor -> monitor.getMeasuringPoint().getResourceURIRepresentation()
+						.equals(EMFLoadHelper.getResourceURI(spec)))
+				.findAny()
+				.ifPresent(monitor -> {
+					final ActiveResourceMeasuringPoint copyMeasuringPoint = PcmmeasuringpointFactory.eINSTANCE
+							.createActiveResourceMeasuringPoint();
+					copyMeasuringPoint.setActiveResource(specCopy);
+					copyMeasuringPoint
+							.setMeasuringPointRepository(monitor.getMeasuringPoint().getMeasuringPointRepository());
+					monitor.getMeasuringPoint().getMeasuringPointRepository().getMeasuringPoints()
+							.add(copyMeasuringPoint);
 
-		return copyMeasuringPoint;
+					this.copyMonitor(monitor, copyMeasuringPoint);
+				});
 	}
 
 	/**
@@ -239,16 +270,18 @@ public abstract class AbstractAdjustmentExecutor<E extends AdjustmentType> imple
 		if (this.allocation == null) {
 			return;
 		}
-
+		final List<AllocationContext> newAllocationContexts = new ArrayList<>(
+				this.allocation.getAllocationContexts_Allocation().size());
 		this.allocation.getAllocationContexts_Allocation().stream()
 				.filter(allocationContext -> allocationContext.getResourceContainer_AllocationContext().getId()
 						.equals(originalContainer.getId()))
 				.map(EcoreUtil::copy) // TODO: Should there be more done?
 				.forEach(copiedContext -> {
 					copiedContext.setResourceContainer_AllocationContext(copy);
-					this.allocation.getAllocationContexts_Allocation().add(copiedContext);
+					newAllocationContexts.add(copiedContext);
 					this.adjustmentResultBuilder().addNewAllocationContext(copiedContext);
 				});
+		this.allocation.getAllocationContexts_Allocation().addAll(newAllocationContexts);
 	}
 
 	/**
@@ -280,21 +313,21 @@ public abstract class AbstractAdjustmentExecutor<E extends AdjustmentType> imple
 	 * them. In the future, there might be more strategies available.
 	 * 
 	 * @param environment The environment from where to delete the containers.
-	 * @param containers  The containers to delete from the environment. // TODO:
-	 *                    This is not needed.
 	 * @param times       How many times to delete.
 	 */
 	protected void deleteContainers(final ResourceEnvironment environment,
-			final Collection<ResourceContainer> containers,
 			final int times) {
 		final EList<ResourceContainer> resourceContainers = environment.getResourceContainer_ResourceEnvironment();
 		for (int i = 0; i < times; i++) {
-			final ResourceContainer randomResourceContainer = resourceContainers
-					.get((int) (Math.random() * (resourceContainers.size() - 1)));
+			final ResourceContainer randomResourceContainer = this.getRandomContainer(environment);
+			if (randomResourceContainer == null) {
+				break;
+			}
+
 			this.deleteFromLinkingResources(environment, randomResourceContainer);
 			this.deleteAllocationContexts(randomResourceContainer);
 			this.deleteMeasuringPoints(randomResourceContainer);
-			
+
 			resourceContainers.remove(randomResourceContainer);
 
 			this.adjustmentResultBuilder()
@@ -311,33 +344,37 @@ public abstract class AbstractAdjustmentExecutor<E extends AdjustmentType> imple
 	/**
 	 * Deletes the container from the linking resources it were.
 	 * 
-	 * @param environment The environment of linking resources.
+	 * @param environment       The environment of linking resources.
 	 * @param containerToDelete The container to delete from the linking resources.
 	 */
 	protected void deleteFromLinkingResources(final ResourceEnvironment environment,
 			final ResourceContainer containerToDelete) {
 		environment.getLinkingResources__ResourceEnvironment().stream()
-			.filter(linkingResource -> linkingResource.getConnectedResourceContainers_LinkingResource().contains(containerToDelete))
-			.forEach(linkingResource -> linkingResource.getConnectedResourceContainers_LinkingResource().remove(containerToDelete));
+				.filter(linkingResource -> linkingResource.getConnectedResourceContainers_LinkingResource()
+						.contains(containerToDelete))
+				.forEach(linkingResource -> linkingResource.getConnectedResourceContainers_LinkingResource()
+						.remove(containerToDelete));
 	}
 
 	/**
 	 * Deletes the allocation contexts that are pointing to the containers.
 	 * 
-	 * @param containerToDelete The container where the allocation contexts are pointing to should be deleted.
+	 * @param containerToDelete The container where the allocation contexts are
+	 *                          pointing to should be deleted.
 	 */
 	protected void deleteAllocationContexts(final ResourceContainer containerToDelete) {
 		this.allocation.getAllocationContexts_Allocation().stream()
-			.filter(context -> context.getResourceContainer_AllocationContext().getId().equals(containerToDelete.getId()))
-			.forEach(context -> {
-				this.allocation.getAllocationContexts_Allocation().remove(context);
-				// TODO: Mark this in adjustment result
-			});
+				.filter(context -> context.getResourceContainer_AllocationContext().getId()
+						.equals(containerToDelete.getId()))
+				.forEach(context -> {
+					this.allocation.getAllocationContexts_Allocation().remove(context);
+					// TODO: Mark this in adjustment result
+				});
 	}
-	
+
 	/**
-	 * Deletes the measuring points and all monitors to the measuring points that point to something
-	 * in the resource container.
+	 * Deletes the measuring points and all monitors to the measuring points that
+	 * point to something in the resource container.
 	 * 
 	 * @param containerToDelete
 	 */
@@ -345,13 +382,13 @@ public abstract class AbstractAdjustmentExecutor<E extends AdjustmentType> imple
 		this.monitorRepository.getMonitors().forEach(monitor -> {
 			final MeasuringPoint measuringPoint = monitor.getMeasuringPoint();
 			containerToDelete.getActiveResourceSpecifications_ResourceContainer().stream()
-				.filter(s -> measuringPoint.getResourceURIRepresentation().equals(EMFLoadHelper.getResourceURI(s)))
-				.findAny()
-				.ifPresent(s -> {
-					measuringPoint.getMeasuringPointRepository().getMeasuringPoints().remove(measuringPoint);
-					monitorRepository.getMonitors().remove(monitor);
-					// TODO: Mark this in adjustment result
-				});
+					.filter(s -> measuringPoint.getResourceURIRepresentation().equals(EMFLoadHelper.getResourceURI(s)))
+					.findAny()
+					.ifPresent(s -> {
+						measuringPoint.getMeasuringPointRepository().getMeasuringPoints().remove(measuringPoint);
+						this.monitorRepository.getMonitors().remove(monitor);
+						// TODO: Mark this in adjustment result
+					});
 		});
 	}
 
@@ -366,6 +403,7 @@ public abstract class AbstractAdjustmentExecutor<E extends AdjustmentType> imple
 
 	/**
 	 * Convenience method to build the adjustment result.
+	 * 
 	 * @return
 	 */
 	protected AdjustmentResult adjustmentResult() {

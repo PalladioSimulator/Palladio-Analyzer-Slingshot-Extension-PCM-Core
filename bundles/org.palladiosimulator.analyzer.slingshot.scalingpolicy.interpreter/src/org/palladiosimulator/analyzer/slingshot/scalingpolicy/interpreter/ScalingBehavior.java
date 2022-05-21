@@ -30,9 +30,8 @@ import org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment;
 
 import com.google.common.eventbus.Subscribe;
 
-import spd.SPD;
-import spd.ScalingPolicy;
-import spd.targetgroup.TargetGroup;
+import de.unistuttgart.slingshot.spd.SPD;
+import de.unistuttgart.slingshot.spd.ScalingPolicy;
 
 @OnEvent(when = AbstractTriggerEvent.class, then = { ModelAdjusted.class,
 		AdjustmentNotMade.class }, cardinality = EventCardinality.SINGLE)
@@ -50,7 +49,7 @@ public class ScalingBehavior implements SimulationBehaviorExtension {
 
 	private final Allocation allocation;
 	private final MonitorRepository monitorRepository;
-	
+
 	private final SimulationEngine engine;
 
 	@Inject
@@ -75,16 +74,19 @@ public class ScalingBehavior implements SimulationBehaviorExtension {
 		return ResultEvent.empty();
 	}
 
-	private void mapMonitorsToContexts(List<TriggerContext> contexts) {
+	private void mapMonitorsToContexts(final List<TriggerContext> contexts) {
 		contexts.forEach(context -> {
-			final ResourceEnvironment environment = TargetGroupTable.instance().getEnvironment(context.getTargetGroup());
+			final ResourceEnvironment environment = TargetGroupTable.instance()
+					.getEnvironment(context.getTargetGroup());
 			environment.getResourceContainer_ResourceEnvironment().forEach(container -> {
 				// TODO: Look at this more exactly
 				this.monitorRepository.getMonitors().stream()
-					.map(Monitor::getMeasuringPoint)
-					.filter(measuringPoint -> measuringPoint.getResourceURIRepresentation().equals(EMFLoadHelper.getResourceFragment(container)))
-					.findAny()
-					.ifPresent(measuringPoint -> this.monitorTriggerMapper.put(measuringPoint.getStringRepresentation(), context));
+						.map(Monitor::getMeasuringPoint)
+						.filter(measuringPoint -> measuringPoint.getResourceURIRepresentation()
+								.equals(EMFLoadHelper.getResourceFragment(container)))
+						.findAny()
+						.ifPresent(measuringPoint -> this.monitorTriggerMapper
+								.put(measuringPoint.getStringRepresentation(), context));
 			});
 		});
 	}
@@ -104,13 +106,13 @@ public class ScalingBehavior implements SimulationBehaviorExtension {
 	public ResultEvent<?> onMeasurementMade(final MeasurementMade measurementMade) {
 		final String measuringPointId = measurementMade.getEntity().getMeasuringPoint().getStringRepresentation();
 		final TriggerContext context = this.monitorTriggerMapper.get(measuringPointId);
-		
+
 		if (context == null) {
 			// Something happened.
 			LOGGER.info("Context couldn't be found by measuring point: " + measuringPointId);
 			return ResultEvent.empty();
 		} else {
-			return this.adjustmentResult(context, measurementMade);	
+			return this.adjustmentResult(context, measurementMade);
 		}
 	}
 
@@ -120,9 +122,8 @@ public class ScalingBehavior implements SimulationBehaviorExtension {
 	 */
 	@Subscribe
 	public ResultEvent<?> onSimulationFinished(final SimulationFinished finished) {
-		this.spd.getScalingpolicy().stream()
-				.map(ScalingPolicy::getTargetgroup)
-				.map(TargetGroup.class::cast)
+		this.spd.getScalingPolicies().stream()
+				.map(ScalingPolicy::getTargetGroup)
 				.map(TargetGroupTable.instance()::getEnvironment)
 				.forEach(resourceEnvironment -> {
 					LOGGER.info("Saving resource environment: " + resourceEnvironment.getEntityName());

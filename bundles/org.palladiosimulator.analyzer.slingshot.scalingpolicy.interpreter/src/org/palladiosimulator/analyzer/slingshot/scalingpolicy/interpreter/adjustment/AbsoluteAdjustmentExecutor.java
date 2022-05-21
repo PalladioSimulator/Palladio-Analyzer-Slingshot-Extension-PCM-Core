@@ -13,8 +13,8 @@ import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment;
 
-import spd.adjustmenttype.AbsoluteAdjustment;
-import spd.targetgroup.TargetGroup;
+import de.unistuttgart.slingshot.spd.adjustments.AbsoluteAdjustment;
+import de.unistuttgart.slingshot.spd.targets.TargetGroup;
 
 /**
  * Adjusts absolutely to a certain goal.
@@ -70,11 +70,6 @@ public final class AbsoluteAdjustmentExecutor extends AbstractAdjustmentExecutor
 	private void decrease(final ResourceEnvironment resourceEnvironment, final int delta) {
 		assert delta > 0;
 		LOGGER.info("Decrease size by deleting " + delta + " containers.");
-
-		final List<ResourceContainer> newResourceContainers = new ArrayList<>(
-				resourceEnvironment.getResourceContainer_ResourceEnvironment().size() * delta);
-		this.deleteContainers(resourceEnvironment, newResourceContainers, delta);
-
-		resourceEnvironment.getResourceContainer_ResourceEnvironment().removeAll(newResourceContainers);
+		this.deleteContainers(resourceEnvironment, delta);
 	}
 }

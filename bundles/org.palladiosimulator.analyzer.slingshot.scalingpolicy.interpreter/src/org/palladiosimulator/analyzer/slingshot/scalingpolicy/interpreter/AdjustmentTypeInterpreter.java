@@ -9,12 +9,12 @@ import org.palladiosimulator.analyzer.slingshot.simulation.core.entities.Simulat
 import org.palladiosimulator.monitorrepository.MonitorRepository;
 import org.palladiosimulator.pcm.allocation.Allocation;
 
-import spd.adjustmenttype.AbsoluteAdjustment;
-import spd.adjustmenttype.RelativeAdjustment;
-import spd.adjustmenttype.StepAdjustment;
-import spd.adjustmenttype.util.AdjustmenttypeSwitch;
+import de.unistuttgart.slingshot.spd.adjustments.AbsoluteAdjustment;
+import de.unistuttgart.slingshot.spd.adjustments.RelativeAdjustment;
+import de.unistuttgart.slingshot.spd.adjustments.StepAdjustment;
+import de.unistuttgart.slingshot.spd.adjustments.util.AdjustmentsSwitch;
 
-public class AdjustmentTypeInterpreter extends AdjustmenttypeSwitch<AdjustmentExecutor> {
+public class AdjustmentTypeInterpreter extends AdjustmentsSwitch<AdjustmentExecutor> {
 
 	private static final Logger LOGGER = Logger.getLogger(AdjustmentTypeInterpreter.class);
 
