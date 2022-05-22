@@ -2,6 +2,8 @@ package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.rep
 
 import java.util.Optional;
 
+import javax.inject.Inject;
+
 import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.allocation.AllocationContext;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
@@ -22,6 +24,7 @@ public class ResourceEnvironmentAccessor {
 	private final ResourceEnvironment resourceEnvironment;
 	private final Allocation allocation;
 
+	@Inject
 	public ResourceEnvironmentAccessor(final Allocation allocation) {
 		this.allocation = allocation;
 		this.resourceEnvironment = allocation.getTargetResourceEnvironment_Allocation();
@@ -43,4 +46,7 @@ public class ResourceEnvironmentAccessor {
 				.findFirst();
 	}
 
+	public static ResourceEnvironmentAccessor with(final Allocation allocation) {
+		return new ResourceEnvironmentAccessor(allocation);
+	}
 }

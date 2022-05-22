@@ -30,4 +30,8 @@
 **/.metadata/
 
 .DS_Sore
+<<<<<<< HEAD
 >>>>>>> b8924e3 (Updated gitignore)
+=======
+/todo.txt
+>>>>>>> fcf0424 (Initialized Load Balancer)

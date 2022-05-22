@@ -14,6 +14,7 @@ import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.even
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobProgressed;
+import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.loadbalancer.LoadBalancer;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.repository.ResourceEnvironmentAccessor;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.resources.active.ActiveResource;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.resources.active.ActiveResourceCompoundKey;
@@ -27,7 +28,9 @@ import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.PassiveResourceAcquired;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.PassiveResourceReleased;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.ResourceDemandRequested;
+import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.events.ModelAdjusted;
 import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationFinished;
+import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventCardinality;
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.OnEvent;
@@ -36,6 +39,7 @@ import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.allocation.AllocationContext;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.repository.PassiveResource;
+import org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -61,16 +65,18 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 
 	private final Allocation allocation;
 	private final ResourceEnvironmentAccessor resourceEnvironmentAccessor;
+	private final LoadBalancer loadBalancer;
 
 	private final ActiveResourceTable resourceTable;
 	private final PassiveResourceTable passiveResourceTable;
 
 	@Inject
-	public ResourceSimulation(final Allocation allocation) {
+	public ResourceSimulation(final Allocation allocation, final ResourceEnvironment resourceEnvironment) {
 		this.allocation = allocation;
 		this.resourceEnvironmentAccessor = new ResourceEnvironmentAccessor(allocation);
 		this.resourceTable = new ActiveResourceTable();
 		this.passiveResourceTable = new PassiveResourceTable();
+		this.loadBalancer = new LoadBalancer(resourceEnvironment, allocation);
 	}
 
 	@Override
@@ -118,9 +124,7 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 						.getSpecification(),
 				Double.class, request.getUser().getStack().currentStackFrame());
 
-		final AllocationContext context = this.resourceEnvironmentAccessor
-				.findResourceContainerOfComponent(request.getAssemblyContext())
-				.orElseThrow();
+		final AllocationContext context = this.loadBalancer.getResourceContainer(request);
 
 		final Job job = Job.builder()
 				.withDemand(demand)
@@ -210,6 +214,12 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 	@Subscribe
 	public ResultEvent<ActiveResourceFinished> onJobFinished(final JobFinished evt) {
 		return ResultEvent.of(new ActiveResourceFinished(evt.getEntity().getRequest(), 0));
+	}
+
+	@Subscribe
+	public ResultEvent<DESEvent> onModelAdjusted(final ModelAdjusted modelChanged) {
+		// TODO: Notice the changes and add them to load balancer accordingly.
+		return ResultEvent.empty();
 	}
 
 	/**

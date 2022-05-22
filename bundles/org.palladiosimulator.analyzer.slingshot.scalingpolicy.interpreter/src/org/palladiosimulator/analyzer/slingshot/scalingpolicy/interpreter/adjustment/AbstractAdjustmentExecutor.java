@@ -62,11 +62,6 @@ public abstract class AbstractAdjustmentExecutor<E extends AdjustmentType> imple
 	/** The monitor repository model since it'll be manipulated as well. */
 	private final MonitorRepository monitorRepository;
 
-	@Deprecated
-	AbstractAdjustmentExecutor(final E adjustmentType, final SimulationInformation simulationInformation) {
-		this(adjustmentType, simulationInformation, null, null);
-	}
-
 	/**
 	 * Constructs an adjustment executor.
 	 * 
@@ -155,40 +150,6 @@ public abstract class AbstractAdjustmentExecutor<E extends AdjustmentType> imple
 		final int index = (int) (Math.random() * (upperBound + 1));
 		return environment.getResourceContainer_ResourceEnvironment().get(index);
 	}
-
-	/**
-	 * Copies all the measuring points and monitors that are present in this
-	 * container. Note that each {@link Monitor} points to exactly one
-	 * {@link MeasuringPoint}. The new copies are also present in the
-	 * {@link MonitorRepository} and {@link MeasuringpointRepository}, which are
-	 * model files.
-	 * 
-	 * Currently, the only measuring points that are being copied are measuring
-	 * points pointing to a {@link ProcessingResourceSpecification}.
-	 * 
-	 * @param container The copied container in which the new measuring points
-	 *                  should be copied into.
-	 * @see #copyMonitor(Monitor, MeasuringPoint)
-	 * @see #copyActiveResourceSpec(ProcessingResourceSpecification,
-	 *      ResourceContainer, MeasuringPoint)
-	 */
-//	protected void copyMeasuringPoints(final ResourceContainer container) {
-//		final List<Monitor> monitors = this.monitorRepository.getMonitors();
-//		for (final Monitor monitor : monitors) {
-//			final MeasuringPoint measuringPoint = monitor.getMeasuringPoint();
-//			final Optional<ProcessingResourceSpecification> spec = container
-//					.getActiveResourceSpecifications_ResourceContainer()
-//					.stream()
-//					.filter(s -> measuringPoint.getResourceURIRepresentation().equals(EMFLoadHelper.getResourceURI(s)))
-//					.findFirst();
-//
-//			if (spec.isPresent()) {
-//				final MeasuringPoint copyMeasuringPoint = this.copyActiveResourceSpec(spec.get(), container,
-//						measuringPoint);
-//				this.copyMonitor(monitor, copyMeasuringPoint);
-//			}
-//		}
-//	}
 
 	/**
 	 * Copies the monitor into the {@link MonitorRepository} and connects it to
