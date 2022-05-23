@@ -59,6 +59,7 @@ import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 @OnEvent(when = ResourceDemandRequested.class, then = {
 		JobInitiated.class, PassiveResourceAcquired.class
 }, cardinality = SINGLE)
+@OnEvent(when = ModelAdjusted.class, then = {})
 public class ResourceSimulation implements SimulationBehaviorExtension {
 
 	private static final Logger LOGGER = Logger.getLogger(ResourceSimulation.class);

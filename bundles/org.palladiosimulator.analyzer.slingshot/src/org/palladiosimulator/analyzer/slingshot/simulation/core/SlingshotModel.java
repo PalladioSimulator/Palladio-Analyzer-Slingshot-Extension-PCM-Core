@@ -1,5 +1,7 @@
 package org.palladiosimulator.analyzer.slingshot.simulation.core;
 
+import java.util.Optional;
+
 import javax.annotation.processing.Generated;
 
 import org.palladiosimulator.monitorrepository.MonitorRepository;
@@ -38,7 +40,8 @@ public final class SlingshotModel extends AbstractModule {
 	private SlingshotModel(final Builder builder) {
 		this.allocationModel = builder.allocationModel;
 		this.repositoryModel = builder.repositoryModel;
-		this.resourceEnvironmentModel = builder.resourceEnvironmentModel;
+		this.resourceEnvironmentModel = Optional.ofNullable(builder.resourceEnvironmentModel)
+				.orElseGet(() -> builder.allocationModel.getTargetResourceEnvironment_Allocation());
 		this.systemModel = builder.systemModel;
 		this.usageModel = builder.usageModel;
 		this.resourceRepository = builder.resourceRepository;

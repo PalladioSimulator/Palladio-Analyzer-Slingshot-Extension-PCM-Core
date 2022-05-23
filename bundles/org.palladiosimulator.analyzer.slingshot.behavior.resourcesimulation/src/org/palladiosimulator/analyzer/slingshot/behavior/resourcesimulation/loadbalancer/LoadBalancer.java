@@ -39,4 +39,15 @@ public final class LoadBalancer {
 		minEntry.setValue(minEntry.getValue() + 1);
 		return minEntry.getKey();
 	}
+
+	public void finishJob(final AllocationContext context) {
+		if (!this.jobs.containsKey(context)) {
+			throw new IllegalArgumentException("Context is not captured in load balancer");
+		}
+		if (this.jobs.get(context) == 0) {
+			throw new IllegalStateException("No jobs currently kept.");
+		}
+		this.jobs.computeIfPresent(context, (alc, val) -> val - 1);
+	}
+
 }
