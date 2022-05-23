@@ -195,7 +195,12 @@ public abstract class AbstractAdjustmentExecutor<E extends AdjustmentType> imple
 		final ProcessingResourceSpecification specCopy = EcoreUtil.copy(spec);
 		specCopy.setId(EcoreUtil.generateUUID());
 
-		copy.getActiveResourceSpecifications_ResourceContainer().remove(spec);
+		// Simply removing by .remove(spec) does not work.
+		copy.getActiveResourceSpecifications_ResourceContainer().stream()
+				.filter(s -> s.getId().equals(spec.getId()))
+				.findFirst()
+				.ifPresent(s -> copy.getActiveResourceSpecifications_ResourceContainer().remove(s));
+
 		copy.getActiveResourceSpecifications_ResourceContainer().add(specCopy);
 
 		this.monitorRepository.getMonitors().stream()
