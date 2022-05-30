@@ -241,13 +241,23 @@ public abstract class AbstractAdjustmentExecutor<E extends AdjustmentType> imple
 		this.allocation.getAllocationContexts_Allocation().stream()
 				.filter(allocationContext -> allocationContext.getResourceContainer_AllocationContext().getId()
 						.equals(originalContainer.getId()))
-				.map(EcoreUtil::copy) // TODO: Should there be more done?
-				.forEach(copiedContext -> {
-					copiedContext.setResourceContainer_AllocationContext(copy);
-					newAllocationContexts.add(copiedContext);
-					this.adjustmentResultBuilder().addNewAllocationContext(copiedContext);
-				});
+				.forEach(allocationContext -> this.copyAllocationAndAssemblyContext(allocationContext, copy,
+						newAllocationContexts));
 		this.allocation.getAllocationContexts_Allocation().addAll(newAllocationContexts);
+	}
+
+	private void copyAllocationAndAssemblyContext(final AllocationContext allocationContext,
+			final ResourceContainer copy,
+			final Collection<? super AllocationContext> newAllocationContexts) {
+		final AllocationContext copiedContext = EcoreUtil.copy(allocationContext);
+		copiedContext.setId(EcoreUtil.generateUUID());
+		final AssemblyContext copiedAssemblyContext = EcoreUtil
+				.copy(allocationContext.getAssemblyContext_AllocationContext());
+		copiedAssemblyContext.setId(EcoreUtil.generateUUID());
+		copiedContext.setAssemblyContext_AllocationContext(copiedAssemblyContext);
+		copiedContext.setResourceContainer_AllocationContext(copy);
+		newAllocationContexts.add(copiedContext);
+		this.adjustmentResultBuilder().addNewAllocationContext(copiedContext);
 	}
 
 	/**
