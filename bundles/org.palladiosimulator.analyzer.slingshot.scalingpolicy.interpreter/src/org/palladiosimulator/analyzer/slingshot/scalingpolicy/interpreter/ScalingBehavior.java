@@ -131,7 +131,21 @@ public class ScalingBehavior implements SimulationBehaviorExtension {
 					resource.getContents().add(resourceEnvironment);
 					ResourceUtils.saveResource(resource);
 				});
+		debugSaveAllocationContext();
+		debugSaveSystem();
 		return ResultEvent.empty();
+	}
+	
+	private void debugSaveAllocationContext() {
+		final Resource resource = this.allocation.eResource();
+		resource.getContents().add(allocation);
+		ResourceUtils.saveResource(resource);
+	}
+	
+	private void debugSaveSystem() {
+		final Resource resource = this.allocation.getSystem_Allocation().eResource();
+		resource.getContents().add(this.allocation.getSystem_Allocation());
+		ResourceUtils.saveResource(resource);
 	}
 
 	private ResultEvent<?> adjustmentResult(final TriggerContext context, final MeasurementMade measurementMade) {

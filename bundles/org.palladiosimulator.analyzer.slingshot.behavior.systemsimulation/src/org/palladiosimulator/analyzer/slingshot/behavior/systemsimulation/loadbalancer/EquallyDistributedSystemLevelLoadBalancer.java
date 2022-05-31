@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.apache.log4j.Logger;
 import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.repository.OperationProvidedRole;
@@ -19,6 +20,8 @@ import org.palladiosimulator.pcm.system.System;
  * @author Julijan Katic
  */
 public final class EquallyDistributedSystemLevelLoadBalancer implements SystemLevelLoadBalancer {
+	
+	private static final Logger LOGGER = Logger.getLogger(EquallyDistributedSystemLevelLoadBalancer.class);
 
 	private final System systemModel;
 
@@ -39,7 +42,11 @@ public final class EquallyDistributedSystemLevelLoadBalancer implements SystemLe
 		if (assemblyContext.isEmpty()) {
 			return Optional.empty();
 		} else {
-			return Optional.of(assemblyContext.get((int) Math.floor(assemblyContext.size() * randomNumber)));
+			LOGGER.debug("[[LOAD-BALANCER]]: Number of current assembly contexts: " + assemblyContext.size());
+			final int randomIndex = (int) Math.floor(assemblyContext.size() * randomNumber);
+			final AssemblyContext context = assemblyContext.get(randomIndex);
+			LOGGER.info("[[LOAD-BALANCER]]: Load balancing to index #" + randomIndex + ". Chosen AssemblyContext: " + context.getEntityName() + "#" + context.getId());
+			return Optional.of(context);
 		}
 	}
 

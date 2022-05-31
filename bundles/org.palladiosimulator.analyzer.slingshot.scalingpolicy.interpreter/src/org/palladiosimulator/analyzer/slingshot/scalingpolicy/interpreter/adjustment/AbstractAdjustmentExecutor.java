@@ -254,6 +254,11 @@ public abstract class AbstractAdjustmentExecutor<E extends AdjustmentType> imple
 		final AssemblyContext copiedAssemblyContext = EcoreUtil
 				.copy(allocationContext.getAssemblyContext_AllocationContext());
 		copiedAssemblyContext.setId(EcoreUtil.generateUUID());
+		
+		allocationContext.getAssemblyContext_AllocationContext().getParentStructure__AssemblyContext()
+			.getAssemblyContexts__ComposedStructure()
+			.add(copiedAssemblyContext);
+		
 		copiedContext.setAssemblyContext_AllocationContext(copiedAssemblyContext);
 		copiedContext.setResourceContainer_AllocationContext(copy);
 		newAllocationContexts.add(copiedContext);
