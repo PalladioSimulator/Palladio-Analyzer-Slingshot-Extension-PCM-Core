@@ -63,6 +63,9 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SEFFInterpretati
 
 	/** The model repository to get more information from the system model. */
 	private final SystemModelRepository modelRepository;
+	
+	/** The context of the calling seff */
+	private final Optional<SEFFInterpretationContext> callerContext;
 
 	/**
 	 * Instantiates the interpreter with given information. Depending on the
@@ -79,12 +82,13 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SEFFInterpretati
 	 *                        system model.
 	 */
 	public RepositoryInterpreter(final AssemblyContext context, final Signature signature,
-	        final ProvidedRole providedRole, final User user, final SystemModelRepository modelRepository) {
+	        final ProvidedRole providedRole, final User user, final SystemModelRepository modelRepository, final Optional<SEFFInterpretationContext> callerContext) {
 		this.assemblyContext = context;
 		this.signature = signature;
 		this.providedRole = providedRole;
 		this.user = user;
 		this.modelRepository = modelRepository;
+		this.callerContext = callerContext;
 	}
 
 	/**
@@ -115,8 +119,9 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SEFFInterpretati
 		        	/*
 		    		 * Define for each SEFF a new request event to be interpreted.
 		    		 */
-			        final SEFFInterpretationContext context = SEFFInterpretationContext.builder()
+			        SEFFInterpretationContext context = SEFFInterpretationContext.builder()
 			        		.withAssemblyContext(this.assemblyContext)
+			        		.withCaller(callerContext)
 			        		.withBehaviorContext(new RootBehaviorContextHolder(rdSeff))
 			        		.withRequestProcessingContext(RequestProcessingContext.builder()
 			        				.withAssemblyContext(this.assemblyContext)
@@ -199,7 +204,7 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SEFFInterpretati
 		final RepositoryInterpreter repositoryInterpreter = new RepositoryInterpreter(
 		        connectedProvidedDelegationConnector.getAssemblyContext_ProvidedDelegationConnector(), this.signature,
 		        connectedProvidedDelegationConnector.getInnerProvidedRole_ProvidedDelegationConnector(), this.user,
-		        this.modelRepository);
+		        this.modelRepository, Optional.empty());
 		return repositoryInterpreter
 		        .doSwitch(connectedProvidedDelegationConnector.getInnerProvidedRole_ProvidedDelegationConnector());
 	}
