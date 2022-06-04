@@ -65,7 +65,7 @@ public class SystemModelRepositoryImpl implements SystemModelRepository {
 				.map(connector -> (AssemblyConnector) connector)
 				.filter(assemblyConnector -> assemblyConnector.getRequiredRole_AssemblyConnector().getId()
 						.equals(requiredRole.getId()))
-				.map(AssemblyConnector::getRequiringAssemblyContext_AssemblyConnector)
+				.map(AssemblyConnector::getProvidingAssemblyContext_AssemblyConnector)
 				.findFirst();
 	}
 
