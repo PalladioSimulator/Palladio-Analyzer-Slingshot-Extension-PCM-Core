@@ -2,6 +2,7 @@ package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.res
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.Set;
 
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.jobs.Job;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.AbstractJobEvent;
@@ -54,6 +55,10 @@ public class FCFSResource extends AbstractActiveResource {
 
 		this.processes.add(newJob);
 
+		if(this.processes.size()!=1) {
+			return ResultEvent.of(Set.of());
+		}
+		
 		return ResultEvent.of(this.scheduleNextEvent());
 	}
 
