@@ -38,9 +38,10 @@ public final class RelativeAdjustmentExecutor extends AbstractAdjustmentExecutor
 				.getEnvironment(targetGroup.getTargetGroup());
 
 		final int relativeNumber = (int) Math.floor(environment.getResourceContainer_ResourceEnvironment().size()
-				* this.getAdjustmentType().getPercentageValue());
-		final int actualAdjustment = relativeNumber == 0 ? this.getAdjustmentType().getMinAdjustmentValue()
-				: relativeNumber;
+				* this.getAdjustmentType().getPercentageValue()/100);
+		final int actualAdjustment = relativeNumber == 0 ? 
+				environment.getResourceContainer_ResourceEnvironment().size() + this.getAdjustmentType().getMinAdjustmentValue()
+				: environment.getResourceContainer_ResourceEnvironment().size() + relativeNumber;
 
 		if (actualAdjustment < environment.getResourceContainer_ResourceEnvironment().size()) {
 			// Decrease
