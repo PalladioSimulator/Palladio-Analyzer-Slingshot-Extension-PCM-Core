@@ -33,8 +33,6 @@ public final class ProcessorSharingResource extends AbstractActiveResource {
 	private static final double JIFFY = 1e-9;
 
 	/** The set of jobs to process, sorted by its demand. */
-//	private final SortedSet<Job> runningJobs;
-
 	private final Hashtable<Job, Double> runningJobs;
 
 	/** The list of cores, whose number specify the number of processes. */
