@@ -151,7 +151,10 @@ public final class ProcessorSharingResource extends AbstractActiveResource {
 			}
 		}
 
-		double remainingTime = shortestJob.getDemand() * this.getProcessingDelayFactorPerProcess();
+		/*
+		 * the remaining demand is contained in the Hashtable, in the actual Job is the initial demand which does not change
+		 */
+		double remainingTime = runningJobs.get(shortestJob) * this.getProcessingDelayFactorPerProcess();
 
 		/*
 		 * Update remaining time to 0 if it is too small in order to avoid rounding
