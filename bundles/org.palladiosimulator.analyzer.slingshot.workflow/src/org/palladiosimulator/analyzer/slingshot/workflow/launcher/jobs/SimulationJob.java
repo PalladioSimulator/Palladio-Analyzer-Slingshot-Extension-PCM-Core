@@ -20,8 +20,8 @@ import de.uka.ipd.sdq.workflow.jobs.IBlackboardInteractingJob;
 import de.uka.ipd.sdq.workflow.jobs.JobFailedException;
 import de.uka.ipd.sdq.workflow.jobs.UserCanceledException;
 import de.uka.ipd.sdq.workflow.mdsd.blackboard.MDSDBlackboard;
-import de.unistuttgart.slingshot.spd.SPD;
-import de.unistuttgart.slingshot.spd.SpdPackage;
+import org.palladiosimulator.spd.SPD;
+import org.palladiosimulator.spd.SpdPackage;
 
 /**
  * This class is responsible for starting and monitoring the simulation. It

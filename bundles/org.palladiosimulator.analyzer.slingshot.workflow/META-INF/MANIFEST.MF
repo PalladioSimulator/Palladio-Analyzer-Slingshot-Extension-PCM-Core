@@ -17,7 +17,7 @@ Require-Bundle: de.uka.ipd.sdq.workflow,
  de.uka.ipd.sdq.simulation,
  de.uka.ipd.sdq.simucomframework,
  org.palladiosimulator.monitorrepository,
- ScalingMetaModel,
+ org.palladiosimulator.spd,
  org.palladiosimulator.analyzer.slingshot.driver,
  org.palladiosimulator.analyzer.slingshot.engine,
  org.palladiosimulator.analyzer.slingshot.event

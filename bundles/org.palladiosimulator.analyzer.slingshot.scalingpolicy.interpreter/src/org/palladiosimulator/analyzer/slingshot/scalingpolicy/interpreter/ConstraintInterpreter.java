@@ -9,16 +9,16 @@ import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.result.Constr
 import org.palladiosimulator.analyzer.slingshot.simulation.core.entities.SimulationInformation;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment;
 
-import de.unistuttgart.slingshot.spd.constraints.AbstractConstraint;
-import de.unistuttgart.slingshot.spd.constraints.policy.CooldownConstraint;
-import de.unistuttgart.slingshot.spd.constraints.policy.IntervallConstraint;
-import de.unistuttgart.slingshot.spd.constraints.policy.PolicyConstraint;
-import de.unistuttgart.slingshot.spd.constraints.policy.ThrashingConstraint;
-import de.unistuttgart.slingshot.spd.constraints.policy.util.PolicySwitch;
-import de.unistuttgart.slingshot.spd.constraints.target.TargetConstraint;
-import de.unistuttgart.slingshot.spd.constraints.target.TargetGroupSizeConstraint;
-import de.unistuttgart.slingshot.spd.constraints.target.util.TargetSwitch;
-import de.unistuttgart.slingshot.spd.constraints.util.ConstraintsSwitch;
+import org.palladiosimulator.spd.constraints.AbstractConstraint;
+import org.palladiosimulator.spd.constraints.policy.CooldownConstraint;
+import org.palladiosimulator.spd.constraints.policy.IntervallConstraint;
+import org.palladiosimulator.spd.constraints.policy.PolicyConstraint;
+import org.palladiosimulator.spd.constraints.policy.ThrashingConstraint;
+import org.palladiosimulator.spd.constraints.policy.util.PolicySwitch;
+import org.palladiosimulator.spd.constraints.target.TargetConstraint;
+import org.palladiosimulator.spd.constraints.target.TargetGroupSizeConstraint;
+import org.palladiosimulator.spd.constraints.target.util.TargetSwitch;
+import org.palladiosimulator.spd.constraints.util.ConstraintsSwitch;
 
 public class ConstraintInterpreter extends ConstraintsSwitch<PolicyConstraintPredicate> {
 

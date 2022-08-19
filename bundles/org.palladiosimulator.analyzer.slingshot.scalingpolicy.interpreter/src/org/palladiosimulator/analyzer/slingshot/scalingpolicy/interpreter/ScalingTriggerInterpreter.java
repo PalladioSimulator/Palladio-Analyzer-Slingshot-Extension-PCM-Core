@@ -13,10 +13,10 @@ import org.palladiosimulator.analyzer.slingshot.simulation.api.SimulationEngine;
 import org.palladiosimulator.metricspec.MetricDescription;
 import org.palladiosimulator.metricspec.constants.MetricDescriptionConstants;
 
-import de.unistuttgart.slingshot.spd.triggers.CPUUtilizationTrigger;
-import de.unistuttgart.slingshot.spd.triggers.PointInTimeTrigger;
-import de.unistuttgart.slingshot.spd.triggers.THRESHOLDDIRECTION;
-import de.unistuttgart.slingshot.spd.triggers.util.TriggersSwitch;
+import org.palladiosimulator.spd.triggers.CPUUtilizationTrigger;
+import org.palladiosimulator.spd.triggers.PointInTimeTrigger;
+import org.palladiosimulator.spd.triggers.THRESHOLDDIRECTION;
+import org.palladiosimulator.spd.triggers.util.TriggersSwitch;
 
 public class ScalingTriggerInterpreter extends TriggersSwitch<ScalingTriggerPredicate> {
 

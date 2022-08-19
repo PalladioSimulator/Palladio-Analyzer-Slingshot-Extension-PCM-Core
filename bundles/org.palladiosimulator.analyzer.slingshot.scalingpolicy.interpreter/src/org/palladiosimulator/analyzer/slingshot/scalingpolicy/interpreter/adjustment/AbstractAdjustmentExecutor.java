@@ -31,7 +31,7 @@ import org.palladiosimulator.pcmmeasuringpoint.PcmmeasuringpointFactory;
 
 import com.google.common.base.Preconditions;
 
-import de.unistuttgart.slingshot.spd.adjustments.AdjustmentType;
+import org.palladiosimulator.spd.adjustments.AdjustmentType;
 
 /**
  * This class also provides methods for copying resources containers, linking

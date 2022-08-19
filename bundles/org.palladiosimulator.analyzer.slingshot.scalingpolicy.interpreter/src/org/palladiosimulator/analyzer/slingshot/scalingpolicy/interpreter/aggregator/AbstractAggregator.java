@@ -11,7 +11,7 @@ import org.palladiosimulator.monitorrepository.statisticalcharacterization.Arith
 import org.palladiosimulator.monitorrepository.statisticalcharacterization.MedianAggregator;
 import org.palladiosimulator.monitorrepository.statisticalcharacterization.StatisticalCharacterizationAggregator;
 
-import de.unistuttgart.slingshot.spd.triggers.AGGREGATIONMETHOD;
+import org.palladiosimulator.spd.triggers.AGGREGATIONMETHOD;
 
 public abstract class AbstractAggregator {
 

@@ -13,7 +13,7 @@ import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment;
 
-import de.unistuttgart.slingshot.spd.adjustments.RelativeAdjustment;
+import org.palladiosimulator.spd.adjustments.RelativeAdjustment;
 
 /**
  * The relative adjustment adds a number of [TODO]

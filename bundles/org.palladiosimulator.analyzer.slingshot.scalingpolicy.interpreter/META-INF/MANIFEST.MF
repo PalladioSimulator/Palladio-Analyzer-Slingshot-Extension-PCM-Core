@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.scalingpolicy.inte
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.scalingpolicy.interpreter
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Require-Bundle: ScalingMetaModel;bundle-version="1.0.0",
+Require-Bundle: org.palladiosimulator.spd;bundle-version="1.0.0",
  org.palladiosimulator.analyzer.slingshot;bundle-version="1.0.0",
  org.palladiosimulator.analyzer.slingshot.scalingpolicy.data,
  org.palladiosimulator.pcm,

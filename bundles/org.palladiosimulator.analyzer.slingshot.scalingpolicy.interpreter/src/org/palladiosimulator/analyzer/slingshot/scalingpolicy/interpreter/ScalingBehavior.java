@@ -30,8 +30,8 @@ import org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment;
 
 import com.google.common.eventbus.Subscribe;
 
-import de.unistuttgart.slingshot.spd.SPD;
-import de.unistuttgart.slingshot.spd.ScalingPolicy;
+import org.palladiosimulator.spd.SPD;
+import org.palladiosimulator.spd.ScalingPolicy;
 
 @OnEvent(when = AbstractTriggerEvent.class, then = { ModelAdjusted.class,
 		AdjustmentNotMade.class }, cardinality = EventCardinality.SINGLE)

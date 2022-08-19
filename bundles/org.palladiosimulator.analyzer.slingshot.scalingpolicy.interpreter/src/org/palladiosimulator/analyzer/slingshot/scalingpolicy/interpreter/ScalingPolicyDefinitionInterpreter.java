@@ -12,9 +12,9 @@ import org.palladiosimulator.analyzer.slingshot.simulation.core.entities.Simulat
 import org.palladiosimulator.monitorrepository.MonitorRepository;
 import org.palladiosimulator.pcm.allocation.Allocation;
 
-import de.unistuttgart.slingshot.spd.SPD;
-import de.unistuttgart.slingshot.spd.ScalingPolicy;
-import de.unistuttgart.slingshot.spd.util.SpdSwitch;
+import org.palladiosimulator.spd.SPD;
+import org.palladiosimulator.spd.ScalingPolicy;
+import org.palladiosimulator.spd.util.SpdSwitch;
 
 /**
  * The scaling policy definition interpreter creates a {@link TriggerContext}

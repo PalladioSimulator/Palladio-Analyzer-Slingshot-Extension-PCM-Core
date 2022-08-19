@@ -14,8 +14,8 @@ import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment;
 
-import de.unistuttgart.slingshot.spd.adjustments.StepAdjustment;
-import de.unistuttgart.slingshot.spd.targets.TargetGroup;
+import org.palladiosimulator.spd.adjustments.StepAdjustment;
+import org.palladiosimulator.spd.targets.TargetGroup;
 
 /**
  * Copies exactly the number of times specified in the

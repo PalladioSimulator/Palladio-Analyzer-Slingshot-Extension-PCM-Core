@@ -12,9 +12,9 @@ import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.result.Adjust
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.result.AdjustmentResultReason;
 import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.result.ConstraintResult;
 
-import de.unistuttgart.slingshot.spd.adjustments.AdjustmentType;
-import de.unistuttgart.slingshot.spd.targets.TargetGroup;
-import de.unistuttgart.slingshot.spd.triggers.ScalingTrigger;
+import org.palladiosimulator.spd.adjustments.AdjustmentType;
+import org.palladiosimulator.spd.targets.TargetGroup;
+import org.palladiosimulator.spd.triggers.ScalingTrigger;
 
 public final class TriggerContext {
 

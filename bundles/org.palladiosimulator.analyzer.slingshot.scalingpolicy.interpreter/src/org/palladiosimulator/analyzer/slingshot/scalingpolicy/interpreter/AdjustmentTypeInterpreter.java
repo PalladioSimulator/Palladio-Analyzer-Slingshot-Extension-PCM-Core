@@ -9,10 +9,10 @@ import org.palladiosimulator.analyzer.slingshot.simulation.core.entities.Simulat
 import org.palladiosimulator.monitorrepository.MonitorRepository;
 import org.palladiosimulator.pcm.allocation.Allocation;
 
-import de.unistuttgart.slingshot.spd.adjustments.AbsoluteAdjustment;
-import de.unistuttgart.slingshot.spd.adjustments.RelativeAdjustment;
-import de.unistuttgart.slingshot.spd.adjustments.StepAdjustment;
-import de.unistuttgart.slingshot.spd.adjustments.util.AdjustmentsSwitch;
+import org.palladiosimulator.spd.adjustments.AbsoluteAdjustment;
+import org.palladiosimulator.spd.adjustments.RelativeAdjustment;
+import org.palladiosimulator.spd.adjustments.StepAdjustment;
+import org.palladiosimulator.spd.adjustments.util.AdjustmentsSwitch;
 
 public class AdjustmentTypeInterpreter extends AdjustmentsSwitch<AdjustmentExecutor> {
 

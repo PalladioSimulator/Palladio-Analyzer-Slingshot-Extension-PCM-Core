@@ -13,8 +13,8 @@ import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment;
 
-import de.unistuttgart.slingshot.spd.adjustments.AbsoluteAdjustment;
-import de.unistuttgart.slingshot.spd.targets.TargetGroup;
+import org.palladiosimulator.spd.adjustments.AbsoluteAdjustment;
+import org.palladiosimulator.spd.targets.TargetGroup;
 
 /**
  * Adjusts absolutely to a certain goal.

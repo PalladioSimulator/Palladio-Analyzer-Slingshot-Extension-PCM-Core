@@ -5,8 +5,8 @@ import java.util.Map;
 
 import org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment;
 
-import de.unistuttgart.slingshot.spd.targets.ElasticInfrastructure;
-import de.unistuttgart.slingshot.spd.targets.TargetGroup;
+import org.palladiosimulator.spd.targets.ElasticInfrastructure;
+import org.palladiosimulator.spd.targets.TargetGroup;
 
 /**
  * This class holds all the necessary target groups and their respective

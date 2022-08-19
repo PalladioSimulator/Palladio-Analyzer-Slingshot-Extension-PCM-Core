@@ -8,8 +8,8 @@ import java.util.function.BooleanSupplier;
 
 import com.google.common.collect.ImmutableList;
 
-import de.unistuttgart.slingshot.spd.constraints.AbstractConstraint;
-import de.unistuttgart.slingshot.spd.constraints.policy.PolicyConstraint;
+import org.palladiosimulator.spd.constraints.AbstractConstraint;
+import org.palladiosimulator.spd.constraints.policy.PolicyConstraint;
 
 public final class ConstraintResult {
 
