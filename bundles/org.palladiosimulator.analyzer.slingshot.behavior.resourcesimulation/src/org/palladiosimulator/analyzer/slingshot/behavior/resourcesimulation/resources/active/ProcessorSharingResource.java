@@ -180,6 +180,7 @@ public final class ProcessorSharingResource extends AbstractActiveResource {
 			for (final Entry<Job, Double> e : runningJobs.entrySet()) {
 				final double rem = e.getValue() - processedDemandPerThread;
 				e.setValue(rem);
+				e.getKey().updateDemand(rem);
 			}
 		}
 
