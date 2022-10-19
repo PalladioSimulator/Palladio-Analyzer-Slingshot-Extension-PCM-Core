@@ -20,6 +20,7 @@ import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral
 import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
 import org.palladiosimulator.commons.emfutils.EMFLoadHelper;
 import org.palladiosimulator.edp2.models.measuringpoint.MeasuringPoint;
+import org.palladiosimulator.edp2.util.MetricDescriptionUtility;
 import org.palladiosimulator.metricspec.MetricDescription;
 import org.palladiosimulator.metricspec.constants.MetricDescriptionConstants;
 import org.palladiosimulator.monitorrepository.MeasurementSpecification;
@@ -62,18 +63,20 @@ public class UsageScenarioResponseTimeMonitoringBehavior implements SimulationBe
 		final MeasurementSpecification measurementSpecification = measurementSpecificationVisited.getModelElement();
 		final MeasuringPoint measuringPoint = measurementSpecification.getMonitor().getMeasuringPoint();
 		final EObject eObject = EMFLoadHelper.loadAndResolveEObject(measuringPoint.getResourceURIRepresentation());
-		if (eObject instanceof UsageScenario) {
+		if (eObject instanceof UsageScenario && MetricDescriptionUtility.metricDescriptionIdsEqual(measurementSpecification.getMetricDescription(),
+				MetricDescriptionConstants.RESPONSE_TIME_METRIC)) {
 			final UsageScenario scenario = (UsageScenario) eObject;
 			final UserProbes userProbes = new UserProbes();
 			this.userProbesMap.put(scenario.getId(), userProbes);
+			
 			final Calculator calculator = this.calculatorFactory.buildCalculator(
-					getTuple(measurementSpecification.getMetricDescription()), measuringPoint,
+					MetricDescriptionConstants.RESPONSE_TIME_METRIC_TUPLE, measuringPoint,
 					DefaultCalculatorProbeSets.createStartStopProbeConfiguration(userProbes.userStartedProbe,
 							userProbes.userFinishedProbe));
+				
 			return ResultEvent.of(new CalculatorRegistered(calculator));
-		} else {
-			return ResultEvent.empty();
-		}
+			}
+		return ResultEvent.empty();
 	}
 
 	@Subscribe
@@ -98,13 +101,6 @@ public class UsageScenarioResponseTimeMonitoringBehavior implements SimulationBe
 					.of(new ProbeTaken(ProbeTakenEntity.builder().withProbe(userProbes.userFinishedProbe).build()));
 		}
 		return ResultEvent.empty();
-	}
-
-	private static MetricDescription getTuple(final MetricDescription metricDescription) {
-		if (MetricDescriptionConstants.RESPONSE_TIME_METRIC.getId().equals(metricDescription.getId())) {
-			return MetricDescriptionConstants.RESPONSE_TIME_METRIC_TUPLE;
-		}
-		return MetricDescriptionConstants.RESPONSE_TIME_METRIC_TUPLE; // TODO what should we return instead?
 	}
 
 	private static final class UserProbes {
