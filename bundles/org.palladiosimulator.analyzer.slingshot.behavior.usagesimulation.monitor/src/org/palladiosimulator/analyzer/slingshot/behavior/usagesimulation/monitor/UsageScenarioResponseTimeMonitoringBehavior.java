@@ -44,13 +44,13 @@ import com.google.common.eventbus.Subscribe;
 @OnEvent(when = MonitorModelVisited.class, whenReified = MeasurementSpecification.class, then = CalculatorRegistered.class, cardinality = EventCardinality.SINGLE)
 @OnEvent(when = UsageModelPassedElement.class, whenReified = Start.class, then = ProbeTaken.class, cardinality = EventCardinality.SINGLE)
 @OnEvent(when = UsageModelPassedElement.class, whenReified = Stop.class, then = ProbeTaken.class, cardinality = EventCardinality.SINGLE)
-public class UsageModelMonitoring implements SimulationBehaviorExtension {
+public class UsageScenarioResponseTimeMonitoringBehavior implements SimulationBehaviorExtension {
 
 	private final IGenericCalculatorFactory calculatorFactory;
 	private final Map<String, UserProbes> userProbesMap = new HashMap<>();
 
 	@Inject
-	public UsageModelMonitoring(
+	public UsageScenarioResponseTimeMonitoringBehavior(
 			final IGenericCalculatorFactory calculatorFactory,
 			final MonitorRepository monitorRepository) {
 		this.calculatorFactory = calculatorFactory;
@@ -79,27 +79,25 @@ public class UsageModelMonitoring implements SimulationBehaviorExtension {
 	@Subscribe
 	public ResultEvent<ProbeTaken> onUsageScenarioStarted(
 			@Reified(Start.class) final UsageModelPassedElement<Start> userStarted) {
-		final UserProbes userProbes = this.userProbesMap.get(userStarted.getContext().getScenario().getId());
-		if (userProbes != null) {
+		if(this.userProbesMap.containsKey(userStarted.getContext().getScenario().getId())){
+			final UserProbes userProbes = this.userProbesMap.get(userStarted.getContext().getScenario().getId());			
 			userProbes.userStartedProbe.takeMeasurement(userStarted);
 			return ResultEvent
 					.of(new ProbeTaken(ProbeTakenEntity.builder().withProbe(userProbes.userStartedProbe).build()));
-		} else {
-			return ResultEvent.empty();
-		}
+		}		
+		return ResultEvent.empty();
 	}
 
 	@Subscribe
 	public ResultEvent<ProbeTaken> onUsageScenarioFinished(
 			@Reified(Stop.class) final UsageModelPassedElement<Stop> userStopped) {
+		if(this.userProbesMap.containsKey(userStopped.getContext().getScenario().getId())){
 		final UserProbes userProbes = this.userProbesMap.get(userStopped.getContext().getScenario().getId());
-		if (userProbes != null) {
 			userProbes.userFinishedProbe.takeMeasurement(userStopped);
 			return ResultEvent
 					.of(new ProbeTaken(ProbeTakenEntity.builder().withProbe(userProbes.userFinishedProbe).build()));
-		} else {
-			return ResultEvent.empty();
 		}
+		return ResultEvent.empty();
 	}
 
 	private static MetricDescription getTuple(final MetricDescription metricDescription) {
