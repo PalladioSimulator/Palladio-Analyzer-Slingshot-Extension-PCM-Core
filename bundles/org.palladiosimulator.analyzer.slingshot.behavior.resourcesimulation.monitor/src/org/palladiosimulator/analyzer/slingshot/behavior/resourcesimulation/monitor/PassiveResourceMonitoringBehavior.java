@@ -4,6 +4,7 @@ import javax.inject.Inject;
 
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.resource.ResourceDemandRequest.ResourceType;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.PassiveResourceAcquired;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.PassiveResourceReleased;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.ResourceDemandRequested;
 import org.palladiosimulator.analyzer.slingshot.monitor.data.CalculatorRegistered;
 import org.palladiosimulator.analyzer.slingshot.monitor.data.MonitorModelVisited;
@@ -29,6 +30,7 @@ import com.google.common.eventbus.Subscribe;
 @OnEvent(when = MonitorModelVisited.class, whenReified = MeasurementSpecification.class, then = CalculatorRegistered.class, cardinality = EventCardinality.SINGLE)
 @OnEvent(when = ResourceDemandRequested.class, then = ProbeTaken.class, cardinality = EventCardinality.SINGLE)
 @OnEvent(when = PassiveResourceAcquired.class, then = ProbeTaken.class, cardinality = EventCardinality.SINGLE)
+@OnEvent(when = PassiveResourceReleased.class, then = ProbeTaken.class, cardinality = EventCardinality.SINGLE)
 public class PassiveResourceMonitoringBehavior implements SimulationBehaviorExtension {
 
 	private final IGenericCalculatorFactory calculatorFactory;
@@ -45,24 +47,20 @@ public class PassiveResourceMonitoringBehavior implements SimulationBehaviorExte
 			@Reified(MeasurementSpecification.class) final MonitorModelVisited<MeasurementSpecification> m) {
 		final MeasurementSpecification spec = m.getModelElement();
 
-		if (MetricDescriptionUtility.metricDescriptionIdsEqual(spec.getMetricDescription(),
-				MetricDescriptionConstants.STATE_OF_PASSIVE_RESOURCE_METRIC)) {
-			return this.setupPassiveResourceStateCalculator(spec);
-		}
-
-		return ResultEvent.empty();
-	}
-
-	private ResultEvent<CalculatorRegistered> setupPassiveResourceStateCalculator(final MeasurementSpecification spec) {
 		final MeasuringPoint measuringPoint = spec.getMonitor().getMeasuringPoint();
 		if (measuringPoint instanceof AssemblyPassiveResourceMeasuringPoint) {
 			final AssemblyPassiveResourceMeasuringPoint passiveResourceMeasuringPoint = (AssemblyPassiveResourceMeasuringPoint) measuringPoint;
 			final PassiveResource passiveResource = passiveResourceMeasuringPoint.getPassiveResource();
 			this.table.addPassiveResource(passiveResource);
-
+			
 			if (MetricDescriptionUtility.metricDescriptionIdsEqual(spec.getMetricDescription(),
 					MetricDescriptionConstants.WAITING_TIME_METRIC)) {
 				final Calculator calculator = this.table.setupWaitingTimeCalculator(passiveResourceMeasuringPoint,
+						this.calculatorFactory);
+				return ResultEvent.of(new CalculatorRegistered(calculator));
+			} else if (MetricDescriptionUtility.metricDescriptionIdsEqual(spec.getMetricDescription(),
+					MetricDescriptionConstants.HOLDING_TIME_METRIC)) {
+				final Calculator calculator = this.table.setupHoldingTimeCalculator(passiveResourceMeasuringPoint,
 						this.calculatorFactory);
 				return ResultEvent.of(new CalculatorRegistered(calculator));
 			}
@@ -87,6 +85,16 @@ public class PassiveResourceMonitoringBehavior implements SimulationBehaviorExte
 			return ResultEvent.of(new ProbeTaken(ProbeTakenEntity.builder().withProbe(probe).build()));
 		}
 
+		return ResultEvent.empty();
+	}
+	
+	@Subscribe
+	public ResultEvent<ProbeTaken> onPassiveResourceReleased(final PassiveResourceReleased passiveResourceReleased){
+		if(passiveResourceReleased.getEntity().getResourceType() == ResourceType.PASSIVE) {
+			final Probe probe = this.table.currentTimeOfPassiveResourceReleased(passiveResourceReleased);
+			return ResultEvent.of(new ProbeTaken(ProbeTakenEntity.builder().withProbe(probe).build()));			
+		}
+		
 		return ResultEvent.empty();
 	}
 }

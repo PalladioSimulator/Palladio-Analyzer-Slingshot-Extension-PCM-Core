@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.PassiveResourceAcquired;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.PassiveResourceReleased;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.ResourceDemandRequested;
 import org.palladiosimulator.analyzer.slingshot.monitor.probes.EventCurrentSimulationTimeProbe;
 import org.palladiosimulator.metricspec.constants.MetricDescriptionConstants;
@@ -41,6 +42,16 @@ public final class PassiveResourceProbeTable {
 		}
 		return null;
 	}
+	
+	public Probe currentTimeOfPassiveResourceReleased(PassiveResourceReleased passiveResourceReleased) {
+		final PassiveResource passiveResource = passiveResourceReleased.getEntity().getPassiveResource().orElseThrow();
+		final Probes probes = this.probes.get(passiveResource.getId());
+		if (probes != null) {
+			probes.passiveResourceReleasedProbe.takeMeasurement(passiveResourceReleased);
+			return probes.passiveResourceAcquiredProbe;
+		}
+		return null;
+	}
 
 	public Calculator setupWaitingTimeCalculator(final AssemblyPassiveResourceMeasuringPoint measuringPoint,
 			final IGenericCalculatorFactory calculatorFactory) {
@@ -49,6 +60,14 @@ public final class PassiveResourceProbeTable {
 		return calculatorFactory.buildCalculator(MetricDescriptionConstants.WAITING_TIME_METRIC, measuringPoint,
 				DefaultCalculatorProbeSets.createStartStopProbeConfiguration(probes.resourceDemandRequestedProbe,
 						probes.passiveResourceAcquiredProbe));
+	}
+	public Calculator setupHoldingTimeCalculator(final AssemblyPassiveResourceMeasuringPoint measuringPoint,
+			final IGenericCalculatorFactory calculatorFactory) {
+		this.addPassiveResource(measuringPoint.getPassiveResource());
+		final Probes probes = this.probes.get(measuringPoint.getPassiveResource().getId());
+		return calculatorFactory.buildCalculator(MetricDescriptionConstants.HOLDING_TIME_METRIC, measuringPoint,
+				DefaultCalculatorProbeSets.createStartStopProbeConfiguration(probes.passiveResourceAcquiredProbe,
+						probes.passiveResourceReleasedProbe));
 	}
 
 	private static final class Probes {
