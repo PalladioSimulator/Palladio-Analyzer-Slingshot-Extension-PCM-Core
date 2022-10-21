@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Monitor
-Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.monitor
+Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.monitor;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.monitor
 Bundle-RequiredExecutionEnvironment: JavaSE-11
