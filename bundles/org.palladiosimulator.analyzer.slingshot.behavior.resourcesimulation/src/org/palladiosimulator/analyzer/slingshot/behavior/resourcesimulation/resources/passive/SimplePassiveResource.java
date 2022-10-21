@@ -60,8 +60,10 @@ public final class SimplePassiveResource extends AbstractResource implements IPa
 	 * @return Either {@link PassiveResourceAcquired} if granted, or empty.
 	 */
 	public ResultEvent<PassiveResourceAcquired> acquire(final WaitingJob waitingJob) {
+		
 		/* TODO: Throw exception if demand is higher than capacity. */
 		if (this.acquirable(waitingJob)) {
+			
 			return ResultEvent.of(this.grantAccess(waitingJob));
 		} else {
 			this.waitingJobs.offer(waitingJob);
@@ -86,7 +88,7 @@ public final class SimplePassiveResource extends AbstractResource implements IPa
 
 		WaitingJob nextJob = this.waitingJobs.peek();
 
-		while (nextJob != null && this.acquirable(waitingJob)) {
+		while (nextJob != null && this.acquirable(nextJob)) {
 			events.add(this.grantAccess(nextJob));
 			nextJob = this.waitingJobs.peek();
 		}

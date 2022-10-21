@@ -5,6 +5,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.SEFFInterpretationContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.behaviorcontext.SeffBehaviorWrapper;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.PassiveResourceAcquired;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFChildInterpretationStarted;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInterpretationFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInterpretationProgressed;
@@ -31,6 +32,7 @@ import com.google.common.eventbus.Subscribe;
 @OnEvent(when = SEFFInterpretationFinished.class, then = { SEFFInterpretationProgressed.class,
 		UserRequestFinished.class }, cardinality = EventCardinality.SINGLE)
 @OnEvent(when = SEFFChildInterpretationStarted.class, then = SEFFInterpreted.class, cardinality = EventCardinality.MANY)
+@OnEvent(when = PassiveResourceAcquired.class, then=SEFFInterpreted.class, cardinality = EventCardinality.MANY)
 public class SeffSimulationBehavior implements SimulationBehaviorExtension {
 
 	private static final Logger LOGGER = Logger.getLogger(SeffSimulationBehavior.class);
@@ -42,7 +44,16 @@ public class SeffSimulationBehavior implements SimulationBehaviorExtension {
 				.doSwitch(progressed.getEntity().getBehaviorContext().getNextAction());
 		return ResultEvent.of(events);
 	}
+	
+	@Subscribe
+	public ResultEvent<SEFFInterpreted> onPassiveResourceAcquired(final PassiveResourceAcquired passiveResourceAcquired){
+		final SeffInterpreter interpreter = new SeffInterpreter(passiveResourceAcquired.getEntity().getSeffInterpretationContext());
+		final Set<SEFFInterpreted> events = interpreter
+				.doSwitch(passiveResourceAcquired.getEntity().getSeffInterpretationContext().getBehaviorContext().getNextAction());
+		return ResultEvent.of(events);
+	}
 
+	
 	@Subscribe
 	public ResultEvent<SEFFInterpreted> onSEFFChildInterpretationStarted(
 			final SEFFChildInterpretationStarted seffChildInterpretationStarted) {
@@ -99,10 +110,8 @@ public class SeffSimulationBehavior implements SimulationBehaviorExtension {
 		final SeffBehaviorWrapper seffBehaviorHolder = entity.getBehaviorContext().getParent().get();
 
 		final SEFFInterpretationContext seffInterpretationContext = SEFFInterpretationContext.builder()
-				.withAssemblyContext(entity.getAssemblyContext())
-				.withBehaviorContext(seffBehaviorHolder.getContext())
-				.withCaller(entity.getCaller())
-				.withRequestProcessingContext(entity.getRequestProcessingContext())
+				.withAssemblyContext(entity.getAssemblyContext()).withBehaviorContext(seffBehaviorHolder.getContext())
+				.withCaller(entity.getCaller()).withRequestProcessingContext(entity.getRequestProcessingContext())
 				.build();
 
 		return ResultEvent.of(new SEFFInterpretationProgressed(seffInterpretationContext));
