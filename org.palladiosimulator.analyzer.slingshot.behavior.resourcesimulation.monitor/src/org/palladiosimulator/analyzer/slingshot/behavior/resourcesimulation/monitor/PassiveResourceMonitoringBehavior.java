@@ -10,8 +10,11 @@ import org.palladiosimulator.analyzer.slingshot.core.extension.SimulationBehavio
 import org.palladiosimulator.analyzer.slingshot.eventdriver.annotations.Subscribe;
 import org.palladiosimulator.analyzer.slingshot.eventdriver.annotations.eventcontract.EventCardinality;
 import org.palladiosimulator.analyzer.slingshot.eventdriver.annotations.eventcontract.OnEvent;
+import org.palladiosimulator.analyzer.slingshot.eventdriver.returntypes.Result;
+import org.palladiosimulator.analyzer.slingshot.monitor.data.entities.ProbeTakenEntity;
 import org.palladiosimulator.analyzer.slingshot.monitor.data.events.CalculatorRegistered;
 import org.palladiosimulator.analyzer.slingshot.monitor.data.events.ProbeTaken;
+import org.palladiosimulator.analyzer.slingshot.monitor.data.events.modelvisited.MeasurementSpecificationVisited;
 import org.palladiosimulator.analyzer.slingshot.monitor.data.events.modelvisited.MonitorModelVisited;
 import org.palladiosimulator.edp2.models.measuringpoint.MeasuringPoint;
 import org.palladiosimulator.edp2.util.MetricDescriptionUtility;
@@ -23,7 +26,7 @@ import org.palladiosimulator.probeframework.calculator.Calculator;
 import org.palladiosimulator.probeframework.calculator.IGenericCalculatorFactory;
 import org.palladiosimulator.probeframework.probes.Probe;
 
-@OnEvent(when = MonitorModelVisited.class, whenReified = MeasurementSpecification.class, then = CalculatorRegistered.class, cardinality = EventCardinality.SINGLE)
+@OnEvent(when = MonitorModelVisited.class, then = CalculatorRegistered.class, cardinality = EventCardinality.SINGLE)
 @OnEvent(when = ResourceDemandRequested.class, then = ProbeTaken.class, cardinality = EventCardinality.SINGLE)
 @OnEvent(when = PassiveResourceAcquired.class, then = ProbeTaken.class, cardinality = EventCardinality.SINGLE)
 @OnEvent(when = PassiveResourceReleased.class, then = ProbeTaken.class, cardinality = EventCardinality.SINGLE)
@@ -39,9 +42,8 @@ public class PassiveResourceMonitoringBehavior implements SimulationBehaviorExte
 	}
 
 	@Subscribe
-	public ResultEvent<CalculatorRegistered> onMeasurementSpecification(
-			@Reified(MeasurementSpecification.class) final MonitorModelVisited<MeasurementSpecification> m) {
-		final MeasurementSpecification spec = m.getModelElement();
+	public Result onMeasurementSpecification(final MeasurementSpecificationVisited m) {
+		final MeasurementSpecification spec = m.getEntity();
 
 		final MeasuringPoint measuringPoint = spec.getMonitor().getMeasuringPoint();
 		if (measuringPoint instanceof AssemblyPassiveResourceMeasuringPoint) {
@@ -53,44 +55,44 @@ public class PassiveResourceMonitoringBehavior implements SimulationBehaviorExte
 					MetricDescriptionConstants.WAITING_TIME_METRIC)) {
 				final Calculator calculator = this.table.setupWaitingTimeCalculator(passiveResourceMeasuringPoint,
 						this.calculatorFactory);
-				return ResultEvent.of(new CalculatorRegistered(calculator));
+				return Result.of(new CalculatorRegistered(calculator));
 			} else if (MetricDescriptionUtility.metricDescriptionIdsEqual(spec.getMetricDescription(),
 					MetricDescriptionConstants.HOLDING_TIME_METRIC)) {
 				final Calculator calculator = this.table.setupHoldingTimeCalculator(passiveResourceMeasuringPoint,
 						this.calculatorFactory);
-				return ResultEvent.of(new CalculatorRegistered(calculator));
+				return Result.of(new CalculatorRegistered(calculator));
 			}
 		}
-		return ResultEvent.empty();
+		return Result.empty();
 	}
 
 	@Subscribe
-	public ResultEvent<ProbeTaken> onResourceDemandRequest(final ResourceDemandRequested resourceDemandRequest) {
+	public Result onResourceDemandRequest(final ResourceDemandRequested resourceDemandRequest) {
 		if (resourceDemandRequest.getEntity().getResourceType() == ResourceType.PASSIVE) {
 			final Probe probe = this.table.currentTimeOfPassiveResourceRequested(resourceDemandRequest);
-			return ResultEvent.of(new ProbeTaken(ProbeTakenEntity.builder().withProbe(probe).build()));
+			return Result.of(new ProbeTaken(ProbeTakenEntity.builder().withProbe(probe).build()));
 		}
 
-		return ResultEvent.empty();
+		return Result.empty();
 	}
 
 	@Subscribe
-	public ResultEvent<ProbeTaken> onPassiveResourceAcquired(final PassiveResourceAcquired passiveResourceAcquired) {
+	public Result onPassiveResourceAcquired(final PassiveResourceAcquired passiveResourceAcquired) {
 		if (passiveResourceAcquired.getEntity().getResourceType() == ResourceType.PASSIVE) {
 			final Probe probe = this.table.currentTimeOfPassiveResourceAcquired(passiveResourceAcquired);
-			return ResultEvent.of(new ProbeTaken(ProbeTakenEntity.builder().withProbe(probe).build()));
+			return Result.of(new ProbeTaken(ProbeTakenEntity.builder().withProbe(probe).build()));
 		}
 
-		return ResultEvent.empty();
+		return Result.empty();
 	}
 	
 	@Subscribe
-	public ResultEvent<ProbeTaken> onPassiveResourceReleased(final PassiveResourceReleased passiveResourceReleased){
+	public Result onPassiveResourceReleased(final PassiveResourceReleased passiveResourceReleased){
 		if(passiveResourceReleased.getEntity().getResourceType() == ResourceType.PASSIVE) {
 			final Probe probe = this.table.currentTimeOfPassiveResourceReleased(passiveResourceReleased);
-			return ResultEvent.of(new ProbeTaken(ProbeTakenEntity.builder().withProbe(probe).build()));			
+			return Result.of(new ProbeTaken(ProbeTakenEntity.builder().withProbe(probe).build()));			
 		}
 		
-		return ResultEvent.empty();
+		return Result.empty();
 	}
 }
