@@ -60,12 +60,16 @@ public final class SimplePassiveResource extends AbstractResource implements IPa
 	 * @return Either {@link PassiveResourceAcquired} if granted, or empty.
 	 */
 	public Result acquire(final WaitingJob waitingJob) {
+
+		
 		/* TODO: Throw exception if demand is higher than capacity. */
 		if (this.acquirable(waitingJob)) {
+			
 			return Result.of(this.grantAccess(waitingJob));
 		} else {
 			this.waitingJobs.offer(waitingJob);
 			return Result.empty();
+
 		}
 	}
 
@@ -80,13 +84,14 @@ public final class SimplePassiveResource extends AbstractResource implements IPa
 	 *         the queue to be granted.
 	 */
 	public Result release(final WaitingJob waitingJob) {
+
 		this.available += waitingJob.getDemand();
 
 		final Set<PassiveResourceAcquired> events = new HashSet<>();
 
 		WaitingJob nextJob = this.waitingJobs.peek();
 
-		while (nextJob != null && this.acquirable(waitingJob)) {
+		while (nextJob != null && this.acquirable(nextJob)) {
 			events.add(this.grantAccess(nextJob));
 			nextJob = this.waitingJobs.peek();
 		}
@@ -112,7 +117,11 @@ public final class SimplePassiveResource extends AbstractResource implements IPa
 	 * and remove it from the queue if contained.
 	 * 
 	 * @param waitingJob The job to grant access to.
+<<<<<<< HEAD
 	 * @return The event that can be added to the {@code Result}.
+=======
+	 * @return The event that can be added to the {@code ResultEvent}.
+>>>>>>> 6cc4c84 (prepare merge)
 	 */
 	private PassiveResourceAcquired grantAccess(final WaitingJob waitingJob) {
 		assert this.acquirable(waitingJob);

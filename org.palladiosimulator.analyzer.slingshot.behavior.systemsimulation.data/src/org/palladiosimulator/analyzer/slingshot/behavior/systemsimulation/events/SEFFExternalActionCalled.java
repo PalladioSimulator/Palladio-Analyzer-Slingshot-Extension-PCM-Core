@@ -3,6 +3,7 @@ package org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.event
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.GeneralEntryRequest;
 import org.palladiosimulator.analyzer.slingshot.common.events.AbstractEntityChangedEvent;
 
+
 /**
  * Tells that another external SEFF is called. Typically, this event will be published when a 
  * {@code ExternalCallAction} has occurred. 

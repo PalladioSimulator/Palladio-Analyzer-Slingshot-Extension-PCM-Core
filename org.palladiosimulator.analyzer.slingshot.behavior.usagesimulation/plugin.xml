@@ -6,6 +6,7 @@
       <slingshot-extension
             module="org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.UsageSimulationModule">
       </slingshot-extension>
+
    </extension>
 
 </plugin>

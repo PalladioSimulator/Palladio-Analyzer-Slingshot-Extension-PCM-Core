@@ -5,6 +5,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.SEFFInterpretationContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.behaviorcontext.SeffBehaviorWrapper;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.PassiveResourceAcquired;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFChildInterpretationStarted;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInterpretationFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInterpretationProgressed;
@@ -20,6 +21,7 @@ import org.palladiosimulator.analyzer.slingshot.eventdriver.annotations.eventcon
 import org.palladiosimulator.analyzer.slingshot.eventdriver.annotations.eventcontract.OnEvent;
 import org.palladiosimulator.analyzer.slingshot.eventdriver.returntypes.Result;
 
+
 /**
  * This behavior module both interprets and generates events specifically for
  * SEFFs.
@@ -30,6 +32,8 @@ import org.palladiosimulator.analyzer.slingshot.eventdriver.returntypes.Result;
 @OnEvent(when = SEFFInterpretationFinished.class, then = { SEFFInterpretationProgressed.class,
 		UserRequestFinished.class }, cardinality = EventCardinality.SINGLE)
 @OnEvent(when = SEFFChildInterpretationStarted.class, then = SEFFInterpreted.class, cardinality = EventCardinality.MANY)
+@OnEvent(when = PassiveResourceAcquired.class, then=SEFFInterpreted.class, cardinality = EventCardinality.MANY)
+
 public class SeffSimulationBehavior implements SimulationBehaviorExtension {
 
 	private static final Logger LOGGER = Logger.getLogger(SeffSimulationBehavior.class);
@@ -55,6 +59,7 @@ public class SeffSimulationBehavior implements SimulationBehaviorExtension {
 	public Result onSEFFInterpretationFinished(final SEFFInterpretationFinished finished) {
 		final SEFFInterpretationContext entity = finished.getEntity();
 		final Result result;
+
 		/*
 		 * If the interpretation is finished in a SEFF that was called from another
 		 * SEFF, continue there. Otherwise, the SEFF comes from a User request.
@@ -88,6 +93,7 @@ public class SeffSimulationBehavior implements SimulationBehaviorExtension {
 		entity.getRequestProcessingContext().getUser().getStack().removeStackFrame();
 
 		return Result.of(new UserRequestFinished(userRequest, userInterpretationContext));
+
 	}
 
 	/**
@@ -119,5 +125,6 @@ public class SeffSimulationBehavior implements SimulationBehaviorExtension {
 
 	private Result repeat(final SEFFInterpretationContext entity) {
 		return Result.of(new SEFFInterpretationProgressed(entity));
+
 	}
 }

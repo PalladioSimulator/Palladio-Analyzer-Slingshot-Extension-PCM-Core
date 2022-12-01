@@ -2,7 +2,6 @@ package org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities;
 
 import java.util.UUID;
 
-
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 
 /**
@@ -14,6 +13,7 @@ import de.uka.ipd.sdq.simucomframework.variables.StackContext;
  * @author Julijan Katic
  */
 public class User extends StackContext {
+
 
 	/**
 	 * @generated 

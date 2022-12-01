@@ -3,6 +3,7 @@ package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.res
 import java.util.Optional;
 
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.resources.ProcessingRate;
+
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.resources.AbstractResourceTable;
 import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.allocation.AllocationContext;
@@ -13,6 +14,7 @@ import org.palladiosimulator.pcm.resourcetype.SchedulingPolicy;
 
 import de.uka.ipd.sdq.simucomframework.resources.SchedulingStrategy;
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
+
 
 /**
  * The resource table maps every provided resource to a specific resource

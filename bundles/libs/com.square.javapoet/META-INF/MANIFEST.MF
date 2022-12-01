@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Javapoet
-Bundle-SymbolicName: com.square.javapoet
-Bundle-Version: 1.13.0
-Bundle-ClassPath: javapoet-1.13.0.jar
-Export-Package: com.squareup.javapoet;version="1.13.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-12
-Automatic-Module-Name: com.square.javapoet

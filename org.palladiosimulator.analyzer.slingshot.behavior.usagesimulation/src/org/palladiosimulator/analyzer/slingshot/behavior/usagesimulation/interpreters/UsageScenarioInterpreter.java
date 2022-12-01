@@ -25,7 +25,11 @@ import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserS
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserStarted;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserWokeUp;
 import org.palladiosimulator.analyzer.slingshot.common.utils.TransitionDeterminer;
+<<<<<<< HEAD
 import org.palladiosimulator.analyzer.slingshot.common.events.DESEvent;
+=======
+import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
+>>>>>>> 6cc4c84 (prepare merge)
 import org.palladiosimulator.pcm.parameter.VariableUsage;
 import org.palladiosimulator.pcm.repository.OperationProvidedRole;
 import org.palladiosimulator.pcm.repository.OperationSignature;

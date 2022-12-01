@@ -38,7 +38,6 @@ public final class EquallyDistributedSystemLevelLoadBalancer implements SystemLe
 				.filter(context -> this.isProvidedRoleInComponent(context.getEncapsulatedComponent__AssemblyContext(),
 						providedRole))
 				.collect(Collectors.toList());
-		
 		if (assemblyContext.isEmpty()) {
 			return Optional.empty();
 		} else {

@@ -3,6 +3,7 @@ package org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation;
 import static org.palladiosimulator.analyzer.slingshot.eventdriver.annotations.eventcontract.EventCardinality.MANY;
 import static org.palladiosimulator.analyzer.slingshot.eventdriver.annotations.eventcontract.EventCardinality.SINGLE;
 
+
 import java.util.Optional;
 import java.util.Set;
 
@@ -123,6 +124,7 @@ public class SystemSimulationBehavior implements SimulationBehaviorExtension {
 					.build();
 
 			return Result.of(new SEFFInterpretationProgressed(context));
+
 		} else {
 			LOGGER.info("Either seff or assembly context is not found => stop interpretation for this request.");
 		}
@@ -151,6 +153,7 @@ public class SystemSimulationBehavior implements SimulationBehaviorExtension {
 	/**
 	 * Used to interpret the next SEFF that is requested by another seff. For
 	 * example, when an External Call action was performed.
+<<<<<<< HEAD
 	 * 
 	 * @deprecated This method does not incooperate linking resources where
 	 * 				the call might actually be hit. Instead, the responsibility

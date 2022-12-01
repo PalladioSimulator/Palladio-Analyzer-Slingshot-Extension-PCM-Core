@@ -2,6 +2,7 @@ package org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events;
 
 import org.palladiosimulator.analyzer.slingshot.common.events.AbstractSimulationEvent;
 
+
 /**
  * Event that is used to initialize a new open workload user after a certain
  * time. The time must be specified in the {@link #getDelay()}.
@@ -10,6 +11,7 @@ import org.palladiosimulator.analyzer.slingshot.common.events.AbstractSimulation
  *
  */
 public final class InterArrivalUserInitiated extends AbstractSimulationEvent {
+
 
 	/**
 	 * Constructs this event with a delay.

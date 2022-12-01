@@ -7,6 +7,7 @@ import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.even
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobProgressed;
 import org.palladiosimulator.analyzer.slingshot.eventdriver.returntypes.Result;
 
+
 /**
  * The active resource provides delegation methods of events, hence it "listens"
  * to events and returns the set of appropriate events. Every active resource

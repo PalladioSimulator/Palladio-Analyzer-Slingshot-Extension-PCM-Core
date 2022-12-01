@@ -16,8 +16,13 @@ import de.uka.ipd.sdq.probfunction.math.util.MathTools;
 /**
  * A FCFSResource handles first jobs first, and then the remaining jobs will be
  * handled (first-come, first-served).
+<<<<<<< HEAD
  *
  * @author Julijan Katic, Floriment Klinaku, Sarah Stiess
+=======
+ * 
+ * @author Julijan Katic
+>>>>>>> 6cc4c84 (prepare merge)
  */
 public class FCFSResource extends AbstractActiveResource {
 
@@ -32,7 +37,11 @@ public class FCFSResource extends AbstractActiveResource {
 
 	/**
 	 * Constructs a new FCFS resource.
+<<<<<<< HEAD
 	 *
+=======
+	 * 
+>>>>>>> 6cc4c84 (prepare merge)
 	 * @param type     The processor resource type whose id will be this id.
 	 * @param name     The name of the resource.
 	 * @param capacity The maximum capacity of the resource.
@@ -64,18 +73,19 @@ public class FCFSResource extends AbstractActiveResource {
 	/**
 	 * Handles the job by updating its internal timer and removing the job from the
 	 * queue.
-	 *
+	 * 
 	 * @return {@link JobFinished} event from that removed job, and
 	 *         {@link JobProgressed} from the next job to handle.
 	 */
 	@Override
 	public Result onJobProgressed(final JobProgressed jobProgressed) {
+
 		final Job job = jobProgressed.getEntity();
 
 		assert MathTools.equalsDouble(0, job.getDemand()) : "Remaining demand (" + job.getDemand() + ") not zero!";
 
 		this.processes.remove(job);
-
+		
 		final Optional<JobProgressed> next = this.scheduleNextEvent();
 		if (next.isPresent()) {
 			return Result.of(new JobFinished(job), next.get());
@@ -130,5 +140,6 @@ public class FCFSResource extends AbstractActiveResource {
 			return Optional.empty();
 		}
 		return Optional.of(new JobProgressed(this.processes.peek(), this.processes.peek().getDemand()));
+
 	}
 }

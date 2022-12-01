@@ -25,7 +25,11 @@ import de.uka.ipd.sdq.probfunction.math.util.MathTools;
  * This is done by using the subtracting the shortest jobs demand from each
  * other job, and directly finishing that job, since the shortest job will
  * eventually finish first in this procedure.
+<<<<<<< HEAD
  *
+=======
+ * 
+>>>>>>> 6cc4c84 (prepare merge)
  * @author Julijan Katic
  */
 public final class ProcessorSharingResource extends AbstractActiveResource {
@@ -35,6 +39,7 @@ public final class ProcessorSharingResource extends AbstractActiveResource {
 
 	/** The set of jobs to process, sorted by its demand. */
 	private final Hashtable<Job, Double> runningJobs;
+
 	/** The list of cores, whose number specify the number of processes. */
 	private final List<Integer> numberProcessesOnCore;
 
@@ -49,13 +54,13 @@ public final class ProcessorSharingResource extends AbstractActiveResource {
 
 	/**
 	 * Constructs a new processor sharing resource.
-	 *
 	 * @param type     The processor resource type whose id will be this id.
 	 * @param name     The name of the resource.
 	 * @param capacity The maximum capacity of the resource.
 	 */
 	public ProcessorSharingResource(final ActiveResourceCompoundKey type, final String name, final long capacity, final ProcessingRate rate) {
 		super(type, name, capacity, rate);
+
 
 		this.runningJobs = new Hashtable<>();
 		this.numberProcessesOnCore = new ArrayList<>((int) capacity);
@@ -94,7 +99,11 @@ public final class ProcessorSharingResource extends AbstractActiveResource {
 	 * updating the internal timer and removing the shortest job from the list. The
 	 * demand of each remaining job is decreased by that shortest demand. This
 	 * results in the {@link JobFinished} event.
+<<<<<<< HEAD
 	 *
+=======
+	 * 
+>>>>>>> 6cc4c84 (prepare merge)
 	 * @return The {@link JobFinished} event of the shortest, removed job, and the
 	 *         {@link JobProgressed} event of the next job to process.
 	 */
@@ -114,6 +123,7 @@ public final class ProcessorSharingResource extends AbstractActiveResource {
 		final Job shortestJob = processorSharingJobProgressed.getEntity();
 		this.runningJobs.remove(shortestJob);
 		this.reportCoreUsage();
+
 
 		final Optional<ProcessorSharingJobProgressed> next = this.scheduleNextEvent();
 		if (next.isPresent()) {
@@ -143,6 +153,7 @@ public final class ProcessorSharingResource extends AbstractActiveResource {
 	private Optional<ProcessorSharingJobProgressed> scheduleNextEvent() {
 		if (this.runningJobs.isEmpty()) {
 			return Optional.empty();
+
 		}
 
 		this.currentState = UUID.randomUUID();
@@ -163,12 +174,12 @@ public final class ProcessorSharingResource extends AbstractActiveResource {
 		remainingTime = remainingTime < JIFFY ? 0.0 : remainingTime;
 
 		return Optional.of(new ProcessorSharingJobProgressed(shortestJob, remainingTime, this.currentState));
+
 	}
 
 	/**
 	 * Updates the internal timer according to the simulationTime, and updates the
 	 * demand of each remaining job.
-	 *
 	 * @param simulationTime The new simulation time. Should be greater than the
 	 *                       internal time.
 	 */
@@ -182,7 +193,6 @@ public final class ProcessorSharingResource extends AbstractActiveResource {
 				e.setValue(rem);
 				e.getKey().updateDemand(rem);
 			}
-
 		}
 
 		this.internalTime = simulationTime;
@@ -209,7 +219,7 @@ public final class ProcessorSharingResource extends AbstractActiveResource {
 	 * Distributes the processes accordingly to the processes. If there are less
 	 * jobs than the capacity, then each core will have at most one process, and the
 	 * unused cores will have no process.
-	 *
+	 * 
 	 * Otherwise, if there are more processes than the capacity allows, then each
 	 * core will have roughly the same amount of processes to handle, where the
 	 * first cores might have one additional job to handle then the remaining cores,
@@ -256,7 +266,11 @@ public final class ProcessorSharingResource extends AbstractActiveResource {
 	 * coreNumber should be lower than the capacity since there are only capacity's
 	 * number of cores. If the target number is already assigned to the core,
 	 * nothing changes.
+<<<<<<< HEAD
 	 *
+=======
+	 * 
+>>>>>>> 6cc4c84 (prepare merge)
 	 * @param targetNumberProcessesAtCore the number to assign to the core
 	 * @param coreNumber                  the core id itself.
 	 */

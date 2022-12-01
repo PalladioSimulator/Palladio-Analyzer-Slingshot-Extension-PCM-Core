@@ -1,7 +1,6 @@
 package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation;
 
 import static org.palladiosimulator.analyzer.slingshot.eventdriver.annotations.eventcontract.EventCardinality.SINGLE;
-
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +27,7 @@ import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.PassiveResourceAcquired;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.PassiveResourceReleased;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.ResourceDemandRequested;
+
 //import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.events.ModelAdjusted;
 import org.palladiosimulator.analyzer.slingshot.core.events.SimulationFinished;
 import org.palladiosimulator.analyzer.slingshot.core.extension.SimulationBehaviorExtension;
@@ -41,6 +41,7 @@ import org.palladiosimulator.pcm.core.PCMRandomVariable;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.repository.PassiveResource;
 import org.palladiosimulator.pcm.resourceenvironment.LinkingResource;
+
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 
@@ -75,6 +76,7 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 		this.resourceEnvironmentAccessor = new ResourceEnvironmentAccessor(allocation);
 		this.resourceTable = new ActiveResourceTable();
 		this.passiveResourceTable = new PassiveResourceTable();
+
 		this.init();
 	}
 
@@ -116,6 +118,7 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 	 * @param request
 	 * @return
 	 */
+
 	private Result initiateActiveResource(final ResourceDemandRequest request) {
 		final double demand = StackContext.evaluateStatic(
 				request.getParametricResourceDemand().getSpecification_ParametericResourceDemand()
@@ -145,15 +148,16 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 	 * @return
 	 */
 	private WaitingJob createWaitingJob(final ResourceDemandRequest request, final PassiveResource passiveResource) {
-		final long demand = StackContext.evaluateStatic(
-				request.getParametricResourceDemand().getSpecification_ParametericResourceDemand()
-						.getSpecification(),
-				Long.class, request.getUser().getStack().currentStackFrame());
+	//	final long demand = StackContext.evaluateStatic(
+		//		request.getParametricResourceDemand().getSpecification_ParametericResourceDemand()
+			//			.getSpecification(),
+			//	Long.class, request.getUser().getStack().currentStackFrame());
+
 
 		final WaitingJob waitingJob = WaitingJob.builder()
 				.withPassiveResource(passiveResource)
 				.withRequest(request)
-				.withDemand(demand)
+				.withDemand(1)
 				.build();
 		return waitingJob;
 	}
@@ -167,12 +171,11 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 		final Optional<ActiveResource> activeResource = this.resourceTable.getActiveResource(id);
 
 		if (activeResource.isEmpty()) {
+
 			LOGGER.error("No such active resource found! " + id.toString());
 			return Result.empty();
 		}
 		
-
-
 		return activeResource.get().onJobInitiated(jobInitiated);
 	}
 
@@ -202,6 +205,7 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 
 		if (activeResource.isEmpty()) {
 			LOGGER.error("No such resource found!");
+
 			return Result.empty();
 		}
 
@@ -209,6 +213,9 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 	}
 
 	/**
+	 * 
+	 * HEAD 
+	 * 
 	 * This event handler will give a global response event that the certain request
 	 * is finished.
 	 * 
@@ -236,6 +243,10 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 	 */
 	
 	public Result onAllocationContextRequested(final AssemblyContext from, final AssemblyContext to) {
+		
+		// OLD :
+		// return ResultEvent.of(new ActiveResourceFinished(evt.getEntity().getRequest(), 0));
+		
 		// Precondition: from and to are somehow connected to each other
 		AllocationContext fromAlC = this.resourceEnvironmentAccessor.findResourceContainerOfComponent(from).orElseThrow();
 		AllocationContext toAlC = this.resourceEnvironmentAccessor.findResourceContainerOfComponent(to).orElseThrow();
@@ -265,6 +276,7 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 		// Now, return AppropriateResourceFound with latency
 		return Result.empty();
 	}
+
 
 	/**
 	 * Clears the contexts as soon as the simulation has finished.

@@ -17,3 +17,4 @@ Require-Bundle: org.palladiosimulator.analyzer.slingshot.behavior.usagesimulatio
  org.palladiosimulator.monitorrepository;bundle-version="5.1.0",
  org.palladiosimulator.analyzer.slingshot.monitor.utils,
  org.palladiosimulator.analyzer.slingshot.common.utils;bundle-version="1.0.0"
+

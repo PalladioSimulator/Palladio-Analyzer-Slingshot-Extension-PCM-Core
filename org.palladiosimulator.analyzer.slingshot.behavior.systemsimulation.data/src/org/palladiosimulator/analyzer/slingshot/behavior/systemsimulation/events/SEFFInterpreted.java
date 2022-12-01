@@ -2,6 +2,7 @@ package org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.event
 
 import org.palladiosimulator.analyzer.slingshot.common.events.DESEvent;
 
+
 /**
  * This interface serves the purpose of having an upper bound for all SEFF specific
  * events with regards to the type system. The SEFF interpreter should use this

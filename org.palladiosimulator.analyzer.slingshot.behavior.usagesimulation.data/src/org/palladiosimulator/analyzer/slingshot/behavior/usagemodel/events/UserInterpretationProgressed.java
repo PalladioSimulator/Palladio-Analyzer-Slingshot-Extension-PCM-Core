@@ -3,6 +3,7 @@ package org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UserInterpretationContext;
 import org.palladiosimulator.analyzer.slingshot.common.events.AbstractEntityChangedEvent;
 
+
 /**
  * This event indicates that the interpretation of the usage simulation has
  * progressed. This is useful in so far that if no other event has happened

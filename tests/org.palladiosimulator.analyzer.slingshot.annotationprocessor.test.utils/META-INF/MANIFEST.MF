@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Annotation Processor Test Utils
-Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.annotationprocessor.test.utils
-Bundle-Version: 1.0.0.qualifier
-Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.annotationprocessor.test.utils
-Bundle-RequiredExecutionEnvironment: JavaSE-11
-Export-Package: org.palladiosimulator.analyzer.slingshot.annotationprocessor.test.utils

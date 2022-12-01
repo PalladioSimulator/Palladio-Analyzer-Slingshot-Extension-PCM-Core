@@ -81,6 +81,9 @@ public final class RequestProcessingContext {
 		return this.userInterpretationContext;
 	}
 
+	public String getUserId() {
+		return this.user.getId();
+	}
 
 	/**
 	 * Creates builder to build {@link RequestProcessingContext}.

@@ -2,6 +2,7 @@ package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.res
 
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.jobs.Job;
+
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.resources.ProcessingRate;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.resources.AbstractResource;
@@ -24,6 +25,7 @@ import org.palladiosimulator.pcm.resourcetype.ProcessingResourceType;
 public abstract class AbstractActiveResource extends AbstractResource implements ActiveResource {
 
 	private static final Logger LOGGER = Logger.getLogger(AbstractActiveResource.class);
+
 	
 	private final ProcessingRate processingRate;
 	
@@ -84,6 +86,7 @@ public abstract class AbstractActiveResource extends AbstractResource implements
 		}
 		double currentDemand = jobInitiated.getEntity().getDemand();
 		jobInitiated.getEntity().updateDemand(currentDemand/processingRate.calculateRV());
+
 		return this.process(jobInitiated);
 	}
 

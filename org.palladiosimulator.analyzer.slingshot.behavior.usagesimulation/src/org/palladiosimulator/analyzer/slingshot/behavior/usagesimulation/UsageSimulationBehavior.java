@@ -1,6 +1,10 @@
 package org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation;
 
+<<<<<<< HEAD
 import static org.palladiosimulator.analyzer.slingshot.eventdriver.annotations.eventcontract.EventCardinality.MANY;
+=======
+import static org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.EventCardinality.MANY;
+>>>>>>> 6cc4c84 (prepare merge)
 
 import java.util.HashSet;
 import java.util.List;
@@ -35,6 +39,7 @@ import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserS
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UserWokeUp;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.interpreters.UsageScenarioInterpreter;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.repositories.UsageModelRepository;
+<<<<<<< HEAD
 //import org.palladiosimulator.analyzer.slingshot.common.utils.Postconditions;
 import org.palladiosimulator.analyzer.slingshot.core.events.SimulationStarted;
 import org.palladiosimulator.analyzer.slingshot.common.events.DESEvent;
@@ -42,6 +47,14 @@ import org.palladiosimulator.analyzer.slingshot.core.extension.SimulationBehavio
 import org.palladiosimulator.analyzer.slingshot.eventdriver.annotations.eventcontract.OnEvent;
 import org.palladiosimulator.analyzer.slingshot.eventdriver.returntypes.Result;
 import org.palladiosimulator.analyzer.slingshot.eventdriver.annotations.Subscribe;
+=======
+import org.palladiosimulator.analyzer.slingshot.common.utils.Postconditions;
+import org.palladiosimulator.analyzer.slingshot.simulation.core.events.SimulationStarted;
+import org.palladiosimulator.analyzer.slingshot.simulation.events.DESEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.SimulationBehaviorExtension;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.annotations.OnEvent;
+import org.palladiosimulator.analyzer.slingshot.simulation.extensions.behavioral.results.ResultEvent;
+>>>>>>> 6cc4c84 (prepare merge)
 import org.palladiosimulator.pcm.core.PCMRandomVariable;
 import org.palladiosimulator.pcm.usagemodel.AbstractUserAction;
 import org.palladiosimulator.pcm.usagemodel.ClosedWorkload;
@@ -50,6 +63,10 @@ import org.palladiosimulator.pcm.usagemodel.UsageModel;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 
 import com.google.common.collect.ImmutableList;
+<<<<<<< HEAD
+=======
+import com.google.common.eventbus.Subscribe;
+>>>>>>> 6cc4c84 (prepare merge)
 
 /**
  * This behavior handles the events for the usage simulation.
@@ -76,9 +93,12 @@ import com.google.common.collect.ImmutableList;
 		UsageModelPassedElement.class }, cardinality = MANY)
 @OnEvent(when = ClosedWorkloadUserInitiated.class, then = { UserStarted.class,
 		UsageModelPassedElement.class }, cardinality = MANY)
+<<<<<<< HEAD
 @OnEvent(when = InterArrivalUserInitiated.class, then = { UserFinished.class, UserEntryRequested.class, UserSlept.class,
 		UserWokeUp.class, InnerScenarioBehaviorInitiated.class, UsageScenarioStarted.class,
 		UsageModelPassedElement.class }, cardinality = MANY)
+=======
+>>>>>>> 6cc4c84 (prepare merge)
 public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 
 	private final Logger LOGGER = Logger.getLogger(UsageSimulationBehavior.class);
@@ -95,9 +115,15 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 	public UsageSimulationBehavior(final UsageModel usageModel, final UsageModelRepository repository) {
 		this.usageModel = usageModel;
 		this.usageModelRepository = repository;
+<<<<<<< HEAD
 		this.init();
 	}
 
+=======
+	}
+
+	@Override
+>>>>>>> 6cc4c84 (prepare merge)
 	public void init() {
 		this.usageModelRepository.load(this.usageModel);
 		this.usageInterpretationContext = UsageInterpretationContext.builder()
@@ -125,7 +151,11 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 	 * @return Set with {@link UsageInterpretationEvent}s.
 	 */
 	@Subscribe
+<<<<<<< HEAD
 	public Result onSimulationStart(final SimulationStarted evt) {
+=======
+	public ResultEvent<DESEvent> onSimulationStart(final SimulationStarted evt) {
+>>>>>>> 6cc4c84 (prepare merge)
 		final Set<DESEvent> returnedEvents = new HashSet<>();
 
 		this.startUsageSimulation(returnedEvents);
@@ -134,10 +164,17 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 		 * Because this is the first action, this should only contain the UserStarted
 		 * and InterArrivalUserInitiated events.
 		 */
+<<<<<<< HEAD
 		//assert Postconditions.checkResultTypesAndSize(returnedEvents,
 		//		List.of(UserStarted.class, InterArrivalUserInitiated.class), 2);
 
 		return Result.from(returnedEvents);
+=======
+		assert Postconditions.checkResultEventTypesAndSize(returnedEvents,
+				List.of(UserStarted.class, InterArrivalUserInitiated.class), 2);
+
+		return ResultEvent.ofAll(returnedEvents);
+>>>>>>> 6cc4c84 (prepare merge)
 	}
 
 	/**
@@ -256,7 +293,11 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 	 *         action.
 	 */
 	@Subscribe
+<<<<<<< HEAD
 	public Result onUserStarted(final UserStarted userStarted) {
+=======
+	public ResultEvent<DESEvent> onUserStarted(final UserStarted userStarted) {
+>>>>>>> 6cc4c84 (prepare merge)
 		userStarted.getEntity().getUser().getStack().createAndPushNewStackFrame();
 		final UsageScenarioInterpreter interpreter = new UsageScenarioInterpreter(userStarted.getEntity());
 		final Set<DESEvent> result = new HashSet<>(interpreter.doSwitch(userStarted.getEntity().getCurrentAction()));
@@ -266,7 +307,11 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 			result.add(new UsageScenarioStarted(userStarted.getEntity(), 0));
 		}
 
+<<<<<<< HEAD
 		return Result.from(result);
+=======
+		return ResultEvent.of(result);
+>>>>>>> 6cc4c84 (prepare merge)
 	}
 
 	/**
@@ -277,7 +322,11 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 	 * @return The events of interpreting the first actions in each scenario.
 	 */
 	@Subscribe
+<<<<<<< HEAD
 	public Result onInterArrivalUserInitiated(
+=======
+	public ResultEvent<DESEvent> onInterArrivalUserInitiated(
+>>>>>>> 6cc4c84 (prepare merge)
 			final InterArrivalUserInitiated interArrivalUserInitiated) {
 		final Set<DESEvent> result = new HashSet<>();
 
@@ -298,7 +347,11 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 				.findAny()
 				.isEmpty();
 
+<<<<<<< HEAD
 		return Result.from(result);
+=======
+		return ResultEvent.of(result);
+>>>>>>> 6cc4c84 (prepare merge)
 	}
 
 	/**
@@ -307,7 +360,11 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 	 * @return the set of events resulting from the interpretation.
 	 */
 	@Subscribe
+<<<<<<< HEAD
 	public Result onWakeUpUserEvent(final UserWokeUp evt) {
+=======
+	public ResultEvent<DESEvent> onWakeUpUserEvent(final UserWokeUp evt) {
+>>>>>>> 6cc4c84 (prepare merge)
 		this.LOGGER.info("User woke up: " + evt.getEntity().getUser());
 		return this.interpretNextAction(evt.getEntity());
 	}
@@ -318,7 +375,11 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 	 * @return the set of events resulting from the interpretation.
 	 */
 	@Subscribe
+<<<<<<< HEAD
 	public Result onUserRequestFinished(final UserRequestFinished evt) {
+=======
+	public ResultEvent<DESEvent> onUserRequestFinished(final UserRequestFinished evt) {
+>>>>>>> 6cc4c84 (prepare merge)
 		return this.interpretNextAction(evt.getUserContext());
 	}
 
@@ -337,7 +398,11 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 	 * empty set will be returned.
 	 */
 	@Subscribe
+<<<<<<< HEAD
 	public Result onUserFinished(final UserFinished evt) {
+=======
+	public ResultEvent<DESEvent> onUserFinished(final UserFinished evt) {
+>>>>>>> 6cc4c84 (prepare merge)
 		this.LOGGER.info("User finished: " + evt.getEntity());
 
 		final Set<DESEvent> resultSet = new HashSet<>();
@@ -363,7 +428,11 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 			this.finishUserInterpretation(resultSet, context);
 		}
 
+<<<<<<< HEAD
 		return Result.from(resultSet);
+=======
+		return ResultEvent.of(resultSet);
+>>>>>>> 6cc4c84 (prepare merge)
 	}
 
 	/**
@@ -396,23 +465,39 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 	 * {@link RootScenarioContext} and interpreting the first start action.
 	 */
 	@Subscribe
+<<<<<<< HEAD
 	public Result onClosedWorkloadUserInitiated(
+=======
+	public ResultEvent<DESEvent> onClosedWorkloadUserInitiated(
+>>>>>>> 6cc4c84 (prepare merge)
 			final ClosedWorkloadUserInitiated closedWorkloadUserInitiated) {
 		final RootScenarioContext updatedRootScenarioContext = new RootScenarioContext(
 				closedWorkloadUserInitiated.getEntity().getBehaviorContext().getScenarioBehavior());
 		final UsageScenarioInterpreter usageScenarioInterpreter = new UsageScenarioInterpreter(
 				closedWorkloadUserInitiated.getEntity());
+<<<<<<< HEAD
 		return Result.from(usageScenarioInterpreter.doSwitch(updatedRootScenarioContext.startScenario()));
 	}
 
 	@Subscribe
 	public Result onInnerScenarioBehaviorInitiated(
+=======
+		return ResultEvent.of(usageScenarioInterpreter.doSwitch(updatedRootScenarioContext.startScenario()));
+	}
+
+	@Subscribe
+	public ResultEvent<DESEvent> onInnerScenarioBehaviorInitiated(
+>>>>>>> 6cc4c84 (prepare merge)
 			final InnerScenarioBehaviorInitiated innerScenarioBehaviorInitiated) {
 		final UserInterpretationContext userInterpretationContext = innerScenarioBehaviorInitiated.getEntity();
 		final UsageScenarioInterpreter usageScenarioInterpreter = new UsageScenarioInterpreter(
 				userInterpretationContext);
 		final Set<DESEvent> events = usageScenarioInterpreter.doSwitch(userInterpretationContext.getCurrentAction());
+<<<<<<< HEAD
 		return Result.from(events);
+=======
+		return ResultEvent.of(events);
+>>>>>>> 6cc4c84 (prepare merge)
 	}
 
 	/**
@@ -425,8 +510,14 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 	 * @param context The context holding for the interpreter.
 	 * @return Set of events resulting from the interpretation.
 	 */
+<<<<<<< HEAD
 	private Result interpretNextAction(final UserInterpretationContext context) {
 		final UsageScenarioInterpreter interpreter = new UsageScenarioInterpreter(context);
 		return Result.from(interpreter.doSwitch(context.getCurrentAction()));
+=======
+	private ResultEvent<DESEvent> interpretNextAction(final UserInterpretationContext context) {
+		final UsageScenarioInterpreter interpreter = new UsageScenarioInterpreter(context);
+		return ResultEvent.of(interpreter.doSwitch(context.getCurrentAction()));
+>>>>>>> 6cc4c84 (prepare merge)
 	}
 }

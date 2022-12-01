@@ -3,6 +3,7 @@ package org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext.UserInterpretationContext;
 import org.palladiosimulator.analyzer.slingshot.common.events.AbstractEntityChangedEvent;
 
+
 /**
  * This abstract class represents an EntityChangedEvent specifically for the
  * {@link UserInterpretationContext} entity.
