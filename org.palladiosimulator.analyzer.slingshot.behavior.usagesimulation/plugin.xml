@@ -7,5 +7,11 @@
             module="org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.UsageSimulationModule">
       </slingshot-extension>
    </extension>
+   <extension
+         point="org.palladiosimulator.analyzer.slingshot.system">
+      <slingshot-system-extension
+            module="org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.UsageSimulationSystemModule">
+      </slingshot-system-extension>
+   </extension>
 
 </plugin>

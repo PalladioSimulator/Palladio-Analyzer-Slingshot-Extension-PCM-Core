@@ -7,4 +7,10 @@
             module="org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.SystemSimulatorModule">
       </slingshot-extension>
    </extension>
+   <extension
+         point="org.palladiosimulator.analyzer.slingshot.system">
+      <slingshot-system-extension
+            module="org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.SystemSimulatorSystemModule">
+      </slingshot-system-extension>
+   </extension>
 </plugin>
