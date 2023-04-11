@@ -22,6 +22,7 @@ import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.reso
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.resources.passive.PassiveResourceCompoundKey;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.resources.passive.PassiveResourceTable;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.resources.passive.SimplePassiveResource;
+import org.palladiosimulator.analyzer.slingshot.behavior.spd.data.ModelAdjusted;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.resource.ResourceDemandRequest;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.resource.ResourceDemandRequest.ResourceType;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.ActiveResourceFinished;
@@ -41,6 +42,8 @@ import org.palladiosimulator.pcm.core.PCMRandomVariable;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.repository.PassiveResource;
 import org.palladiosimulator.pcm.resourceenvironment.LinkingResource;
+import org.palladiosimulator.pcm.resourceenvironment.ProcessingResourceSpecification;
+import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
 
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 
@@ -58,7 +61,7 @@ import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 @OnEvent(when = ResourceDemandRequested.class, then = {
 		JobInitiated.class, PassiveResourceAcquired.class
 }, cardinality = SINGLE)
-//@OnEvent(when = ModelAdjusted.class, then = {})
+@OnEvent(when = ModelAdjusted.class, then = {})
 public class ResourceSimulation implements SimulationBehaviorExtension {
 
 	private static final Logger LOGGER = Logger.getLogger(ResourceSimulation.class);
@@ -220,12 +223,35 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 		return Result.of(new ActiveResourceFinished(evt.getEntity().getRequest(), 0));
 	}
 
-//	@Subscribe
-//	public Result onModelAdjusted(final ModelAdjusted modelChanged) {
-//		// TODO: Notice the changes and add them to load balancer accordingly.
-//		return Result.empty();
-//	}
-//
+
+	/**
+	 * temporary fix with most stupid update for the sake state space exploration.
+	 * to be replaced with what ever julijan intends to do.
+	 *
+	 * @param modelChanged
+	 */
+ 	@Subscribe
+ 	public void onModelAdjusted(final ModelAdjusted modelChanged) {
+
+
+ 		for (final AllocationContext context : this.allocation.getAllocationContexts_Allocation()) {
+
+ 			final ResourceContainer resourceContainer = context.getResourceContainer_AllocationContext();
+
+ 			final ProcessingResourceSpecification spec = resourceContainer.getActiveResourceSpecifications_ResourceContainer().get(0);
+
+ 			final org.palladiosimulator.pcm.resourcetype.ResourceType resourceType = spec.getActiveResourceType_ActiveResourceSpecification();
+
+ 			final ActiveResourceCompoundKey key = new ActiveResourceCompoundKey(resourceContainer, resourceType);
+
+ 			if (this.resourceTable.getActiveResource(key).isEmpty()) {
+ 				this.resourceTable.createNewResource(resourceContainer, spec);
+ 			}
+
+		}
+
+ 	}
+
 	/*
 	 * TODO: When GeneralEntryRequest,
 	 * 	1. (System): Find appropriate assembly context -> AllocationContextRequested

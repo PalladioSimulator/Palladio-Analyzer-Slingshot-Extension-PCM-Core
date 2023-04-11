@@ -156,7 +156,7 @@ public class SystemSimulationBehavior implements SimulationBehaviorExtension {
 	 * 				now lies in the ResourceSimulation.
 	 */
 	@Deprecated
-	//@Subscribe
+	@Subscribe
 	public Result<SEFFInterpretationProgressed> onRequestInitiated(
 			final SEFFExternalActionCalled requestInitiated) {
 		final GeneralEntryRequest entity = requestInitiated.getEntity();
