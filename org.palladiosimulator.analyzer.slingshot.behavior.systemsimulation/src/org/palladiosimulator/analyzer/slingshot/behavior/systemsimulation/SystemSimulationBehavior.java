@@ -144,7 +144,7 @@ public class SystemSimulationBehavior implements SimulationBehaviorExtension {
 				Optional.empty());
 		final Set<SEFFInterpretationProgressed> appearedEvents = interpreter.doSwitch(context.getProvidedRole());
 
-		return Result.from(appearedEvents);
+		return Result.of(appearedEvents);
 	}
 
 	/**

@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.jobs.Job;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.jobs.WaitingJob;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.AbstractJobEvent;
+import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.ActiveResourceStateUpdated;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobProgressed;
@@ -29,6 +30,7 @@ import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.PassiveResourceAcquired;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.PassiveResourceReleased;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.ResourceDemandRequested;
+import org.palladiosimulator.analyzer.slingshot.common.events.AbstractSimulationEvent;
 //import org.palladiosimulator.analyzer.slingshot.scalingpolicy.data.events.ModelAdjusted;
 import org.palladiosimulator.analyzer.slingshot.core.events.SimulationFinished;
 import org.palladiosimulator.analyzer.slingshot.core.extension.SimulationBehaviorExtension;
@@ -54,9 +56,11 @@ import de.uka.ipd.sdq.simucomframework.variables.StackContext;
  * @author Julijan Katic
  */
 @OnEvent(when = SimulationFinished.class, then = {})
-@OnEvent(when = JobInitiated.class, then = JobProgressed.class, cardinality = EventCardinality.MANY)
-@OnEvent(when = JobFinished.class, then = ActiveResourceFinished.class, cardinality = SINGLE)
-@OnEvent(when = JobProgressed.class, then = AbstractJobEvent.class, cardinality = EventCardinality.MANY)
+@OnEvent(when = JobInitiated.class, then = { JobProgressed.class,
+		ActiveResourceStateUpdated.class }, cardinality = EventCardinality.MANY)
+@OnEvent(when = JobProgressed.class, then = { AbstractJobEvent.class,
+		ActiveResourceStateUpdated.class }, cardinality = EventCardinality.MANY)
+@OnEvent(when = JobFinished.class, then = ActiveResourceFinished.class, cardinality = EventCardinality.SINGLE)
 @OnEvent(when = PassiveResourceReleased.class, then = PassiveResourceAcquired.class, cardinality = EventCardinality.MANY)
 @OnEvent(when = ResourceDemandRequested.class, then = {
 		JobInitiated.class, PassiveResourceAcquired.class
@@ -87,20 +91,20 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 	}
 
 	@Subscribe
-	public Result<?> onResourceDemandRequested(final ResourceDemandRequested resourceDemandRequested) {
+	public Result<AbstractSimulationEvent> onResourceDemandRequested(final ResourceDemandRequested resourceDemandRequested) {
 		final ResourceDemandRequest request = resourceDemandRequested.getEntity();
 
 		if (request.getResourceType() == ResourceType.ACTIVE) {
-			return this.initiateActiveResource(request);
+			return Result.of(this.initiateActiveResource(request));
 		} else {
-			return this.initiatePassiveResource(request);
+			return Result.of(this.initiatePassiveResource(request));
 		}
 	}
 
 	/**
 	 * @param request
 	 */
-	private Result<PassiveResourceAcquired> initiatePassiveResource(final ResourceDemandRequest request) {
+	private Optional<PassiveResourceAcquired> initiatePassiveResource(final ResourceDemandRequest request) {
 		final PassiveResource passiveResource = request.getPassiveResource().get();
 		final AssemblyContext assemblyContext = request.getAssemblyContext();
 		final Optional<SimplePassiveResource> passiveResourceInstance = this.passiveResourceTable
@@ -108,18 +112,16 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 
 		if (passiveResourceInstance.isPresent()) {
 			final WaitingJob waitingJob = this.createWaitingJob(request, passiveResource);
-
 			return passiveResourceInstance.get().acquire(waitingJob);
-		} else {
-			return Result.empty();
 		}
+		return Optional.empty();
 	}
 
 	/**
 	 * @param request
 	 * @return
 	 */
-	private Result<JobInitiated> initiateActiveResource(final ResourceDemandRequest request) {
+	private JobInitiated initiateActiveResource(final ResourceDemandRequest request) {
 		final double demand = StackContext.evaluateStatic(
 				request.getParametricResourceDemand().getSpecification_ParametericResourceDemand()
 						.getSpecification(),
@@ -139,7 +141,7 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 				.withAllocationContext(context)
 				.build();
 
-		return Result.of(new JobInitiated(job, 0));
+		return new JobInitiated(job, 0);
 	}
 
 	/**
@@ -172,12 +174,10 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 
 		if (activeResource.isEmpty()) {
 			LOGGER.error("No such active resource found! " + id.toString());
-			return Result.empty();
+			return Result.of();
 		}
 
-
-
-		return activeResource.get().onJobInitiated(jobInitiated);
+		return Result.of(activeResource.get().onJobInitiated(jobInitiated));
 	}
 
 	@Subscribe
@@ -189,11 +189,11 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 
 		if (passiveResource.isEmpty()) {
 			LOGGER.error("No such passive resource found!");
-			return Result.empty();
+			return Result.of();
 		}
 
 		final WaitingJob waitingJob = this.createWaitingJob(entity, entity.getPassiveResource().get());
-		return passiveResource.get().release(waitingJob);
+		return Result.of(passiveResource.get().release(waitingJob));
 	}
 
 	@Subscribe
@@ -206,10 +206,10 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 
 		if (activeResource.isEmpty()) {
 			LOGGER.error("No such resource found!");
-			return Result.empty();
+			return Result.of();
 		}
 
-		return activeResource.get().onJobProgressed(jobProgressed);
+		return Result.of(activeResource.get().onJobProgressed(jobProgressed));
 	}
 
 	/**
@@ -290,7 +290,7 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 		final double latency = StackContext.evaluateStatic(latencyRV.getSpecification(), Double.class);
 
 		// Now, return AppropriateResourceFound with latency
-		return Result.empty();
+		return Result.of();
 	}
 
 	/**
@@ -299,9 +299,8 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 	 * @return an empty set.
 	 */
 	@Subscribe
-	public Result<?> onSimulationFinished(final SimulationFinished simulationFinished) {
+	public void onSimulationFinished(final SimulationFinished simulationFinished) {
 		this.resourceTable.clearResourcesFromJobs();
 		this.passiveResourceTable.clearResourcesFromJobs();
-		return Result.empty();
 	}
 }

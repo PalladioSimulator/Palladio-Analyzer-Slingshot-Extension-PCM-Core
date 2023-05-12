@@ -3,15 +3,15 @@ package org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.res
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Optional;
+import java.util.Set;
 
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.jobs.Job;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.entities.resources.ProcessingRate;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.AbstractJobEvent;
+import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.ActiveResourceStateUpdated;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobProgressed;
-import org.palladiosimulator.analyzer.slingshot.eventdriver.returntypes.Result;
-
 import de.uka.ipd.sdq.probfunction.math.util.MathTools;
 
 /**
@@ -50,16 +50,16 @@ public class FCFSResource extends AbstractActiveResource {
 	 * @return {@link JobProgressed} events.
 	 */
 	@Override
-	protected Result<AbstractJobEvent> process(final JobInitiated jobInitiated) {
+	protected Optional<AbstractJobEvent> process(final JobInitiated jobInitiated) {
 		final Job newJob = jobInitiated.getEntity();
 
 		this.processes.add(newJob);
 
 		if(this.processes.size()!=1) {
-			return Result.empty();
+			return Optional.empty();
 		}
 
-		return Result.of(this.scheduleNextEvent().get());
+		return this.scheduleNextEvent().map(j -> j);
 	}
 
 	/**
@@ -70,7 +70,7 @@ public class FCFSResource extends AbstractActiveResource {
 	 *         {@link JobProgressed} from the next job to handle.
 	 */
 	@Override
-	public Result<AbstractJobEvent> onJobProgressed(final JobProgressed jobProgressed) {
+	public Set<AbstractJobEvent> process(final JobProgressed jobProgressed) {
 		final Job job = jobProgressed.getEntity();
 
 		assert MathTools.equalsDouble(0, job.getDemand()) : "Remaining demand (" + job.getDemand() + ") not zero!";
@@ -79,9 +79,9 @@ public class FCFSResource extends AbstractActiveResource {
 
 		final Optional<JobProgressed> next = this.scheduleNextEvent();
 		if (next.isPresent()) {
-			return Result.of(new JobFinished(job), next.get());
+			return Set.of(new JobFinished(job), next.get());
 		}
-		return Result.of(new JobFinished(job));
+		return Set.of(new JobFinished(job));
 	}
 
 	@Override
@@ -123,7 +123,7 @@ public class FCFSResource extends AbstractActiveResource {
 	 * <p>
 	 * The event will be delayed by the current job's demand.
 	 *
-	 * @return The new JobProgressed event if there is any, or {@code null}
+	 * @return The new JobProgressed event if there is any, an empty Optional
 	 *         otherwise.
 	 */
 	private Optional<JobProgressed> scheduleNextEvent() {
@@ -131,5 +131,12 @@ public class FCFSResource extends AbstractActiveResource {
 			return Optional.empty();
 		}
 		return Optional.of(new JobProgressed(this.processes.peek(), this.processes.peek().getDemand()));
+	}
+
+	@Override
+	protected ActiveResourceStateUpdated publishState(final Job job) {
+		final int waitingJobs = this.processes.size();
+		final double utilization = this.processes.isEmpty() ? 0 : 1;
+		return new ActiveResourceStateUpdated(job, waitingJobs, utilization);
 	}
 }
