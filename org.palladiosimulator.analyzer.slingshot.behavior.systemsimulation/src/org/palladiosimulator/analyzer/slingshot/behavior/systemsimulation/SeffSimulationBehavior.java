@@ -5,7 +5,10 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.SEFFInterpretationContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.behaviorcontext.ForkBehaviorContextHolder;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.behaviorcontext.InfrastructureCallsContextHolder;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.behaviorcontext.SeffBehaviorContextHolder;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.behaviorcontext.SeffBehaviorWrapper;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.AbstractSEFFInterpretationEvent;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.PassiveResourceAcquired;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFChildInterpretationStarted;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInterpretationFinished;
@@ -40,8 +43,17 @@ public class SeffSimulationBehavior implements SimulationBehaviorExtension {
 	@Subscribe
 	public Result<SEFFInterpreted> onSeffInterpretationProgressed(final SEFFInterpretationProgressed progressed) {
 		final SeffInterpreter interpreter = new SeffInterpreter(progressed.getEntity());
-		final Set<SEFFInterpreted> events = interpreter
-				.doSwitch(progressed.getEntity().getBehaviorContext().getNextAction());
+		final SeffBehaviorContextHolder contextHolder = progressed.getEntity().getBehaviorContext();
+
+		if (contextHolder instanceof InfrastructureCallsContextHolder) {
+			if (contextHolder.hasFinished()) {
+				// continue in parent -> a follow up SEFFInterpretationProgressed in the parent 
+				LOGGER.info("progression to parent of infra");
+				return Result.of(continueInParent(progressed.getEntity()));
+			}
+		}
+
+		final Set<SEFFInterpreted> events = interpreter.doSwitch(contextHolder.getNextAction());
 		return Result.of(events);
 	}
 
@@ -69,8 +81,9 @@ public class SeffSimulationBehavior implements SimulationBehaviorExtension {
 		final SEFFInterpretationContext entity = finished.getEntity();
 		final Result<AbstractSimulationEvent> result;
 		/*
-		 * If the interpretation is finished in a SEFF that was called from another
-		 * SEFF, continue there. Otherwise, the SEFF comes from a User request.
+		 * If the interpretation is finished in a SEFF that was nested into or called
+		 * from another SEFF, continue there. Otherwise, the SEFF comes from a User
+		 * request.
 		 */
 		if (entity.getBehaviorContext() instanceof ForkBehaviorContextHolder) {
 
@@ -89,12 +102,12 @@ public class SeffSimulationBehavior implements SimulationBehaviorExtension {
 		} else if (!entity.getBehaviorContext().hasFinished()) {
 			LOGGER.info("repeat scenario");
 			result = Result.of(this.repeat(entity));
+		} else if (entity.getBehaviorContext().isChild()) { // go to parents first, only go to caller if no parent.
+			LOGGER.info("return to parent");
+			result = Result.of(this.continueInParent(entity));
 		} else if (entity.getCaller().isPresent()) {
 			LOGGER.info("return to caller");
 			result = Result.of(this.continueInCaller(entity));
-		} else if (entity.getBehaviorContext().isChild()) {
-			LOGGER.info("return to parent");
-			result = Result.of(this.continueInParent(entity));
 		} else {
 			LOGGER.info("finish request");
 			result = Result.of(this.finishUserRequest(entity));
@@ -139,13 +152,13 @@ public class SeffSimulationBehavior implements SimulationBehaviorExtension {
 	 * @param entity
 	 * @return
 	 */
-	private SEFFInterpretationProgressed continueInCaller(final SEFFInterpretationContext entity) {
+	private AbstractSEFFInterpretationEvent continueInCaller(final SEFFInterpretationContext entity) {
 		final SEFFInterpretationContext seffInterpretationContext = entity.getCaller().get();
-
 		return new SEFFInterpretationProgressed(seffInterpretationContext);
 	}
 
 	private SEFFInterpretationProgressed repeat(final SEFFInterpretationContext entity) {
 		return new SEFFInterpretationProgressed(entity);
 	}
+
 }
