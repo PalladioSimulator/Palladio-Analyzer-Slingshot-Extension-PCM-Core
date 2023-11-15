@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.resource.CallOverWireRequest;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.SEFFInterpretationContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.behaviorcontext.RootBehaviorContextHolder;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.user.RequestProcessingContext;
@@ -67,29 +68,46 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SEFFInterpretati
 	/** The context of the calling seff */
 	private final Optional<SEFFInterpretationContext> callerContext;
 
+	/** Needed for creating the appropriate SEFF Interpretation Context */
+	private final CallOverWireRequest callOverWireRequest;
+
+	/**
+	 * The stackframe to set variables into. Needed for creating the appropriate
+	 * SEFF Interpretation Context
+	 */
+	private final SimulatedStackframe<Object> resultStackframe;
+
 	/**
 	 * Instantiates the interpreter with given information. Depending on the
 	 * interpretation, not every parameter must be set (every parameter CAN be
 	 * null!).
 	 *
-	 * @param context         The special assembly context to interpret.
-	 * @param signature       A signature to find the right RDSeff.
-	 * @param providedRole    The provided role from which the interpretation
-	 *                        started.
-	 * @param user            The context onto which to push stack frames for
-	 *                        RDSeffs.
-	 * @param modelRepository The model repository to get more information from the
-	 *                        system model.
+	 * @param context          The special assembly context to interpret.
+	 * @param signature        A signature to find the right RDSeff.
+	 * @param providedRole     The provided role from which the interpretation
+	 *                         started.
+	 * @param user             The context onto which to push stack frames for
+	 *                         RDSeffs.
+	 * @param modelRepository  The model repository to get more information from the
+	 *                         system model.
+	 * @param callerContext    The context of the caller.
+	 * @param request          The call over wire request needed for the next SEFF
+	 *                         interpretation.
+	 * @param resultStackframe The stackframe to put output variables into. Needed
+	 *                         for the next SEFF interpretation.
 	 */
 	public RepositoryInterpreter(final AssemblyContext context, final Signature signature,
 			final ProvidedRole providedRole, final User user, final SystemModelRepository modelRepository,
-			final Optional<SEFFInterpretationContext> callerContext) {
+			final Optional<SEFFInterpretationContext> callerContext, final CallOverWireRequest request,
+			final SimulatedStackframe<Object> resultStackframe) {
 		this.assemblyContext = context;
 		this.signature = signature;
 		this.providedRole = providedRole;
 		this.user = user;
 		this.modelRepository = modelRepository;
 		this.callerContext = callerContext;
+		this.callOverWireRequest = request;
+		this.resultStackframe = resultStackframe;
 	}
 
 	/**
@@ -103,36 +121,31 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SEFFInterpretati
 		}
 
 		final SimulatedStackframe<Object> componentParameterStackframe = SimulatedStackHelper
-		        .createAndPushNewStackFrame(this.user.getStack(),
-		                object.getComponentParameterUsage_ImplementationComponentType(),
-		                this.user.getStack().currentStackFrame());
+				.createAndPushNewStackFrame(this.user.getStack(),
+						object.getComponentParameterUsage_ImplementationComponentType(),
+						this.user.getStack().currentStackFrame());
 		SimulatedStackHelper.createAndPushNewStackFrame(this.user.getStack(),
-		        this.assemblyContext.getConfigParameterUsages__AssemblyContext(), componentParameterStackframe);
+				this.assemblyContext.getConfigParameterUsages__AssemblyContext(), componentParameterStackframe);
 
 		final List<ServiceEffectSpecification> calledSeffs = this
-		        .getSeffsForCall(object.getServiceEffectSpecifications__BasicComponent(), this.signature);
+				.getSeffsForCall(object.getServiceEffectSpecifications__BasicComponent(), this.signature);
 
-
-		return calledSeffs.stream()
-		        .filter(ResourceDemandingSEFF.class::isInstance)
-		        .map(ResourceDemandingSEFF.class::cast)
-		        .map(rdSeff -> {
-		        	/*
-		    		 * Define for each SEFF a new request event to be interpreted.
-		    		 */
-			        final SEFFInterpretationContext context = SEFFInterpretationContext.builder()
-			        		.withAssemblyContext(this.assemblyContext)
-			        		.withCaller(callerContext)
-			        		.withBehaviorContext(new RootBehaviorContextHolder(rdSeff))
-			        		.withRequestProcessingContext(RequestProcessingContext.builder()
-			        				.withAssemblyContext(this.assemblyContext)
-			        				.withProvidedRole(this.providedRole)
-			        				.withUser(this.user)
-			        				.build())
-			        		.build();
-			        return new SEFFInterpretationProgressed(context);
-		        })
-		        .collect(Collectors.toSet());
+		return calledSeffs.stream().filter(ResourceDemandingSEFF.class::isInstance)
+				.map(ResourceDemandingSEFF.class::cast).map(rdSeff -> {
+					/*
+					 * Define for each SEFF a new request event to be interpreted.
+					 */
+					final SEFFInterpretationContext context = SEFFInterpretationContext.builder()
+							.withAssemblyContext(this.assemblyContext).withCaller(this.callerContext)
+							.withBehaviorContext(new RootBehaviorContextHolder(rdSeff))
+							.withRequestProcessingContext(
+									RequestProcessingContext.builder().withAssemblyContext(this.assemblyContext)
+											.withProvidedRole(this.providedRole).withUser(this.user).build())
+							.withCallOverWireRequest(callOverWireRequest)
+							.withResultStackframe(this.resultStackframe)
+							.build();
+					return new SEFFInterpretationProgressed(context);
+				}).collect(Collectors.toSet());
 
 	}
 
@@ -146,12 +159,11 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SEFFInterpretati
 	 * @return List of seffs describing {@code operationSignature}.
 	 */
 	private List<ServiceEffectSpecification> getSeffsForCall(
-	        final EList<ServiceEffectSpecification> serviceEffectSpecifications,
-	        final Signature operationSignature) {
+			final EList<ServiceEffectSpecification> serviceEffectSpecifications, final Signature operationSignature) {
 		assert serviceEffectSpecifications != null && operationSignature != null;
 		return serviceEffectSpecifications.stream()
-		        .filter(seff -> seff.getDescribedService__SEFF().getId().equals(operationSignature.getId()))
-		        .collect(Collectors.toList());
+				.filter(seff -> seff.getDescribedService__SEFF().getId().equals(operationSignature.getId()))
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -168,14 +180,17 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SEFFInterpretati
 	public Set<SEFFInterpretationProgressed> caseProvidedRole(final ProvidedRole providedRole) {
 		LOGGER.debug("Accessing provided role: " + providedRole.getId());
 
-		/* Sometime the providing entity is not defined and therefore must be
-		 * found by the system model repository to find the right entity.
+		/*
+		 * Sometime the providing entity is not defined and therefore must be found by
+		 * the system model repository to find the right entity.
 		 */
-		//if (providedRole.getProvidingEntity_ProvidedRole() == null) {
-		//	LOGGER.debug("ProvidedRole does not have the information about its providing entity, find it...");
-		//	final InterfaceProvidingEntity foundEntity = this.modelRepository.findProvidingEntity(providedRole);
-		//	providedRole.setProvidingEntity_ProvidedRole(foundEntity);
-		//}
+		// if (providedRole.getProvidingEntity_ProvidedRole() == null) {
+		// LOGGER.debug("ProvidedRole does not have the information about its providing
+		// entity, find it...");
+		// final InterfaceProvidingEntity foundEntity =
+		// this.modelRepository.findProvidingEntity(providedRole);
+		// providedRole.setProvidingEntity_ProvidedRole(foundEntity);
+		// }
 
 		return this.doSwitch(providedRole.getProvidingEntity_ProvidedRole());
 	}
@@ -191,7 +206,7 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SEFFInterpretati
 	 */
 	@Override
 	public Set<SEFFInterpretationProgressed> caseComposedProvidingRequiringEntity(
-	        final ComposedProvidingRequiringEntity entity) {
+			final ComposedProvidingRequiringEntity entity) {
 
 		if (entity != this.providedRole.getProvidingEntity_ProvidedRole()) {
 			/*
@@ -200,14 +215,14 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SEFFInterpretati
 			return Set.of();
 		}
 
-		final ProvidedDelegationConnector connectedProvidedDelegationConnector = this.getConnectedProvidedDelegationConnector()
-				.orElseThrow(IllegalStateException::new);
+		final ProvidedDelegationConnector connectedProvidedDelegationConnector = this
+				.getConnectedProvidedDelegationConnector().orElseThrow(IllegalStateException::new);
 		final RepositoryInterpreter repositoryInterpreter = new RepositoryInterpreter(
-		        connectedProvidedDelegationConnector.getAssemblyContext_ProvidedDelegationConnector(), this.signature,
-		        connectedProvidedDelegationConnector.getInnerProvidedRole_ProvidedDelegationConnector(), this.user,
-		        this.modelRepository, Optional.empty());
+				connectedProvidedDelegationConnector.getAssemblyContext_ProvidedDelegationConnector(), this.signature,
+				connectedProvidedDelegationConnector.getInnerProvidedRole_ProvidedDelegationConnector(), this.user,
+				this.modelRepository, Optional.empty(), this.callOverWireRequest, this.resultStackframe);
 		return repositoryInterpreter
-		        .doSwitch(connectedProvidedDelegationConnector.getInnerProvidedRole_ProvidedDelegationConnector());
+				.doSwitch(connectedProvidedDelegationConnector.getInnerProvidedRole_ProvidedDelegationConnector());
 	}
 
 	/**
@@ -222,12 +237,10 @@ public class RepositoryInterpreter extends RepositorySwitch<Set<SEFFInterpretati
 
 		final ComposedStructure composedStructure = (ComposedStructure) implementingEntity;
 
-		return composedStructure.getConnectors__ComposedStructure().stream()
-				.filter(connector -> connector.eClass() == CompositionPackage.eINSTANCE
-						.getProvidedDelegationConnector())
-				.map(ProvidedDelegationConnector.class::cast)
-				.filter(delegationConnector -> delegationConnector.getOuterProvidedRole_ProvidedDelegationConnector()
-						.getId().equals(this.providedRole.getId()))
+		return composedStructure.getConnectors__ComposedStructure().stream().filter(
+				connector -> connector.eClass() == CompositionPackage.eINSTANCE.getProvidedDelegationConnector())
+				.map(ProvidedDelegationConnector.class::cast).filter(delegationConnector -> delegationConnector
+						.getOuterProvidedRole_ProvidedDelegationConnector().getId().equals(this.providedRole.getId()))
 				.findFirst();
 
 	}

@@ -29,9 +29,8 @@ public final class ActiveResourceTable extends AbstractResourceTable<ActiveResou
 	public void createNewResource(final ResourceContainer container, final ProcessingResourceSpecification spec) {
 		final int numberOfReplicas = spec.getNumberOfReplicas();
 		final SchedulingPolicy schedulingPolicy = spec.getSchedulingPolicy();
-		final ProcessingResourceType activeResourceType = spec.getActiveResourceType_ActiveResourceSpecification();
-
-		final ActiveResourceCompoundKey id = new ActiveResourceCompoundKey(container, activeResourceType);
+		
+		final ActiveResourceCompoundKey id = this.getKey(container, spec);
 
 		final ActiveResource resource;
 		final String resourceName;
@@ -66,15 +65,29 @@ public final class ActiveResourceTable extends AbstractResourceTable<ActiveResou
 		}
 	}
 
+
 	public void buildModel(final Allocation allocation) {
 		allocation.getAllocationContexts_Allocation().stream()
 				.map(AllocationContext::getResourceContainer_AllocationContext)
 				.forEach(this::createActiveResourcesFromResourceContainer);
 	}
 
-	private void createActiveResourcesFromResourceContainer(final ResourceContainer resourceContainer) {
+	public void createActiveResourcesFromResourceContainer(final ResourceContainer resourceContainer) {
 		resourceContainer.getActiveResourceSpecifications_ResourceContainer()
 				.forEach(spec -> this.createNewResource(resourceContainer, spec));
+	}
+	
+	public void removeActiveResources(final ResourceContainer resourceContainer) {
+		resourceContainer.getActiveResourceSpecifications_ResourceContainer().stream()
+						 .map(spec -> this.getKey(resourceContainer, spec))
+						 .filter(id -> this.resources.containsKey(id))
+						 .forEach(id -> this.resources.remove(id));
+	}
+	
+	public ActiveResourceCompoundKey getKey(final ResourceContainer container, final ProcessingResourceSpecification spec) {
+		final ProcessingResourceType activeResourceType = spec.getActiveResourceType_ActiveResourceSpecification();
+		
+		return new ActiveResourceCompoundKey(container, activeResourceType);
 	}
 
 	public Optional<ActiveResource> getActiveResource(final ActiveResourceCompoundKey id) {

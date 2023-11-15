@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.eclipse.emf.ecore.EObject;
+import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.scenariobehavior.RootScenarioContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.events.UsageModelPassedElement;
 import org.palladiosimulator.analyzer.slingshot.common.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.core.extension.SimulationBehaviorExtension;
@@ -19,7 +19,6 @@ import org.palladiosimulator.analyzer.slingshot.monitor.data.events.ProbeTaken;
 import org.palladiosimulator.analyzer.slingshot.monitor.data.events.modelvisited.MeasurementSpecificationVisited;
 import org.palladiosimulator.analyzer.slingshot.monitor.data.events.modelvisited.MonitorModelVisited;
 import org.palladiosimulator.analyzer.slingshot.monitor.utils.probes.EventCurrentSimulationTimeProbe;
-import org.palladiosimulator.commons.emfutils.EMFLoadHelper;
 import org.palladiosimulator.edp2.models.measuringpoint.MeasuringPoint;
 import org.palladiosimulator.edp2.util.MetricDescriptionUtility;
 import org.palladiosimulator.metricspec.constants.MetricDescriptionConstants;
@@ -27,6 +26,7 @@ import org.palladiosimulator.monitorrepository.MeasurementSpecification;
 import org.palladiosimulator.pcm.usagemodel.Start;
 import org.palladiosimulator.pcm.usagemodel.Stop;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
+import org.palladiosimulator.pcmmeasuringpoint.UsageScenarioReference;
 import org.palladiosimulator.probeframework.calculator.Calculator;
 import org.palladiosimulator.probeframework.calculator.DefaultCalculatorProbeSets;
 import org.palladiosimulator.probeframework.calculator.IGenericCalculatorFactory;
@@ -40,7 +40,6 @@ import org.palladiosimulator.probeframework.measurement.RequestContext;
  *
  */
 @OnEvent(when = MonitorModelVisited.class, then = CalculatorRegistered.class, cardinality = EventCardinality.SINGLE)
-@OnEvent(when = UsageModelPassedElement.class, then = ProbeTaken.class, cardinality = EventCardinality.SINGLE)
 @OnEvent(when = UsageModelPassedElement.class, then = ProbeTaken.class, cardinality = EventCardinality.SINGLE)
 public class UsageScenarioResponseTimeMonitoringBehavior implements SimulationBehaviorExtension {
 
@@ -61,11 +60,11 @@ public class UsageScenarioResponseTimeMonitoringBehavior implements SimulationBe
 	public Result<CalculatorRegistered> onMeasurementSpecificationVisited(final MeasurementSpecificationVisited event) {
 		final MeasurementSpecification measurementSpecification = event.getEntity();
 		final MeasuringPoint measuringPoint = measurementSpecification.getMonitor().getMeasuringPoint();
-		final EObject eObject = EMFLoadHelper.loadAndResolveEObject(measuringPoint.getResourceURIRepresentation());
 
-		if (eObject instanceof UsageScenario && MetricDescriptionUtility.metricDescriptionIdsEqual(measurementSpecification.getMetricDescription(),
+		if (measuringPoint instanceof UsageScenarioReference
+				&& MetricDescriptionUtility.metricDescriptionIdsEqual(measurementSpecification.getMetricDescription(),
 				MetricDescriptionConstants.RESPONSE_TIME_METRIC)) {
-			final UsageScenario scenario = (UsageScenario) eObject;
+			final UsageScenario scenario = ((UsageScenarioReference) measuringPoint).getUsageScenario();
 			final UserProbes userProbes = new UserProbes();
 			this.userProbesMap.put(scenario.getId(), userProbes);
 
@@ -82,7 +81,8 @@ public class UsageScenarioResponseTimeMonitoringBehavior implements SimulationBe
 
 	@Subscribe(reified = Start.class)
 	public Result<ProbeTaken> onUsageScenarioStarted(final UsageModelPassedElement<Start> userStarted) {
-		if(this.userProbesMap.containsKey(userStarted.getContext().getScenario().getId())){
+		if (userStarted.getContext().getBehaviorContext() instanceof RootScenarioContext
+				&& this.userProbesMap.containsKey(userStarted.getContext().getScenario().getId())) {
 			final UserProbes userProbes = this.userProbesMap.get(userStarted.getContext().getScenario().getId());
 			userProbes.userStartedProbe.takeMeasurement(userStarted);
 			return Result.of(new ProbeTaken(ProbeTakenEntity.builder().withProbe(userProbes.userStartedProbe).build()));
@@ -92,7 +92,8 @@ public class UsageScenarioResponseTimeMonitoringBehavior implements SimulationBe
 
 	@Subscribe(reified = Stop.class)
 	public Result<ProbeTaken> onUsageScenarioFinished(final UsageModelPassedElement<Stop> userStopped) {
-		if(this.userProbesMap.containsKey(userStopped.getContext().getScenario().getId())){
+		if (userStopped.getContext().getBehaviorContext() instanceof RootScenarioContext
+				&& this.userProbesMap.containsKey(userStopped.getContext().getScenario().getId())) {
 			final UserProbes userProbes = this.userProbesMap.get(userStopped.getContext().getScenario().getId());
 				userProbes.userStoppedProbe.takeMeasurement(userStopped);
 				return Result

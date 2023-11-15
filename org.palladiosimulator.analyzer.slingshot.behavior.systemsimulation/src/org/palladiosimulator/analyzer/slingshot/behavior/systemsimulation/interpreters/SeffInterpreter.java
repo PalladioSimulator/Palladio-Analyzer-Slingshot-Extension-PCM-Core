@@ -17,14 +17,17 @@ import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entiti
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.SEFFInterpretationContext;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.behaviorcontext.BranchBehaviorContextHolder;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.behaviorcontext.ForkBehaviorContextHolder;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.behaviorcontext.InfrastructureCallsContextHolder;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.behaviorcontext.LoopBehaviorContextHolder;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.PassiveResourceReleased;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.ResourceDemandRequested;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFChildInterpretationStarted;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFExternalActionCalled;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInfrastructureCalled;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInterpretationFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInterpretationProgressed;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFInterpreted;
+import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events.SEFFModelPassedElement;
 import org.palladiosimulator.analyzer.slingshot.common.utils.SimulatedStackHelper;
 import org.palladiosimulator.analyzer.slingshot.common.utils.TransitionDeterminer;
 import org.palladiosimulator.pcm.parameter.VariableUsage;
@@ -34,6 +37,7 @@ import org.palladiosimulator.pcm.repository.Parameter;
 import org.palladiosimulator.pcm.seff.AbstractBranchTransition;
 import org.palladiosimulator.pcm.seff.AcquireAction;
 import org.palladiosimulator.pcm.seff.BranchAction;
+import org.palladiosimulator.pcm.seff.CallAction;
 import org.palladiosimulator.pcm.seff.CollectionIteratorAction;
 import org.palladiosimulator.pcm.seff.ExternalCallAction;
 import org.palladiosimulator.pcm.seff.ForkAction;
@@ -45,6 +49,7 @@ import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
 import org.palladiosimulator.pcm.seff.SetVariableAction;
 import org.palladiosimulator.pcm.seff.StartAction;
 import org.palladiosimulator.pcm.seff.StopAction;
+import org.palladiosimulator.pcm.seff.seff_performance.InfrastructureCall;
 import org.palladiosimulator.pcm.seff.seff_performance.ParametricResourceDemand;
 import org.palladiosimulator.pcm.seff.util.SeffSwitch;
 
@@ -91,7 +96,8 @@ public class SeffInterpreter extends SeffSwitch<Set<SEFFInterpreted>> {
 	@Override
 	public Set<SEFFInterpreted> caseStopAction(final StopAction object) {
 		LOGGER.debug("Seff stopped.");
-		return Set.of(new SEFFInterpretationFinished(this.context));
+		return Set.of(new SEFFInterpretationFinished(this.context),
+				new SEFFModelPassedElement<StopAction>(object, this.context));
 	}
 
 	@Override
@@ -111,14 +117,18 @@ public class SeffInterpreter extends SeffSwitch<Set<SEFFInterpreted>> {
 			throw new IllegalStateException("No branch transition was active. This is not allowed.");
 		}
 
-		LOGGER.info("Branch chosen: " + branchTransition.getEntityName());
+		LOGGER.info(String.format("Branch chosen: %s with id %s", branchTransition.getEntityName(),
+				branchTransition.getId()));
 
 		final BranchBehaviorContextHolder holder = new BranchBehaviorContextHolder(
 				branchTransition.getBranchBehaviour_BranchTransition(), branchAction.getSuccessor_AbstractAction(),
 				this.context.getBehaviorContext().getCurrentProcessedBehavior());
-		final SEFFInterpretationContext childContext = SEFFInterpretationContext.builder().withBehaviorContext(holder)
+		final SEFFInterpretationContext childContext = this.context.createChildContext()
+				.withBehaviorContext(holder)
 				.withRequestProcessingContext(this.context.getRequestProcessingContext())
-				.withAssemblyContext(this.context.getAssemblyContext()).build();
+				.withCaller(this.context.getCaller())
+				.withAssemblyContext(this.context.getAssemblyContext())
+				.build();
 
 		final SEFFChildInterpretationStarted event = new SEFFChildInterpretationStarted(childContext);
 
@@ -134,7 +144,8 @@ public class SeffInterpreter extends SeffSwitch<Set<SEFFInterpreted>> {
 	@Override
 	public Set<SEFFInterpreted> caseStartAction(final StartAction object) {
 		LOGGER.debug("Found starting action of SEFF");
-		return Set.of(new SEFFInterpretationProgressed(this.context));
+		return Set.of(new SEFFInterpretationProgressed(this.context),
+				new SEFFModelPassedElement<StartAction>(object, this.context));
 	}
 
 	@Override
@@ -147,10 +158,11 @@ public class SeffInterpreter extends SeffSwitch<Set<SEFFInterpreted>> {
 		final LoopBehaviorContextHolder holder = new LoopBehaviorContextHolder(object.getBodyBehaviour_Loop(),
 				object.getSuccessor_AbstractAction(), this.context.getBehaviorContext().getCurrentProcessedBehavior(),
 				iterationCount);
-		final SEFFInterpretationContext childContext = SEFFInterpretationContext.builder().withBehaviorContext(holder)
+		final SEFFInterpretationContext childContext = this.context.createChildContext()
+				.withBehaviorContext(holder)
 				.withRequestProcessingContext(this.context.getRequestProcessingContext())
-				.withAssemblyContext(this.context.getAssemblyContext()).build();
-
+				.withCaller(this.context.getCaller()).withAssemblyContext(this.context.getAssemblyContext()).build();
+		
 		return Set.of(new SEFFChildInterpretationStarted(childContext));
 	}
 
@@ -175,12 +187,13 @@ public class SeffInterpreter extends SeffSwitch<Set<SEFFInterpreted>> {
 				object.getSuccessor_AbstractAction(), this.context.getBehaviorContext().getCurrentProcessedBehavior());
 
 		final List<SEFFInterpretationContext> childContexts = rdBehaviors.stream()
-				.map(rdBehavior -> SEFFInterpretationContext.builder().withBehaviorContext(forkedBehaviorContext)
+				.map(rdBehavior -> this.context.createChildContext().withBehaviorContext(forkedBehaviorContext)
 						.withRequestProcessingContext(this.context.getRequestProcessingContext())
-						.withAssemblyContext(this.context.getAssemblyContext()).build())
+						.withCaller(this.context.getCaller()).withAssemblyContext(this.context.getAssemblyContext())
+						.build())
 				.collect(Collectors.toList());
 
-		return childContexts.stream().map(childContext -> new SEFFChildInterpretationStarted(childContext))
+		return childContexts.stream().map(SEFFChildInterpretationStarted::new)
 				.collect(Collectors.toSet());
 	}
 
@@ -197,11 +210,19 @@ public class SeffInterpreter extends SeffSwitch<Set<SEFFInterpreted>> {
 		final OperationRequiredRole requiredRole = externalCall.getRole_ExternalService();
 		final OperationSignature calledServiceSignature = externalCall.getCalledService_ExternalService();
 		final EList<VariableUsage> inputVariableUsages = externalCall.getInputVariableUsages__CallAction();
+		final EList<VariableUsage> outputVariableUsages = externalCall.getReturnVariableUsage__CallReturnAction();
 
 		final GeneralEntryRequest entryRequest = GeneralEntryRequest.builder()
-				.withInputVariableUsages(inputVariableUsages).withRequiredRole(requiredRole)
-				.withSignature(calledServiceSignature).withUser(this.context.getRequestProcessingContext().getUser())
-				.withRequestFrom(this.context.update().withCaller(this.context).build()).build();
+				.withInputVariableUsages(inputVariableUsages)
+				.withOutputVariableUsages(outputVariableUsages)
+				.withRequiredRole(requiredRole)
+				.withSignature(calledServiceSignature)
+				.withUser(this.context.getRequestProcessingContext().getUser())
+				.withRequestFrom(this.context.update()
+						.withCaller(this.context)
+						.build())
+				.build();
+
 
 		return Set.of(new SEFFExternalActionCalled(entryRequest));
 	}
@@ -263,7 +284,9 @@ public class SeffInterpreter extends SeffSwitch<Set<SEFFInterpreted>> {
 		final LoopBehaviorContextHolder holder = new LoopBehaviorContextHolder(object.getBodyBehaviour_Loop(),
 				object.getSuccessor_AbstractAction(), this.context.getBehaviorContext().getCurrentProcessedBehavior(),
 				iterationCount);
-		final SEFFInterpretationContext newContext = this.context.update().withBehaviorContext(holder).build();
+		final SEFFInterpretationContext newContext = this.context.createChildContextPrefilled()
+				.withBehaviorContext(holder)
+				.build();
 
 		return Set.of(new SEFFChildInterpretationStarted(newContext));
 	}
@@ -272,9 +295,30 @@ public class SeffInterpreter extends SeffSwitch<Set<SEFFInterpreted>> {
 	public Set<SEFFInterpreted> caseSetVariableAction(final SetVariableAction object) {
 		final SimulatedStack<Object> stack = this.context.getRequestProcessingContext().getUser().getStack();
 		final SimulatedStackframe<Object> stackFrame = stack.currentStackFrame();
+		final SimulatedStackframe<Object> resultStackframe = this.context.getCurrentResultStackframe();
+
 		SimulatedStackHelper.addParameterToStackFrame(stackFrame, object.getLocalVariableUsages_SetVariableAction(),
-				stackFrame);
+				resultStackframe);
 		return Set.of(new SEFFInterpretationProgressed(this.context));
+	}
+
+	@Override
+	public Set<SEFFInterpreted> caseCallAction(final CallAction callAction) {
+
+		if (callAction instanceof InfrastructureCall) {
+			final InfrastructureCall call = (InfrastructureCall) callAction;
+			// create infra call event.
+			final GeneralEntryRequest request = GeneralEntryRequest.builder()
+					.withInputVariableUsages(call.getInputVariableUsages__CallAction())
+					.withRequiredRole(call.getRequiredRole__InfrastructureCall())
+					.withSignature(call.getSignature__InfrastructureCall())
+					.withUser(this.context.getRequestProcessingContext().getUser())
+					.withRequestFrom(this.context.update().withCaller(this.context).build()).build();
+
+			return Set.of(new SEFFInfrastructureCalled(request));
+		}
+		LOGGER.warn("Attention, no interpreation implemented for this specific CallAction, it is simply ignored!");
+		return Set.of();
 	}
 
 	/**
@@ -290,19 +334,42 @@ public class SeffInterpreter extends SeffSwitch<Set<SEFFInterpreted>> {
 			LOGGER.debug("Demand found with: " + demand);
 
 			final ResourceDemandRequest request = ResourceDemandRequest.builder()
-					.withAssemblyContext(this.context.getAssemblyContext())
-					.withSeffInterpretationContext(this.context)
+					.withAssemblyContext(this.context.getAssemblyContext()).withSeffInterpretationContext(this.context)
 					.withResourceType(ResourceType.ACTIVE).withParametricResourceDemand(demand).build();
 
 			final ResourceDemandRequested requestEvent = new ResourceDemandRequested(request);
 			events.add(requestEvent);
 		});
 
+		if (events.isEmpty()) { // no RD! go straight to Infra calls
+			if (!internalAction.getInfrastructureCall__Action().isEmpty()) {
+				final InfrastructureCallsContextHolder infraContext = new InfrastructureCallsContextHolder(this.context,
+						internalAction, this.context.getBehaviorContext().getCurrentProcessedBehavior());
+
+				final SEFFInterpretationContext infraChildContext = this.context.createChildContext()
+						.withBehaviorContext(infraContext)
+						.withRequestProcessingContext(this.context.getRequestProcessingContext())
+						.withCaller(this.context.getCaller()).withAssemblyContext(this.context.getAssemblyContext())
+						.build();
+
+				events.add(new SEFFInterpretationProgressed(infraChildContext));
+			}
+		}
+
+		if (events.isEmpty()) { // empty internal action, just progress.
+			events.add(new SEFFInterpretationProgressed(this.context));
+
+		}
+
 		return Collections.unmodifiableSet(events);
 	}
 
 	@Override
 	public Set<SEFFInterpreted> doSwitch(final EClass eClass, final EObject eObject) {
+		if (eObject == null) {
+			throw new IllegalArgumentException("called interpretation on a null reference");
+		}
+
 		Set<SEFFInterpreted> result = super.doSwitch(eClass, eObject);
 		if (result == null) {
 			result = Set.of();

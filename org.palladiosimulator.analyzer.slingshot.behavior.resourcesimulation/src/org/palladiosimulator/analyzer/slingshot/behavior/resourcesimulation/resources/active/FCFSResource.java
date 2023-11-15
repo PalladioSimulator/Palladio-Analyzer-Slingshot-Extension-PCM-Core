@@ -12,8 +12,13 @@ import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.even
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobFinished;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobInitiated;
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.events.JobProgressed;
+
 import de.uka.ipd.sdq.probfunction.math.util.MathTools;
 
+
+/*
+ * TODO: Wait on progressing jobs before deleting ~(or JobCancelled)~
+ */
 /**
  * A FCFSResource handles first jobs first, and then the remaining jobs will be
  * handled (first-come, first-served).
@@ -38,7 +43,7 @@ public class FCFSResource extends AbstractActiveResource {
 	 * @param name     The name of the resource.
 	 * @param capacity The maximum capacity of the resource.
 	 */
-	public FCFSResource(final ActiveResourceCompoundKey type, final String name, final long capacity, final ProcessingRate rate) {
+	public FCFSResource(final Object type, final String name, final long capacity, final ProcessingRate rate) {
 		super(type, name, capacity, rate);
 	}
 
@@ -87,6 +92,11 @@ public class FCFSResource extends AbstractActiveResource {
 	@Override
 	public void clearJobs() {
 		this.processes.clear();
+	}
+
+	@Override
+	public void abortJob(final Job job) {
+		this.processes.remove(job);
 	}
 
 	/**
