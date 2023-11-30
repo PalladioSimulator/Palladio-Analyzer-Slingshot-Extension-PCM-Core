@@ -66,7 +66,8 @@ public class ActiveJob extends Job {
 		final List<ProcessingResourceSpecification> matches = this.allocationContext
 				.getResourceContainer_AllocationContext().getActiveResourceSpecifications_ResourceContainer().stream()
 				.filter(
-				spec -> spec.getActiveResourceType_ActiveResourceSpecification().equals(this.processingResourceType))
+						spec -> spec.getActiveResourceType_ActiveResourceSpecification().getId()
+								.equals(this.processingResourceType.getId()))
 				.collect(Collectors.toList());
 
 		if (matches.size() != 1) {

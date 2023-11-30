@@ -46,7 +46,6 @@ import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.reso
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.resources.passive.SimplePassiveResource;
 import org.palladiosimulator.analyzer.slingshot.behavior.spd.data.ModelAdjusted;
 
-import org.palladiosimulator.analyzer.slingshot.behavior.spd.data.adjustment.ResourceEnvironmentChange;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.resource.CallOverWireRequest;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.resource.ResourceDemandRequest;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.resource.ResourceDemandRequest.ResourceType;
@@ -71,6 +70,9 @@ import org.palladiosimulator.pcm.allocation.AllocationContext;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.repository.PassiveResource;
 import org.palladiosimulator.pcm.resourceenvironment.LinkingResource;
+import org.palladiosimulator.pcm.resourceenvironment.ProcessingResourceSpecification;
+import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
+
 import de.uka.ipd.sdq.simucomframework.variables.StackContext;
 import de.uka.ipd.sdq.simucomframework.variables.converter.NumberConverter;
 
@@ -326,23 +328,41 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 		return Result.empty();
 	}
 
+//	@Subscribe
+//	public Result<?> onModelAdjusted(final ModelAdjusted modelChanged) {
+//		modelChanged.getChanges().stream()
+//								 .filter(change -> change instanceof ResourceEnvironmentChange)
+//								 .map(ResourceEnvironmentChange.class::cast)
+//								 .forEach(this::changeActiveResourceTableFromModelChange);
+//
+//		return Result.empty();
+//	}
+//
+//	private void changeActiveResourceTableFromModelChange(final ResourceEnvironmentChange change) {
+//		change.getNewResourceContainers().forEach(newContainer ->
+//			this.resourceTable.createActiveResourcesFromResourceContainer(newContainer));
+//
+//		change.getDeletedResourceContainers().forEach(deletedContainer ->
+//			this.resourceTable.removeActiveResources(deletedContainer));
+//	}
+	
 	@Subscribe
-	public Result<?> onModelAdjusted(final ModelAdjusted modelChanged) {
-		modelChanged.getChanges().stream()
-								 .filter(change -> change instanceof ResourceEnvironmentChange)
-								 .map(ResourceEnvironmentChange.class::cast)
-								 .forEach(this::changeActiveResourceTableFromModelChange);
+ 	public void onModelAdjusted(final ModelAdjusted modelChanged) {
+ 		for (final AllocationContext context : this.allocation.getAllocationContexts_Allocation()) {
 
-		return Result.empty();
-	}
+ 			final ResourceContainer resourceContainer = context.getResourceContainer_AllocationContext();
 
-	private void changeActiveResourceTableFromModelChange(final ResourceEnvironmentChange change) {
-		change.getNewResourceContainers().forEach(newContainer ->
-			this.resourceTable.createActiveResourcesFromResourceContainer(newContainer));
+ 			final ProcessingResourceSpecification spec = resourceContainer.getActiveResourceSpecifications_ResourceContainer().get(0);
 
-		change.getDeletedResourceContainers().forEach(deletedContainer ->
-			this.resourceTable.removeActiveResources(deletedContainer));
-	}
+ 			final org.palladiosimulator.pcm.resourcetype.ResourceType resourceType = spec.getActiveResourceType_ActiveResourceSpecification();
+
+ 			final ActiveResourceCompoundKey key = new ActiveResourceCompoundKey(resourceContainer, resourceType);
+
+ 			if (this.resourceTable.getActiveResource(key).isEmpty()) {
+ 				this.resourceTable.createNewResource(resourceContainer, spec);
+ 			}
+		}
+ 	}
 
 	@Subscribe
 	public Result<?> onCallOverWireRequested(final CallOverWireRequested externalCallRequested) {
@@ -401,40 +421,8 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 	 */
 	@Subscribe
 	public void onSimulationFinished(final SimulationFinished simulationFinished) {
-		setupAndSaveResourceModel();
-
 		this.resourceTable.clearResourcesFromJobs();
 		this.passiveResourceTable.clearResourcesFromJobs();
 		this.linkingResourceTable.clearResourcesFromJobs();
-	}
-
-	/*
-	 * Only for debugging!
-	 */
-	private void setupAndSaveResourceModel() {
-		final ResourceSet rs = new ResourceSetImpl();
-		final Resource reResource = createResource("platform:/resource/RemoteMeasuringMosaic/rm_output.resourceenvironment", rs);
-		reResource.getContents().add(allocation.getTargetResourceEnvironment_Allocation());
-		saveResource(reResource);
-	}
-
-	private Resource createResource(final String outputFile, final ResourceSet rs) {
-		rs.getResourceFactoryRegistry().getExtensionToFactoryMap().put("resourceenvironment", new XMLResourceFactoryImpl());
-		final URI uri = URI.createURI(outputFile);
-		final Resource resource = rs.createResource(uri);
-		((ResourceImpl) resource).setIntrinsicIDToEObjectMap(new HashMap<>());
-		return resource;
-	}
-
-	private void saveResource(final Resource resource) {
-		final Map saveOptions = ((XMLResource) resource).getDefaultSaveOptions();
-		saveOptions.put(XMLResource.OPTION_CONFIGURATION_CACHE, Boolean.TRUE);
-		saveOptions.put(XMLResource.OPTION_USE_CACHED_LOOKUP_TABLE, new ArrayList<>());
-
-		try {
-			resource.save(saveOptions);
-		} catch (final IOException e) {
-			LOGGER.error(e);
-		}
 	}
 }
