@@ -16,3 +16,4 @@ Require-Bundle: org.palladiosimulator.analyzer.slingshot.common,
  org.palladiosimulator.analyzer.workflow,
  de.uka.ipd.sdq.workflow.mdsd.blackboard,
  de.uka.ipd.sdq.simucomframework
+Export-Package: org.palladiosimulator.analyzer.slingshot.behavior.usageevolution.events
