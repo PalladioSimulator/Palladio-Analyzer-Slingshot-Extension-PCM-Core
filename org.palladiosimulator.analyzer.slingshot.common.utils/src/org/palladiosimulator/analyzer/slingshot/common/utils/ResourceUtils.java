@@ -14,8 +14,6 @@ import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.XMLResourceFactoryImpl;
-import org.palladiosimulator.pcm.allocation.Allocation;
-import org.palladiosimulator.pcm.repository.Repository;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment;
 
 /**
@@ -29,6 +27,7 @@ public final class ResourceUtils {
 
 	private static final Logger LOGGER = Logger.getLogger(ResourceUtils.class);
 
+	@Deprecated
 	public static Resource createAndAddResource(final String outputFile, final String[] fileExtensions,
 			final ResourceSet rs) {
 		for (final String fileExt : fileExtensions) {
@@ -64,43 +63,6 @@ public final class ResourceUtils {
 		return newUri;
 	}
 
-	public static void saveAllResource(final Allocation allocation, final String idSegment) {
-		if (allocation.getSystem_Allocation().getAssemblyContexts__ComposedStructure().isEmpty()) {
-			throw new IllegalArgumentException("Number of AssemblyContexts is zero, abort saving.");
-		}
-
-		final ResourceEnvironment resourceEnvironment = allocation.getTargetResourceEnvironment_Allocation();
-		final org.palladiosimulator.pcm.system.System system = allocation.getSystem_Allocation();
-		final Repository repo = allocation.getSystem_Allocation().getAssemblyContexts__ComposedStructure().get(0)
-				.getEncapsulatedComponent__AssemblyContext().getRepository__RepositoryComponent();
-
-		final URI oldAllocUri = allocation.eResource().getURI();
-		final URI newAllocUri = ResourceUtils.insertFragment(oldAllocUri, idSegment, oldAllocUri.segmentCount() - 1);
-		allocation.eResource().setURI(newAllocUri);
-
-		final URI oldResUri = resourceEnvironment.eResource().getURI();
-		final URI newResUri = ResourceUtils.insertFragment(oldResUri, idSegment, oldResUri.segmentCount() - 1);
-		resourceEnvironment.eResource().setURI(newResUri);
-
-		final URI oldSysUri = system.eResource().getURI();
-		final URI newSysUri = ResourceUtils.insertFragment(oldSysUri, idSegment, oldSysUri.segmentCount() - 1);
-		system.eResource().setURI(newSysUri);
-
-		final URI oldRepoUri = repo.eResource().getURI();
-		final URI newRepoUri = ResourceUtils.insertFragment(oldRepoUri, idSegment, oldRepoUri.segmentCount() - 1);
-		repo.eResource().setURI(newRepoUri);
-
-		ResourceUtils.saveResource(repo.eResource());
-		ResourceUtils.saveResource(resourceEnvironment.eResource());
-		ResourceUtils.saveResource(system.eResource());
-		ResourceUtils.saveResource(allocation.eResource());
-
-		allocation.eResource().setURI(oldAllocUri);
-		system.eResource().setURI(oldSysUri);
-		resourceEnvironment.eResource().setURI(oldResUri);
-		repo.eResource().setURI(oldRepoUri);
-	}
-
 	/**
 	 *
 	 * Save a resource model to the given path. Beware this operation moves the
@@ -112,6 +74,7 @@ public final class ResourceUtils {
 	 * @param resEnv model to be saved.
 	 * @param path   location to safe the model at.
 	 */
+	@Deprecated
 	public static void setupAndSaveResourceModel(final ResourceEnvironment resEnv, final String path) {
 
 		final ResourceSet rs = new ResourceSetImpl();
@@ -121,6 +84,7 @@ public final class ResourceUtils {
 
 	}
 
+	@Deprecated
 	private static Resource createResource(final String outputFile, final ResourceSet rs) {
 		rs.getResourceFactoryRegistry().getExtensionToFactoryMap().put("resourceenvironment",
 				new XMLResourceFactoryImpl());
