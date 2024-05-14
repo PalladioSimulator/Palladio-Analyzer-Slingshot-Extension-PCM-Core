@@ -18,7 +18,7 @@ import com.google.common.base.Preconditions;
  * <p>
  * Because this is an inner scenario behavior, both the {@code nextAction} and
  * the {@code parent} must be present.
- * 
+ *
  * @author Julijan Katic
  */
 public final class LoopScenarioBehaviorContext extends UsageScenarioBehaviorContext {
@@ -28,18 +28,21 @@ public final class LoopScenarioBehaviorContext extends UsageScenarioBehaviorCont
 
 	/**
 	 * Constructs the LoopScenarioBehaviorContext using the {@link Builder} object.
-	 * 
+	 *
 	 * @param builder
 	 */
 	public LoopScenarioBehaviorContext(final Builder builder) {
 		super(builder);
 		Preconditions.checkArgument(this.getNextAction().isPresent(), "The next action must be present");
 		Preconditions
-				.checkArgument(builder.initialLoopCount < builder.maximalLoopCount && builder.initialLoopCount >= 0);
+		.checkArgument(builder.initialLoopCount <= builder.maximalLoopCount && builder.initialLoopCount >= 0,
+						String.format("InitialLoopCount must be in [0,%d] (maximalLoopCount) but is %d",
+				builder.maximalLoopCount, builder.initialLoopCount));
 
 		this.maximalLoopCount = builder.maximalLoopCount;
 		this.progression = builder.initialLoopCount;
 	}
+
 
 	@Override
 	public boolean mustRepeatScenario() {
@@ -57,12 +60,16 @@ public final class LoopScenarioBehaviorContext extends UsageScenarioBehaviorCont
 		return new Builder();
 	}
 
+	public Builder update() {
+		return builder().withInitialLoopCount(progression).withMaximalLoopCount(maximalLoopCount);
+	}
+
 	/**
 	 * Builds this loop context. The maximal loop count is initially {@code -1}. The
 	 * initial loop count is initially {@code 0}. According to
 	 * {@link #LoopScenarioBehaviorContext()}, the maximal loop count should be
 	 * larger than the inital loop count.
-	 * 
+	 *
 	 * @author Julijan Katic
 	 */
 	public static final class Builder extends BaseBuilder<LoopScenarioBehaviorContext, Builder> {
