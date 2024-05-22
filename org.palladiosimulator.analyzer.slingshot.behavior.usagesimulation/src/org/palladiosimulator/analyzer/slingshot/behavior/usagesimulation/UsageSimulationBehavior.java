@@ -329,6 +329,8 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 			/* We are inside another behavior, such as loop or branch */
 			final UsageScenarioBehaviorContext scenarioBehaviorContext = context.getBehaviorContext();
 			final UserInterpretationContext newContext;
+			
+			context.update().withUser(new User());
 
 			if (scenarioBehaviorContext.mustRepeatScenario()) {
 				newContext = context.update().withCurrentAction(scenarioBehaviorContext.startScenario()).build();
@@ -361,6 +363,7 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 
 		final UserInterpretationContext context = evt.getEntity();
 		return finishUser(context);
+		
 	}
 
 	/**
@@ -383,7 +386,8 @@ public class UsageSimulationBehavior implements SimulationBehaviorExtension {
 		 */
 		if (context instanceof ClosedWorkloadUserInterpretationContext) {
 			final ClosedWorkloadUserInterpretationContext closedContext = (ClosedWorkloadUserInterpretationContext) context;
-			resultSet.add(new ClosedWorkloadUserInitiated(context, closedContext.getThinkTime()));
+			ClosedWorkloadUserInterpretationContext modifiedContext = closedContext.update().withUser(new User()).build();
+			resultSet.add(new ClosedWorkloadUserInitiated(modifiedContext, modifiedContext.getThinkTime()));
 		}
 		resultSet.add(new UsageScenarioFinished(context, 0));
 	}
