@@ -159,6 +159,10 @@ public class SeffSimulationBehavior implements SimulationBehaviorExtension {
 				.map(AbstractSimulationEvent.class::cast) // Needed for the type check
 				.orElseGet(() -> {
 					LOGGER.info("It seems that the call was not over a wire, so proceed with normal progression");
+					if (entity.getCaller().get().getBehaviorContext().hasFinished()) {
+						throw new IllegalStateException(
+								"Attempting to proceed with finished behavior. This is not allowed.");
+					}
 					return new SEFFInterpretationProgressed(entity.getCaller().get());
 				});
 	}
