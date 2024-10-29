@@ -51,12 +51,39 @@ public final class ResourceUtils {
 		}
 	}
 
+	/**
+	 *
+	 * @param uri      the uri
+	 * @param fragment fragment to be inserted
+	 * @param position position to insert the fragment at
+	 * @return uri with {@code fragment} inserted at {@code position}
+	 */
 	public static URI insertFragment(final URI uri, final String fragment, final int position) {
 		if (position > uri.segmentCount()) {
 			throw new IllegalArgumentException("position is out of range.");
 		}
 
 		final List<String> seg = new ArrayList<String>(uri.segmentsList());
+		seg.add(position, fragment);
+		final URI newUri = URI.createHierarchicalURI(uri.scheme(), uri.authority(), uri.device(),
+				seg.toArray(new String[0]), uri.query(), uri.fragment());
+		return newUri;
+	}
+
+	/**
+	 *
+	 * @param uri      the uri
+	 * @param fragment fragment to be inserted
+	 * @param position position of segment to be replaced with {@code fragment}.
+	 * @return uri with segment at {@code position} replaced with {@code fragment}
+	 */
+	public static URI replaceFragment(final URI uri, final String fragment, final int position) {
+		if (position > uri.segmentCount()) {
+			throw new IllegalArgumentException("position is out of range.");
+		}
+
+		final List<String> seg = new ArrayList<String>(uri.segmentsList());
+		seg.remove(position);
 		seg.add(position, fragment);
 		final URI newUri = URI.createHierarchicalURI(uri.scheme(), uri.authority(), uri.device(),
 				seg.toArray(new String[0]), uri.query(), uri.fragment());
