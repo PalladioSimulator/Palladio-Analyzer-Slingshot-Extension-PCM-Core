@@ -11,8 +11,8 @@ Export-Package: org.palladiosimulator.analyzer.slingshot.behavior.systemsimulati
  org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.seff.behaviorcontext,
  org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.user,
  org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.events;version="1.0.0"
-Require-Bundle: org.palladiosimulator.analyzer.slingshot.core;bundle-version="1.0.0",
- org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.data;bundle-version="1.0.0",
+Require-Bundle: org.palladiosimulator.analyzer.slingshot.core,
+ org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.data,
  org.palladiosimulator.pcm,
  de.uka.ipd.sdq.simucomframework.variables,
  org.apache.log4j,
