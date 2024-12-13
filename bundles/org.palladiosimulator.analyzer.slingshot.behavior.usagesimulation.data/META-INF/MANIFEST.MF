@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.behavior.usagesimu
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.behaviour.usagesimulation.data
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: org.palladiosimulator.analyzer.slingshot.core;bundle-version="1.0.0",
+Require-Bundle: org.palladiosimulator.analyzer.slingshot.core,
  org.palladiosimulator.pcm,
  de.uka.ipd.sdq.simucomframework.variables;bundle-version="4.3.0",
  org.palladiosimulator.analyzer.slingshot.common.utils;visibility:=reexport

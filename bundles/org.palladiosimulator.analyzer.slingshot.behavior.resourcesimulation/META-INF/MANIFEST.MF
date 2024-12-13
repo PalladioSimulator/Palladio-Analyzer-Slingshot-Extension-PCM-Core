@@ -5,11 +5,11 @@ Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.behavior.resources
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.behaviour.resourcesimulation
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: org.palladiosimulator.analyzer.slingshot.core;bundle-version="1.0.0",
- org.apache.log4j;bundle-version="1.2.15",
+Require-Bundle: org.palladiosimulator.analyzer.slingshot.core,
+ org.apache.log4j,
  de.uka.ipd.sdq.probfunction.math,
  org.palladiosimulator.pcm,
- org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.data;bundle-version="1.0.0",
+ org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.data,
  de.uka.ipd.sdq.simucomframework,
  org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.data,
  de.uka.ipd.sdq.simucomframework.variables,

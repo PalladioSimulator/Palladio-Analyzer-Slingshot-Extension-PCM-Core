@@ -7,12 +7,12 @@ Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.behavior.usagemo
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.palladiosimulator.pcm,
  de.uka.ipd.sdq.simucomframework.variables,
- org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.data;bundle-version="1.0.0",
- org.palladiosimulator.analyzer.slingshot.common.utils;bundle-version="1.0.0",
- org.palladiosimulator.analyzer.slingshot.ui.events;bundle-version="1.0.0",
- org.palladiosimulator.analyzer.slingshot.workflow.events;bundle-version="1.0.0",
+ org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.data,
+ org.palladiosimulator.analyzer.slingshot.common.utils,
+ org.palladiosimulator.analyzer.slingshot.ui.events,
+ org.palladiosimulator.analyzer.slingshot.workflow.events,
  org.palladiosimulator.analyzer.workflow,
- org.palladiosimulator.analyzer.slingshot.core;bundle-version="1.0.0"
+ org.palladiosimulator.analyzer.slingshot.core
 Export-Package: org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation,
  org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.interpreters,
  org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.repositories
