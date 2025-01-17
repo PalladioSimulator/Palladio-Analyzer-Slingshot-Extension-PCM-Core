@@ -5,11 +5,11 @@ Bundle-SymbolicName: org.palladiosimulator.analyzer.slingshot.behavior.systemsim
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: org.palladiosimulator.analyzer.slingshot.behaviour.systemsimulation
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: org.palladiosimulator.analyzer.slingshot.core;bundle-version="1.0.0",
+Require-Bundle: org.palladiosimulator.analyzer.slingshot.core,
  org.palladiosimulator.pcm;bundle-version="4.3.0",
- org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.data;bundle-version="1.0.0",
+ org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.data,
  de.uka.ipd.sdq.simucomframework.variables;bundle-version="4.3.0",
- org.palladiosimulator.analyzer.slingshot.ui.events;bundle-version="1.0.0",
- org.palladiosimulator.analyzer.slingshot.workflow.events;bundle-version="1.0.0",
+ org.palladiosimulator.analyzer.slingshot.ui.events,
+ org.palladiosimulator.analyzer.slingshot.workflow.events,
  org.palladiosimulator.analyzer.workflow,
- org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.data;bundle-version="1.0.0"
+ org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.data
