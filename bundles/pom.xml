@@ -21,6 +21,7 @@
 		<module>org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation</module>
 		<module>org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.data</module>
 		<module>org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.monitor</module>
+		<module>org.palladiosimulator.analyzer.slingshot.behavior.usageevolution</module>
 		<module>org.palladiosimulator.analyzer.slingshot.common.utils</module>
 	</modules>
 	
