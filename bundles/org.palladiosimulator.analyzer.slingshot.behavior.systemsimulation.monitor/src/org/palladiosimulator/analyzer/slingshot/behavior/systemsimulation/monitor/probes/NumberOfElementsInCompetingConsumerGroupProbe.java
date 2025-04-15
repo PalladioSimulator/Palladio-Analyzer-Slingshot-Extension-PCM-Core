@@ -5,7 +5,7 @@ import javax.measure.quantity.Dimensionless;
 import org.palladiosimulator.analyzer.slingshot.common.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.monitor.probes.EventBasedListProbe;
 import org.palladiosimulator.metricspec.constants.MetricDescriptionConstants;
-import org.palladiosimulator.semanticspd.CompetingConsumersGroupCfg;
+import org.palladiosimulator.semanticelasticityspec.CompetingConsumersGroupCfg;
 
 /**
  * Probe for the Number of Elements in a Competing Consumer Group.

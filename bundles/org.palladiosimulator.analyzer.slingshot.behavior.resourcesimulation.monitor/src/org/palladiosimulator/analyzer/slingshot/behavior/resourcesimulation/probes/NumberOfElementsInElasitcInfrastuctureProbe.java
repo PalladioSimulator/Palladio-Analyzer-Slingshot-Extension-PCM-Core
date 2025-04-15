@@ -5,7 +5,7 @@ import javax.measure.quantity.Dimensionless;
 import org.palladiosimulator.analyzer.slingshot.common.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.monitor.probes.EventBasedListProbe;
 import org.palladiosimulator.metricspec.constants.MetricDescriptionConstants;
-import org.palladiosimulator.semanticspd.ElasticInfrastructureCfg;
+import org.palladiosimulator.semanticelasticityspec.ElasticInfrastructureCfg;
 
 /**
  * Probe for the Number of Elements in a Elastic Infrastructure.

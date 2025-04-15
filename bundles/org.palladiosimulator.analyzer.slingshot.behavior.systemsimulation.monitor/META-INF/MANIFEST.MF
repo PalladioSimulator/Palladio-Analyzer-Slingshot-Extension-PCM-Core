@@ -11,6 +11,6 @@ Require-Bundle: org.palladiosimulator.analyzer.slingshot.core,
  org.palladiosimulator.monitorrepository,
  org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.data,
  org.palladiosimulator.analyzer.slingshot.monitor,
- org.palladiosimulator.spd.measuringpoint,
+ org.palladiosimulator.elasticity.measuringpoint,
  org.palladiosimulator.analyzer.slingshot.monitor.utils,
  org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.data

@@ -24,17 +24,17 @@ import org.palladiosimulator.analyzer.slingshot.monitor.data.events.modelvisited
 import org.palladiosimulator.analyzer.slingshot.monitor.data.events.modelvisited.MonitorModelVisited;
 import org.palladiosimulator.edp2.models.measuringpoint.MeasuringPoint;
 import org.palladiosimulator.edp2.util.MetricDescriptionUtility;
+import org.palladiosimulator.elasticitymeasuringpoint.CompetingConsumerGroupMeasuringPoint;
+import org.palladiosimulator.elasticitymeasuringpoint.ServiceGroupMeasuringPoint;
 import org.palladiosimulator.metricspec.constants.MetricDescriptionConstants;
 import org.palladiosimulator.monitorrepository.MeasurementSpecification;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.probeframework.calculator.Calculator;
 import org.palladiosimulator.probeframework.calculator.DefaultCalculatorProbeSets;
 import org.palladiosimulator.probeframework.calculator.IGenericCalculatorFactory;
-import org.palladiosimulator.semanticspd.CompetingConsumersGroupCfg;
-import org.palladiosimulator.semanticspd.Configuration;
-import org.palladiosimulator.semanticspd.ServiceGroupCfg;
-import org.palladiosimulator.spdmeasuringpoint.CompetingConsumerGroupMeasuringPoint;
-import org.palladiosimulator.spdmeasuringpoint.ServiceGroupMeasuringPoint;
+import org.palladiosimulator.semanticelasticityspec.CompetingConsumersGroupCfg;
+import org.palladiosimulator.semanticelasticityspec.Configuration;
+import org.palladiosimulator.semanticelasticityspec.ServiceGroupCfg;
 
 /**
  *

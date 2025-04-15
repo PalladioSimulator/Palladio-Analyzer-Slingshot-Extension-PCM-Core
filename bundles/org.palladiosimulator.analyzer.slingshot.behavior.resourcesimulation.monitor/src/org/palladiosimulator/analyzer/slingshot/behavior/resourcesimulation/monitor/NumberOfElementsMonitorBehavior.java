@@ -23,15 +23,15 @@ import org.palladiosimulator.analyzer.slingshot.monitor.data.events.modelvisited
 import org.palladiosimulator.analyzer.slingshot.monitor.data.events.modelvisited.MonitorModelVisited;
 import org.palladiosimulator.edp2.models.measuringpoint.MeasuringPoint;
 import org.palladiosimulator.edp2.util.MetricDescriptionUtility;
+import org.palladiosimulator.elasticitymeasuringpoint.ElasticInfrastructureMeasuringPoint;
 import org.palladiosimulator.metricspec.constants.MetricDescriptionConstants;
 import org.palladiosimulator.monitorrepository.MeasurementSpecification;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
 import org.palladiosimulator.probeframework.calculator.Calculator;
 import org.palladiosimulator.probeframework.calculator.DefaultCalculatorProbeSets;
 import org.palladiosimulator.probeframework.calculator.IGenericCalculatorFactory;
-import org.palladiosimulator.semanticspd.Configuration;
-import org.palladiosimulator.semanticspd.ElasticInfrastructureCfg;
-import org.palladiosimulator.spdmeasuringpoint.ElasticInfrastructureMeasuringPoint;
+import org.palladiosimulator.semanticelasticityspec.Configuration;
+import org.palladiosimulator.semanticelasticityspec.ElasticInfrastructureCfg;
 
 /**
  *
