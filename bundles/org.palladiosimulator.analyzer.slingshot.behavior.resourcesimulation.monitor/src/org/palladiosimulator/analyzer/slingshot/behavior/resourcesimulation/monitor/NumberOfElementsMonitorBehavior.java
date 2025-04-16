@@ -8,7 +8,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.probes.NumberOfElementsInElasitcInfrastuctureProbe;
+import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.probes.NumberOfElementsInInfrastructureGroupProbe;
 import org.palladiosimulator.analyzer.slingshot.common.annotations.Nullable;
 import org.palladiosimulator.analyzer.slingshot.common.events.modelchanges.ModelAdjusted;
 import org.palladiosimulator.analyzer.slingshot.core.extension.SimulationBehaviorExtension;
@@ -30,22 +30,20 @@ import org.palladiosimulator.pcm.resourceenvironment.ResourceContainer;
 import org.palladiosimulator.probeframework.calculator.Calculator;
 import org.palladiosimulator.probeframework.calculator.DefaultCalculatorProbeSets;
 import org.palladiosimulator.probeframework.calculator.IGenericCalculatorFactory;
-import org.palladiosimulator.semanticelasticityspec.Configuration;
-import org.palladiosimulator.semanticelasticityspec.ElasticInfrastructureCfg;
+import org.palladiosimulator.scalablepcmgroups.InfrastructureGroup;
+import org.palladiosimulator.scalablepcmgroups.ScalablePCMGroups;
 
 /**
  *
  * Behavior to monitor the number of elements in a Elastic Infrastructure.
  *
- * The behavior creates Probes and Calculators for
- * {@link SPDResourceContainerMeasuringPoint}s.
+ * The behavior creates Probes and Calculators for {@link SPDResourceContainerMeasuringPoint}s.
  *
- * For a {@link SPDResourceContainerMeasuringPoint}, the behavior creates a
- * probe and a calculator for the given resource container, iff the resource
- * container is {@code unit} in any of the given target configurations.
+ * For a {@link SPDResourceContainerMeasuringPoint}, the behavior creates a probe and a calculator
+ * for the given resource container, iff the resource container is {@code unit} in any of the given
+ * target configurations.
  *
- * The metric specification must be the base metric "number of resource
- * containers".
+ * The metric specification must be the base metric "number of resource containers".
  *
  * @author Sarah Stieß
  *
@@ -54,78 +52,85 @@ import org.palladiosimulator.semanticelasticityspec.ElasticInfrastructureCfg;
 @OnEvent(when = ModelAdjusted.class, then = ProbeTaken.class, cardinality = EventCardinality.SINGLE)
 public class NumberOfElementsMonitorBehavior implements SimulationBehaviorExtension {
 
-	private final IGenericCalculatorFactory calculatorFactory;
-	private final Configuration semanticConfiguration;
+    private final IGenericCalculatorFactory calculatorFactory;
+    private final ScalablePCMGroups semanticConfiguration;
 
-	private final Map<ResourceContainer, NumberOfElementsInElasitcInfrastuctureProbe> probes = new HashMap<>();
+    private final Map<ResourceContainer, NumberOfElementsInInfrastructureGroupProbe> probes = new HashMap<>();
 
-	@Inject
-	public NumberOfElementsMonitorBehavior(final IGenericCalculatorFactory calculatorFactory,
-			final @Nullable Configuration semanticConfiguration) {
-		this.calculatorFactory = calculatorFactory;
-		this.semanticConfiguration = semanticConfiguration;
-	}
+    @Inject
+    public NumberOfElementsMonitorBehavior(final IGenericCalculatorFactory calculatorFactory,
+            final @Nullable ScalablePCMGroups semanticConfiguration) {
+        this.calculatorFactory = calculatorFactory;
+        this.semanticConfiguration = semanticConfiguration;
+    }
 
-	@Override
-	public boolean isActive() {
-		return this.semanticConfiguration != null && !this.semanticConfiguration.getTargetCfgs().isEmpty();
-	}
+    @Override
+    public boolean isActive() {
+        return this.semanticConfiguration != null && !this.semanticConfiguration.getTargetCfgs()
+            .isEmpty();
+    }
 
-	@Subscribe
-	public Result<CalculatorRegistered> onMeasurementSpecification(final MeasurementSpecificationVisited m) {
-		final MeasurementSpecification spec = m.getEntity();
-		final MeasuringPoint measuringPoint = spec.getMonitor().getMeasuringPoint();
+    @Subscribe
+    public Result<CalculatorRegistered> onMeasurementSpecification(final MeasurementSpecificationVisited m) {
+        final MeasurementSpecification spec = m.getEntity();
+        final MeasuringPoint measuringPoint = spec.getMonitor()
+            .getMeasuringPoint();
 
-		if (measuringPoint instanceof ElasticInfrastructureMeasuringPoint) {
-			// Container MP --> register probe for EI where container is unit
-			final ElasticInfrastructureMeasuringPoint resourceContainerMeasuringPoint = (ElasticInfrastructureMeasuringPoint) measuringPoint;
+        if (measuringPoint instanceof ElasticInfrastructureMeasuringPoint) {
+            // Container MP --> register probe for EI where container is unit
+            final ElasticInfrastructureMeasuringPoint resourceContainerMeasuringPoint = (ElasticInfrastructureMeasuringPoint) measuringPoint;
 
-			if (MetricDescriptionUtility.metricDescriptionIdsEqual(spec.getMetricDescription(),
-					MetricDescriptionConstants.NUMBER_OF_RESOURCE_CONTAINERS)) {
+            if (MetricDescriptionUtility.metricDescriptionIdsEqual(spec.getMetricDescription(),
+                    MetricDescriptionConstants.NUMBER_OF_RESOURCE_CONTAINERS)) {
 
-				final Optional<ElasticInfrastructureCfg> serviceGroupCfg = this.semanticConfiguration.getTargetCfgs()
-						.stream()
-						.filter(cfg -> (cfg instanceof ElasticInfrastructureCfg))
-						.map(eicfg -> ((ElasticInfrastructureCfg) eicfg))
-						.filter(eicfg -> eicfg.getUnit().getId()
-								.equals(resourceContainerMeasuringPoint.getElasticInfrastructure().getUnit().getId()))
-						.findAny();
+                final Optional<InfrastructureGroup> serviceGroupCfg = this.semanticConfiguration.getTargetCfgs()
+                    .stream()
+                    .filter(cfg -> (cfg instanceof InfrastructureGroup))
+                    .map(eicfg -> ((InfrastructureGroup) eicfg))
+                    .filter(eicfg -> eicfg.getUnit()
+                        .getId()
+                        .equals(resourceContainerMeasuringPoint.getElasticInfrastructure()
+                            .getUnit()
+                            .getId()))
+                    .findAny();
 
-				if (serviceGroupCfg.isPresent()) {
-					final Calculator calculator = this.setupNumberOfElementsCalculator(resourceContainerMeasuringPoint,
-							this.calculatorFactory, serviceGroupCfg.get());
-					return Result.of(new CalculatorRegistered(calculator));
-				}
-			}
-		}
+                if (serviceGroupCfg.isPresent()) {
+                    final Calculator calculator = this.setupNumberOfElementsCalculator(resourceContainerMeasuringPoint,
+                            this.calculatorFactory, serviceGroupCfg.get());
+                    return Result.of(new CalculatorRegistered(calculator));
+                }
+            }
+        }
 
-		return Result.empty();
-	}
+        return Result.empty();
+    }
 
-	@Subscribe
-	public Result<ProbeTaken> onModelAdjusted(final ModelAdjusted stateUpdated) {
-		final Set<ProbeTaken> probesTaken = new HashSet<>();
+    @Subscribe
+    public Result<ProbeTaken> onModelAdjusted(final ModelAdjusted stateUpdated) {
+        final Set<ProbeTaken> probesTaken = new HashSet<>();
 
-		for (final NumberOfElementsInElasitcInfrastuctureProbe probe : probes.values()) {
-			probe.takeMeasurement(stateUpdated);
-			probesTaken.add(new ProbeTaken(ProbeTakenEntity.builder().withProbe(probe).build()));
-		}
-		return Result.of(probesTaken);
-	}
+        for (final NumberOfElementsInInfrastructureGroupProbe probe : probes.values()) {
+            probe.takeMeasurement(stateUpdated);
+            probesTaken.add(new ProbeTaken(ProbeTakenEntity.builder()
+                .withProbe(probe)
+                .build()));
+        }
+        return Result.of(probesTaken);
+    }
 
-	/**
-	 *
-	 * @param measuringPoint
-	 * @param calculatorFactory
-	 * @param eiCfg
-	 * @return
-	 */
-	public Calculator setupNumberOfElementsCalculator(final MeasuringPoint measuringPoint,
-			final IGenericCalculatorFactory calculatorFactory, final ElasticInfrastructureCfg eiCfg) {
+    /**
+     *
+     * @param measuringPoint
+     * @param calculatorFactory
+     * @param eiCfg
+     * @return
+     */
+    public Calculator setupNumberOfElementsCalculator(final MeasuringPoint measuringPoint,
+            final IGenericCalculatorFactory calculatorFactory, final InfrastructureGroup eiCfg) {
 
-		this.probes.putIfAbsent(eiCfg.getUnit(), new NumberOfElementsInElasitcInfrastuctureProbe(eiCfg));
-		final NumberOfElementsInElasitcInfrastuctureProbe probe = this.probes.get(eiCfg.getUnit());
-		return calculatorFactory.buildCalculator(MetricDescriptionConstants.NUMBER_OF_RESOURCE_CONTAINERS_OVER_TIME,
-				measuringPoint, DefaultCalculatorProbeSets.createSingularProbeConfiguration(probe));
-	}
+        this.probes.putIfAbsent(eiCfg.getUnit(), new NumberOfElementsInInfrastructureGroupProbe(eiCfg));
+        final NumberOfElementsInInfrastructureGroupProbe probe = this.probes.get(eiCfg.getUnit());
+        return calculatorFactory.buildCalculator(MetricDescriptionConstants.NUMBER_OF_RESOURCE_CONTAINERS_OVER_TIME,
+                measuringPoint, DefaultCalculatorProbeSets.createSingularProbeConfiguration(probe));
+    }
 }
