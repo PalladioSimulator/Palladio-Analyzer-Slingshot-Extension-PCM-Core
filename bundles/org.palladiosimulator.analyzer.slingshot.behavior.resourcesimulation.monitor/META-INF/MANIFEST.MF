@@ -13,4 +13,4 @@ Require-Bundle: org.palladiosimulator.analyzer.slingshot.core,
  org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.data,
  org.palladiosimulator.analyzer.slingshot.monitor,
  org.palladiosimulator.analyzer.slingshot.monitor.utils,
- org.palladiosimulator.elasticity.measuringpoint
+ org.palladiosimulator.scalablepcmgroups.measuringpoint

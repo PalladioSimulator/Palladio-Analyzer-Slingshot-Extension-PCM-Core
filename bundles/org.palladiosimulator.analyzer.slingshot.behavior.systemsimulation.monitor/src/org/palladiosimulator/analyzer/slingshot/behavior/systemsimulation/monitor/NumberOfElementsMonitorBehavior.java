@@ -24,14 +24,14 @@ import org.palladiosimulator.analyzer.slingshot.monitor.data.events.modelvisited
 import org.palladiosimulator.analyzer.slingshot.monitor.data.events.modelvisited.MonitorModelVisited;
 import org.palladiosimulator.edp2.models.measuringpoint.MeasuringPoint;
 import org.palladiosimulator.edp2.util.MetricDescriptionUtility;
-import org.palladiosimulator.elasticitymeasuringpoint.CompetingConsumerGroupMeasuringPoint;
-import org.palladiosimulator.elasticitymeasuringpoint.ServiceGroupMeasuringPoint;
 import org.palladiosimulator.metricspec.constants.MetricDescriptionConstants;
 import org.palladiosimulator.monitorrepository.MeasurementSpecification;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.probeframework.calculator.Calculator;
 import org.palladiosimulator.probeframework.calculator.DefaultCalculatorProbeSets;
 import org.palladiosimulator.probeframework.calculator.IGenericCalculatorFactory;
+import org.palladiosimulator.scalablepcmgroupmeasuringpoint.CompetingConsumerGroupMeasuringPoint;
+import org.palladiosimulator.scalablepcmgroupmeasuringpoint.ServiceGroupMeasuringPoint;
 import org.palladiosimulator.scalablepcmgroups.CompetingConsumersGroup;
 import org.palladiosimulator.scalablepcmgroups.ScalablePCMGroups;
 import org.palladiosimulator.scalablepcmgroups.ServiceGroup;
@@ -127,7 +127,7 @@ public class NumberOfElementsMonitorBehavior implements SimulationBehaviorExtens
             .filter(group -> group.getUnit()
                 .getId()
                 .equals(assemblyContextMeasuringPoint.getCompetingConsumerGroup()
-                    .getUnitAssembly()
+                    .getUnit() // TODO test if this works
                     .getId()))
             .findAny();
 
@@ -155,7 +155,7 @@ public class NumberOfElementsMonitorBehavior implements SimulationBehaviorExtens
             .filter(group -> group.getUnit()
                 .getId()
                 .equals(assemblyContextMeasuringPoint.getServiceGroup()
-                    .getUnitAssembly()
+                    .getUnit() // TODO test if this works
                     .getId()))
             .findAny();
 
