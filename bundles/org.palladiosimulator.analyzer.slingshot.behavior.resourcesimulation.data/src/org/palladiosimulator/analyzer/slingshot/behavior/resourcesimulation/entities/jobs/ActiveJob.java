@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import javax.annotation.processing.Generated;
 
-import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.entities.resource.ResourceDemandRequest;
 import org.palladiosimulator.pcm.allocation.AllocationContext;
 import org.palladiosimulator.pcm.resourceenvironment.ProcessingResourceSpecification;
@@ -42,7 +41,7 @@ public class ActiveJob extends Job {
 	}
 
 	public ProcessingResourceType getProcessingResourceType() {
-		return EcoreUtil.copy(this.processingResourceType);
+		return this.processingResourceType;
 	}
 
 	public ResourceDemandRequest getRequest() {
