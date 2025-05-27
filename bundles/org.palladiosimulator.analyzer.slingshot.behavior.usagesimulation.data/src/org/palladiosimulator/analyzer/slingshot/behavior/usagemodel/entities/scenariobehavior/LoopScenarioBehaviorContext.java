@@ -16,11 +16,11 @@ import com.google.common.base.Preconditions;
  * post-condition of maximalLoopCount executions of the specified scenario holds only if the
  * {@link #startScenario()} is called before interpreting the scenario itself. The
  * {@link #startScenario()} returns the StartAction of the ScenarioBehavior. It is discouraged to
- * retrieve the StartAction and interpret the scenario without starting the scenario. 
+ * retrieve the StartAction and interpret the scenario without starting the scenario.
  * <p>
  * Because this is an inner scenario behavior, both the {@code nextAction} and the {@code parent}
  * must be present.
- * 
+ *
  * @author Julijan Katic, Floriment Klinaku
  */
 public final class LoopScenarioBehaviorContext extends UsageScenarioBehaviorContext {
@@ -30,14 +30,16 @@ public final class LoopScenarioBehaviorContext extends UsageScenarioBehaviorCont
 
 	/**
 	 * Constructs the LoopScenarioBehaviorContext using the {@link Builder} object.
-	 * 
+	 *
 	 * @param builder
 	 */
 	public LoopScenarioBehaviorContext(final Builder builder) {
 		super(builder);
 		Preconditions.checkArgument(this.getNextAction().isPresent(), "The next action must be present");
-		Preconditions
-				.checkArgument(builder.initialLoopCount < builder.maximalLoopCount && builder.initialLoopCount >= 0);
+		Preconditions.checkArgument(
+				builder.initialLoopCount < builder.maximalLoopCount && builder.initialLoopCount >= 0,
+				String.format("InitialLoopCount must be in [0,%d] (maximalLoopCount) but is %d",
+						builder.maximalLoopCount, builder.initialLoopCount));
 
 		this.maximalLoopCount = builder.maximalLoopCount;
 		this.progression = builder.initialLoopCount;
@@ -59,12 +61,16 @@ public final class LoopScenarioBehaviorContext extends UsageScenarioBehaviorCont
 		return new Builder();
 	}
 
+	public Builder update() {
+		return builder().withInitialLoopCount(progression).withMaximalLoopCount(maximalLoopCount);
+	}
+
 	/**
 	 * Builds this loop context. The maximal loop count is initially {@code -1}. The
 	 * initial loop count is initially {@code 0}. According to
 	 * {@link #LoopScenarioBehaviorContext()}, the maximal loop count should be
 	 * larger than the inital loop count.
-	 * 
+	 *
 	 * @author Julijan Katic
 	 */
 	public static final class Builder extends BaseBuilder<LoopScenarioBehaviorContext, Builder> {
