@@ -30,16 +30,16 @@ import org.palladiosimulator.probeframework.probes.Probe;
  */
 public final class ActiveResourceProbeTable {
 
-	private final Map<String, Probes> probes = new HashMap<>();
+	private final Map<ProcessingResourceSpecification, Probes> probes = new HashMap<>();
 
 	public void addActiveResource(final ProcessingResourceSpecification spec) {
-		this.probes.putIfAbsent(spec.getId(), new Probes());
+		this.probes.putIfAbsent(spec, new Probes());
 	}
 
 	public Set<Probe> currentStateAndUtilizationOfActiveResource(final ActiveResourceStateUpdated event) {
 		if (event.getEntity() instanceof ActiveJob) {
 			final ActiveJob activeJob = (ActiveJob) event.getEntity();
-			final Probes probes = this.probes.get(activeJob.getProcessingResourceSpecification().getId());
+			final Probes probes = this.probes.get(activeJob.getProcessingResourceSpecification());
 			if (probes != null) {
 				probes.stateOfActiveResourceProbe.takeMeasurement(event);
 				probes.utilizationOfActiveResourceProbe.takeMeasurement(event);
@@ -53,7 +53,7 @@ public final class ActiveResourceProbeTable {
 	public Optional<Probe> currentResourceDemand(final ResourceDemandCalculated event) {
 		if (event.getEntity() instanceof ActiveJob) {
 			final ActiveJob activeJob = (ActiveJob) event.getEntity();
-			final Probes probes = this.probes.get(activeJob.getProcessingResourceSpecification().getId());
+			final Probes probes = this.probes.get(activeJob.getProcessingResourceSpecification());
 			if (probes != null) {
 				probes.resourceDemandProbe.takeMeasurement(event);
 				return Optional.of(probes.resourceDemandProbe);
@@ -65,7 +65,7 @@ public final class ActiveResourceProbeTable {
 	public Calculator setupStateOfActiveResourceCalculator(final ActiveResourceMeasuringPoint measuringPoint,
 			final IGenericCalculatorFactory calculatorFactory) {
 		this.addActiveResource(measuringPoint.getActiveResource());
-		final Probes probes = this.probes.get(measuringPoint.getActiveResource().getId());
+		final Probes probes = this.probes.get(measuringPoint.getActiveResource());
 		return calculatorFactory.buildCalculator(MetricDescriptionConstants.STATE_OF_ACTIVE_RESOURCE_METRIC_TUPLE,
 				measuringPoint,
 				DefaultCalculatorProbeSets.createSingularProbeConfiguration(probes.stateOfActiveResourceProbe));
@@ -74,7 +74,7 @@ public final class ActiveResourceProbeTable {
 	public Calculator setupUtilizationOfActiveResourceCalculator(final ActiveResourceMeasuringPoint measuringPoint,
 			final IGenericCalculatorFactory calculatorFactory) {
 		this.addActiveResource(measuringPoint.getActiveResource());
-		final Probes probes = this.probes.get(measuringPoint.getActiveResource().getId());
+		final Probes probes = this.probes.get(measuringPoint.getActiveResource());
 		return calculatorFactory.buildCalculator(MetricDescriptionConstants.UTILIZATION_OF_ACTIVE_RESOURCE_TUPLE,
 				measuringPoint,
 				DefaultCalculatorProbeSets.createSingularProbeConfiguration(probes.utilizationOfActiveResourceProbe));
@@ -84,7 +84,7 @@ public final class ActiveResourceProbeTable {
 			final IGenericCalculatorFactory calculatorFactory) {
 		this.addActiveResource(measuringPoint.getActiveResource());
 		final Probes probes = this.probes
-				.get(measuringPoint.getActiveResource().getId());
+				.get(measuringPoint.getActiveResource());
 		return calculatorFactory.buildCalculator(MetricDescriptionConstants.RESOURCE_DEMAND_METRIC_TUPLE,
 				measuringPoint,
 				DefaultCalculatorProbeSets.createSingularProbeConfiguration(probes.resourceDemandProbe));

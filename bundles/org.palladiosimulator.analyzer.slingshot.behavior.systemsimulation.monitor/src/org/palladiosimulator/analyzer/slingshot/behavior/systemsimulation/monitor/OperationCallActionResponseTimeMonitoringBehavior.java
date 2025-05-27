@@ -162,9 +162,7 @@ public class OperationCallActionResponseTimeMonitoringBehavior implements Simula
 				final SEFFModelPassedElement<?> el = (SEFFModelPassedElement<?>) desEvent;
 
 				if(el.getContext().getCaller().isPresent()) {
-					return new RequestContext(el.getContext().getRequestProcessingContext().getUser().getId() + ":"
-							+ ((AbstractAction) el.getModelElement())
-							.getResourceDemandingBehaviour_AbstractAction().getId());
+					return new RequestContext(el.getContext().getRequestProcessingContext().getUser().getId()+el.getContext().getCaller().get().hashCode());
 				} else {
 					return new RequestContext(el.getContext().getRequestProcessingContext().getUser().getId());
 				}
