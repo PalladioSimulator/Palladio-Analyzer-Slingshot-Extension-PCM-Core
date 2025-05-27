@@ -199,7 +199,7 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 			final Optional<ActiveResource> activeResource = this.resourceTable.getActiveResource(id);
 
 			if (activeResource.isEmpty()) {
-				LOGGER.warn(
+				LOGGER.debug(
 						"No such resource found! Job cannot be initiated, instead abort. Resource Id:" + id.toString());
 				return Result.of(new JobAborted(activeJob, 0, "active resource is not found, may have been deleted"));
 			}
@@ -212,11 +212,11 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 					.getResourceById(linkingJob.getLinkingResource().getId());
 
 			if (linkingResource.isEmpty()) {
-				LOGGER.warn("No such resource found! Job cannot be initiated, instead abort.");
+				LOGGER.debug("No such resource found! Job cannot be initiated, instead abort.");
 				return Result.of(new JobAborted(linkingJob, 0, "linking resource is not found"));
 			}
 
-			LOGGER.info("A linking job has started with id " + linkingJob.getId() + " and demand (without latency) "
+			LOGGER.debug("A linking job has started with id " + linkingJob.getId() + " and demand (without latency) "
 					+ linkingJob.getDemand());
 			final Set<AbstractJobEvent> jobs = linkingResource.get().onJobInitiated(jobInitiated);
 			LOGGER.debug("Size: " + jobs.size());
@@ -263,7 +263,7 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 			final Optional<ActiveResource> activeResource = this.resourceTable.getActiveResource(id);
 
 			if (activeResource.isEmpty()) {
-				LOGGER.warn("No such resource found!, Job cannot progress, instead must be aborted.");
+				LOGGER.debug("No such resource found!, Job cannot progress, instead must be aborted.");
 				return Result.of(new JobAborted(activeJob, 0, "active resource is not found, may have been deleted"));
 			}
 
@@ -276,7 +276,7 @@ public class ResourceSimulation implements SimulationBehaviorExtension {
 					.getResourceById(linkingJob.getLinkingResource().getId());
 
 			if (linkingResource.isEmpty()) {
-				LOGGER.warn("No such resource found!, Job cannot progress, instead must be aborted!");
+				LOGGER.debug("No such resource found!, Job cannot progress, instead must be aborted!");
 				return Result.of(new JobAborted(linkingJob, 0, "linking resource is not found"));
 			}
 
