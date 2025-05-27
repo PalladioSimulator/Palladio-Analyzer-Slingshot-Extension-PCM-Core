@@ -14,8 +14,6 @@ import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.XMLResourceFactoryImpl;
-import org.palladiosimulator.pcm.allocation.Allocation;
-import org.palladiosimulator.pcm.repository.Repository;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment;
 
 /**
@@ -29,6 +27,7 @@ public final class ResourceUtils {
 
 	private static final Logger LOGGER = Logger.getLogger(ResourceUtils.class);
 
+	@Deprecated
 	public static Resource createAndAddResource(final String outputFile, final String[] fileExtensions,
 			final ResourceSet rs) {
 		for (final String fileExt : fileExtensions) {
@@ -40,7 +39,7 @@ public final class ResourceUtils {
 		return resource;
 	}
 
-	private static void saveResource(final Resource resource) {
+	public static void saveResource(final Resource resource) {
 		final Map saveOptions = ((XMLResource) resource).getDefaultSaveOptions();
 		saveOptions.put(XMLResource.OPTION_CONFIGURATION_CACHE, Boolean.TRUE);
 		saveOptions.put(XMLResource.OPTION_USE_CACHED_LOOKUP_TABLE, new ArrayList<>());
@@ -52,6 +51,13 @@ public final class ResourceUtils {
 		}
 	}
 
+	/**
+	 *
+	 * @param uri      the uri
+	 * @param fragment fragment to be inserted
+	 * @param position position to insert the fragment at
+	 * @return uri with {@code fragment} inserted at {@code position}
+	 */
 	public static URI insertFragment(final URI uri, final String fragment, final int position) {
 		if (position > uri.segmentCount()) {
 			throw new IllegalArgumentException("position is out of range.");
@@ -64,41 +70,24 @@ public final class ResourceUtils {
 		return newUri;
 	}
 
-	public static void saveAllResource(final Allocation allocation, final String idSegment) {
-		if (allocation.getSystem_Allocation().getAssemblyContexts__ComposedStructure().isEmpty()) {
-			throw new IllegalArgumentException("Number of AssemblyContexts is zero, abort saving.");
+	/**
+	 *
+	 * @param uri      the uri
+	 * @param fragment fragment to be inserted
+	 * @param position position of segment to be replaced with {@code fragment}.
+	 * @return uri with segment at {@code position} replaced with {@code fragment}
+	 */
+	public static URI replaceFragment(final URI uri, final String fragment, final int position) {
+		if (position > uri.segmentCount()) {
+			throw new IllegalArgumentException("position is out of range.");
 		}
 
-		final ResourceEnvironment resourceEnvironment = allocation.getTargetResourceEnvironment_Allocation();
-		final org.palladiosimulator.pcm.system.System system = allocation.getSystem_Allocation();
-		final Repository repo = allocation.getSystem_Allocation().getAssemblyContexts__ComposedStructure().get(0)
-				.getEncapsulatedComponent__AssemblyContext().getRepository__RepositoryComponent();
-
-		final URI oldAllocUri = allocation.eResource().getURI();
-		final URI newAllocUri = ResourceUtils.insertFragment(oldAllocUri, idSegment, oldAllocUri.segmentCount() - 1);
-		allocation.eResource().setURI(newAllocUri);
-
-		final URI oldResUri = resourceEnvironment.eResource().getURI();
-		final URI newResUri = ResourceUtils.insertFragment(oldResUri, idSegment, oldResUri.segmentCount() - 1);
-		resourceEnvironment.eResource().setURI(newResUri);
-
-		final URI oldSysUri = system.eResource().getURI();
-		final URI newSysUri = ResourceUtils.insertFragment(oldSysUri, idSegment, oldSysUri.segmentCount() - 1);
-		system.eResource().setURI(newSysUri);
-
-		final URI oldRepoUri = repo.eResource().getURI();
-		final URI newRepoUri = ResourceUtils.insertFragment(oldRepoUri, idSegment, oldRepoUri.segmentCount() - 1);
-		repo.eResource().setURI(newRepoUri);
-
-		ResourceUtils.saveResource(repo.eResource());
-		ResourceUtils.saveResource(resourceEnvironment.eResource());
-		ResourceUtils.saveResource(system.eResource());
-		ResourceUtils.saveResource(allocation.eResource());
-
-		allocation.eResource().setURI(oldAllocUri);
-		system.eResource().setURI(oldSysUri);
-		resourceEnvironment.eResource().setURI(oldResUri);
-		repo.eResource().setURI(oldRepoUri);
+		final List<String> seg = new ArrayList<String>(uri.segmentsList());
+		seg.remove(position);
+		seg.add(position, fragment);
+		final URI newUri = URI.createHierarchicalURI(uri.scheme(), uri.authority(), uri.device(),
+				seg.toArray(new String[0]), uri.query(), uri.fragment());
+		return newUri;
 	}
 
 	/**
@@ -112,6 +101,7 @@ public final class ResourceUtils {
 	 * @param resEnv model to be saved.
 	 * @param path   location to safe the model at.
 	 */
+	@Deprecated
 	public static void setupAndSaveResourceModel(final ResourceEnvironment resEnv, final String path) {
 
 		final ResourceSet rs = new ResourceSetImpl();
@@ -121,6 +111,7 @@ public final class ResourceUtils {
 
 	}
 
+	@Deprecated
 	private static Resource createResource(final String outputFile, final ResourceSet rs) {
 		rs.getResourceFactoryRegistry().getExtensionToFactoryMap().put("resourceenvironment",
 				new XMLResourceFactoryImpl());
