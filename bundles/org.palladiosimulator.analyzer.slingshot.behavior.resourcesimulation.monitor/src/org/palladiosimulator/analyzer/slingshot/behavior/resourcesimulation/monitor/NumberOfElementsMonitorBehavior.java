@@ -10,6 +10,7 @@ import javax.inject.Inject;
 
 import org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.probes.NumberOfElementsInElasitcInfrastuctureProbe;
 import org.palladiosimulator.analyzer.slingshot.common.annotations.Nullable;
+import org.palladiosimulator.analyzer.slingshot.common.events.DESEvent;
 import org.palladiosimulator.analyzer.slingshot.common.events.modelchanges.ModelAdjusted;
 import org.palladiosimulator.analyzer.slingshot.core.extension.SimulationBehaviorExtension;
 import org.palladiosimulator.analyzer.slingshot.eventdriver.annotations.Subscribe;
@@ -38,9 +39,9 @@ import org.palladiosimulator.spdmeasuringpoint.ElasticInfrastructureMeasuringPoi
  * Behavior to monitor the number of elements in a Elastic Infrastructure.
  *
  * The behavior creates Probes and Calculators for
- * {@link SPDResourceContainerMeasuringPoint}s.
+ * {@link ElasticInfrastructureMeasuringPoint}s.
  *
- * For a {@link SPDResourceContainerMeasuringPoint}, the behavior creates a
+ * For a {@link ElasticInfrastructureMeasuringPoint}, the behavior creates a
  * probe and a calculator for the given resource container, iff the resource
  * container is {@code unit} in any of the given target configurations.
  *
@@ -50,7 +51,8 @@ import org.palladiosimulator.spdmeasuringpoint.ElasticInfrastructureMeasuringPoi
  * @author Sarah Stieß
  *
  */
-@OnEvent(when = MonitorModelVisited.class, then = CalculatorRegistered.class, cardinality = EventCardinality.SINGLE)
+@OnEvent(when = MonitorModelVisited.class, then = { CalculatorRegistered.class,
+		ProbeTaken.class }, cardinality = EventCardinality.SINGLE)
 @OnEvent(when = ModelAdjusted.class, then = ProbeTaken.class, cardinality = EventCardinality.SINGLE)
 public class NumberOfElementsMonitorBehavior implements SimulationBehaviorExtension {
 
@@ -72,7 +74,7 @@ public class NumberOfElementsMonitorBehavior implements SimulationBehaviorExtens
 	}
 
 	@Subscribe
-	public Result<CalculatorRegistered> onMeasurementSpecification(final MeasurementSpecificationVisited m) {
+	public Result<DESEvent> onMeasurementSpecification(final MeasurementSpecificationVisited m) {
 		final MeasurementSpecification spec = m.getEntity();
 		final MeasuringPoint measuringPoint = spec.getMonitor().getMeasuringPoint();
 
@@ -94,7 +96,13 @@ public class NumberOfElementsMonitorBehavior implements SimulationBehaviorExtens
 				if (serviceGroupCfg.isPresent()) {
 					final Calculator calculator = this.setupNumberOfElementsCalculator(resourceContainerMeasuringPoint,
 							this.calculatorFactory, serviceGroupCfg.get());
-					return Result.of(new CalculatorRegistered(calculator));
+
+					final NumberOfElementsInElasitcInfrastuctureProbe probe = this.probes.get(serviceGroupCfg.get().getUnit());
+					probe.takeMeasurement(m);
+
+
+					return Result.of(Set.of(new CalculatorRegistered(calculator),
+							new ProbeTaken(ProbeTakenEntity.builder().withProbe(probe).build())));
 				}
 			}
 		}
