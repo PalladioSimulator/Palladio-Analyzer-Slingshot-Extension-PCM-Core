@@ -9,7 +9,9 @@ Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.apache.log4j,
  de.uka.ipd.sdq.simucomframework.variables,
  org.palladiosimulator.pcm,
- org.palladiosimulator.analyzer.slingshot.core
+ org.palladiosimulator.analyzer.slingshot.core,
+ com.google.guava,
+ org.palladiosimulator.commons.stoex
 Export-Package: org.palladiosimulator.analyzer.slingshot.common.utils,
  org.palladiosimulator.analyzer.slingshot.common.utils.events,
  org.palladiosimulator.analyzer.slingshot.common.utils.stoexproxy
