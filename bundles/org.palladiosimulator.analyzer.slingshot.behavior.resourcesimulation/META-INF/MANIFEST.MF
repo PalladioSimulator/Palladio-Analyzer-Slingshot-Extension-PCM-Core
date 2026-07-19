@@ -10,10 +10,11 @@ Require-Bundle: org.palladiosimulator.analyzer.slingshot.core,
  de.uka.ipd.sdq.probfunction.math,
  org.palladiosimulator.pcm,
  org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.data,
- de.uka.ipd.sdq.simucomframework,
+ de.uka.ipd.sdq.simucomframework.core,
  org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.data,
  de.uka.ipd.sdq.simucomframework.variables,
  org.palladiosimulator.analyzer.slingshot.behavior.usagesimulation.data,
- org.palladiosimulator.analyzer.slingshot.common.utils
+ org.palladiosimulator.analyzer.slingshot.common.utils,
+ com.google.guava
 Export-Package: org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation,
  org.palladiosimulator.analyzer.slingshot.behavior.resourcesimulation.resources

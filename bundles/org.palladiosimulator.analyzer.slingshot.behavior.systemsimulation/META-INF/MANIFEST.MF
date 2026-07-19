@@ -12,4 +12,5 @@ Require-Bundle: org.palladiosimulator.analyzer.slingshot.core,
  org.palladiosimulator.analyzer.slingshot.ui.events,
  org.palladiosimulator.analyzer.slingshot.workflow.events,
  org.palladiosimulator.analyzer.workflow,
- org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.data
+ org.palladiosimulator.analyzer.slingshot.behavior.systemsimulation.data,
+ org.apache.log4j
