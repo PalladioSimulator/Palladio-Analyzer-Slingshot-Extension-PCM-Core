@@ -17,4 +17,4 @@ Require-Bundle: org.palladiosimulator.analyzer.slingshot.common,
  de.uka.ipd.sdq.simulation.core,
  de.uka.ipd.sdq.workflow.mdsd.blackboard,
  tools.descartes.dlim.generator,
- org.apache.log4j
+ org.apache.log4j;bundle-version="1.2.24"

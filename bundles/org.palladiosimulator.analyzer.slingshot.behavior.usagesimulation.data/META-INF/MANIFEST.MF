@@ -9,7 +9,7 @@ Require-Bundle: org.palladiosimulator.analyzer.slingshot.core,
  org.palladiosimulator.pcm,
  de.uka.ipd.sdq.simucomframework.variables,
  org.palladiosimulator.analyzer.slingshot.common.utils;visibility:=reexport,
- com.google.guava
+ com.google.guava;bundle-version="31.1.0"
 Export-Package: org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities,
  org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.interpretationcontext,
  org.palladiosimulator.analyzer.slingshot.behavior.usagemodel.entities.scenariobehavior,
